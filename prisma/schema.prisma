@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Configuracion {
+  id                Int      @id @default(autoincrement())
+  tasaInteres       Decimal  @default(20.00) @map("tasa_interes")
+  cuotaDiariaMinima Decimal? @default(0) @map("cuota_diaria_minima")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracion")
+}
+
+model Usuario {
+  id         Int       @id @default(autoincrement())
+  cedula     String    @unique @db.VarChar(20)
+  nombre     String    @db.VarChar(100)
+  apellido   String    @db.VarChar(100)
+  telefono   String?   @db.VarChar(20)
+  email      String?   @db.VarChar(100)
+  direccion  String?   @db.Text
+  rol        String    @db.VarChar(20)
+  password   String    @db.VarChar(255)
+  activo     Int       @default(1)
+  vendedorId Int?      @map("vendedor_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  vendedor    Usuario?    @relation("VendedorClientes", fields: [vendedorId], references: [id])
+  clientes    Usuario[]   @relation("VendedorClientes")
+  prestamosCreados    Prestamo[] @relation("VendedorPrestamos")
+  prestamosCliente    Prestamo[] @relation("ClientePrestamos")
+  pagos       Pago[]
+  historial   Historial[]
+
+  @@index([cedula])
+  @@index([rol])
+  @@index([nombre, apellido])
+  @@map("usuarios")
+}
+
+model Prestamo {
+  id                Int      @id @default(autoincrement())
+  clienteId         Int      @map("cliente_id")
+  vendedorId        Int      @map("vendedor_id")
+  montoSolicitado   Decimal  @map("monto_solicitado")
+  tasaInteres       Decimal  @map("tasa_interes")
+  interesTotal      Decimal  @map("interes_total")
+  montoTotal        Decimal  @map("monto_total")
+  cuotaDiaria       Decimal  @map("cuota_diaria")
+  diasPlazo         Int      @map("dias_plazo")
+  montoPagado       Decimal  @default(0) @map("monto_pagado")
+  saldoPendiente    Decimal  @map("saldo_pendiente")
+  estado            String   @default("activo") @db.VarChar(20)
+  fechaInicio       DateTime @map("fecha_inicio")
+  fechaFinEsperada  DateTime @map("fecha_fin_esperada")
+  fechaUltimoPago   DateTime? @map("fecha_ultimo_pago")
+  diasPagados       Int      @default(0) @map("dias_pagados")
+  diasAtrasados     Int      @default(0) @map("dias_atrasados")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  cliente  Usuario @relation("ClientePrestamos", fields: [clienteId], references: [id])
+  vendedor Usuario @relation("VendedorPrestamos", fields: [vendedorId], references: [id])
+  pagos    Pago[]
+
+  @@index([clienteId])
+  @@index([vendedorId])
+  @@index([estado])
+  @@index([fechaInicio])
+  @@map("prestamos")
+}
+
+model Pago {
+  id             Int      @id @default(autoincrement())
+  prestamoId     Int      @map("prestamo_id")
+  vendedorId     Int      @map("vendedor_id")
+  fechaPago      DateTime @map("fecha_pago")
+  fechaEsperada  DateTime @map("fecha_esperada")
+  monto          Decimal
+  diasCubiertos  Int      @default(1) @map("dias_cubiertos")
+  esPagoAtrasado Int      @default(0) @map("es_pago_atrasado")
+  diasAtraso     Int      @default(0) @map("dias_atraso")
+  observaciones  String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  prestamo Prestamo @relation(fields: [prestamoId], references: [id])
+  vendedor Usuario  @relation(fields: [vendedorId], references: [id])
+
+  @@index([prestamoId])
+  @@index([fechaPago])
+  @@index([fechaEsperada])
+  @@map("pagos")
+}
+
+model Historial {
+  id             Int      @id @default(autoincrement())
+  usuarioId      Int      @map("usuario_id")
+  accion         String   @db.VarChar(100)
+  tablaAfectada  String?  @db.VarChar(50) @map("tabla_afectada")
+  registroId     Int?     @map("registro_id")
+  detalles       String?  @db.Text
+  ipAddress      String?  @db.VarChar(45) @map("ip_address")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@index([usuarioId])
+  @@index([createdAt])
+  @@map("historial")
+}
