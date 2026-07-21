@@ -7,6 +7,7 @@ import {
   TrendingUp, CheckCircle2, X, AlertTriangle, Phone, Mail, MapPin,
   Calendar, ArrowRight, ChevronRight, Banknote, Clock, BadgeCheck, Bell,
 } from 'lucide-react'
+import { Tooltip, InfoTip } from '@/components/Tooltip'
 
 const moneyFmt = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })
 
@@ -219,10 +220,10 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
       </div>
 
       <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-4">
-        <StatCard icon={<CreditCard size={16} />} iconBg="bg-[#EEF0FF] text-[#5B5FEF]" label="Activos" value={String(stats?.activos ?? 0)} />
-        <StatCard icon={<DollarSign size={16} />} iconBg="bg-[#ECFDF5] text-[#10B981]" label="Recuperado" value={stats ? moneyFmt.format(stats.monto_recuperado) : '$0'} color="text-[#10B981]" />
-        <StatCard icon={<TrendingUp size={16} />} iconBg="bg-[#FFFBEB] text-[#F59E0B]" label="Pendiente" value={stats ? moneyFmt.format(stats.saldo_pendiente) : '$0'} color="text-[#F59E0B]" />
-        <StatCard icon={<Users size={16} />} iconBg="bg-[#EEF0FF] text-[#5B5FEF]" label="Clientes" value={String(stats?.total_clientes ?? 0)} />
+        <StatCard icon={<CreditCard size={16} />} iconBg="bg-[#EEF0FF] text-[#5B5FEF]" label="Activos" value={String(stats?.activos ?? 0)} tip="Cantidad de préstamos que están en curso y aún no se han pagado completamente" />
+        <StatCard icon={<DollarSign size={16} />} iconBg="bg-[#ECFDF5] text-[#10B981]" label="Recuperado" value={stats ? moneyFmt.format(stats.monto_recuperado) : '$0'} color="text-[#10B981]" tip="Dinero total que tus clientes ya han pagado" />
+        <StatCard icon={<TrendingUp size={16} />} iconBg="bg-[#FFFBEB] text-[#F59E0B]" label="Pendiente" value={stats ? moneyFmt.format(stats.saldo_pendiente) : '$0'} color="text-[#F59E0B]" tip="Dinero que aún te deben los clientes por pagar" />
+        <StatCard icon={<Users size={16} />} iconBg="bg-[#EEF0FF] text-[#5B5FEF]" label="Clientes" value={String(stats?.total_clientes ?? 0)} tip="Total de clientes que tienes asignados" />
       </div>
 
       {(() => {
@@ -357,19 +358,19 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                             {/* Resumen financiero */}
                             <div className="grid grid-cols-2 gap-3 text-xs">
                               <div className="rounded-lg bg-white p-3 border border-[#E5E7EB]">
-                                <p className="text-[#6B7280]">Monto + interés</p>
+                                <p className="text-[#6B7280] flex items-center gap-1">Monto + interés <InfoTip text="El dinero prestado más el interés calculado. Es lo que el cliente debe en total." /></p>
                                 <p className="font-semibold text-[#111827]">{moneyFmt.format(montoConInteres)}</p>
                               </div>
                               <div className="rounded-lg bg-white p-3 border border-[#E5E7EB]">
-                                <p className="text-[#6B7280]">Cuota diaria</p>
+                                <p className="text-[#6B7280] flex items-center gap-1">Cuota diaria <InfoTip text="Cantidad que el cliente debe pagar cada día para cubrir el préstamo." /></p>
                                 <p className="font-semibold text-[#111827]">{moneyFmt.format(Number(p.cuotaDiaria))}</p>
                               </div>
                               <div className="rounded-lg bg-white p-3 border border-[#E5E7EB]">
-                                <p className="text-[#6B7280]">Saldo restante</p>
+                                <p className="text-[#6B7280] flex items-center gap-1">Saldo restante <InfoTip text="Dinero que falta por pagar del préstamo. Baja cada vez que el cliente paga." /></p>
                                 <p className="font-semibold text-[#F59E0B]">{moneyFmt.format(Number(p.saldoPendiente))}</p>
                               </div>
                               <div className="rounded-lg bg-white p-3 border border-[#E5E7EB]">
-                                <p className="text-[#6B7280]">Cuotas por pagar</p>
+                                <p className="text-[#6B7280] flex items-center gap-1">Cuotas por pagar <InfoTip text="Días que quedan para terminar de pagar el préstamo." /></p>
                                 <p className="font-semibold text-[#111827]">{cuotasRestantes} de {p.diasPlazo}</p>
                               </div>
                             </div>
@@ -377,7 +378,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                             {/* Barra de progreso */}
                             <div>
                               <div className="flex items-center justify-between mb-1">
-                                <span className="text-[11px] text-[#6B7280]">Progreso</span>
+                                <span className="text-[11px] text-[#6B7280] flex items-center gap-1">Progreso <InfoTip text="Porcentaje del préstamo que ya fue pagado. Cuando llega a 100%, el préstamo está completo." /></span>
                                 <span className="text-[11px] font-medium text-[#5B5FEF]">{pct}%</span>
                               </div>
                               <div className="h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
@@ -427,19 +428,25 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                     return (
                       <div className="px-5 py-4 border-t border-[#E5E7EB]">
                         {todosPagaronHoy || esPrimerDia ? (
-                          <div className="flex items-center justify-center gap-1.5 rounded-lg bg-[#E5E7EB] px-3 py-3 text-sm font-medium text-[#9CA3AF] cursor-not-allowed">
-                            <Clock size={14} /> {esPrimerDia ? 'Primer día — cobra mañana' : 'Ya cobró hoy'}
-                          </div>
+                          <Tooltip text={esPrimerDia ? 'El préstamo fue creado hoy. El primer cobro se hace mañana.' : 'Este cliente ya pagó la cuota de hoy. No hay nada que cobrar.'}>
+                            <div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#E5E7EB] px-3 py-3 text-sm font-medium text-[#9CA3AF] cursor-not-allowed">
+                              <Clock size={14} /> {esPrimerDia ? 'Primer día — cobra mañana' : 'Ya cobró hoy'}
+                            </div>
+                          </Tooltip>
                         ) : maxDiasAtrasoLocal > 0 ? (
-                          <button onClick={() => handleCobrar(activos[0], totalSaldoHoy)}
-                            className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-[#EF4444] px-3 py-3 text-sm font-medium text-white hover:bg-[#DC2626] transition-colors">
-                            <AlertTriangle size={14} /> Ponerse al día ({moneyFmt.format(totalSaldoHoy)})
-                          </button>
+                          <Tooltip text={`Registra el pago del cliente para cubrir ${maxDiasAtrasoLocal} día(s) de atraso más la cuota de hoy. El saldo atrasado es ${moneyFmt.format(totalSaldoAtrasado)}.`}>
+                            <button onClick={() => handleCobrar(activos[0], totalSaldoHoy)}
+                              className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-[#EF4444] px-3 py-3 text-sm font-medium text-white hover:bg-[#DC2626] transition-colors">
+                              <AlertTriangle size={14} /> Ponerse al día ({moneyFmt.format(totalSaldoHoy)})
+                            </button>
+                          </Tooltip>
                         ) : (
-                          <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria)}
-                            className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-[#5B5FEF] px-3 py-3 text-sm font-medium text-white hover:bg-[#4B4FDF] transition-colors">
-                            <Banknote size={14} /> Cobrar cuota ({moneyFmt.format(totalCuotaDiaria)})
-                          </button>
+                          <Tooltip text={`Registra el cobro de la cuota diaria de este cliente. Se descontará del saldo pendiente del préstamo.`}>
+                            <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria)}
+                              className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-[#5B5FEF] px-3 py-3 text-sm font-medium text-white hover:bg-[#4B4FDF] transition-colors">
+                              <Banknote size={14} /> Cobrar cuota ({moneyFmt.format(totalCuotaDiaria)})
+                            </button>
+                          </Tooltip>
                         )}
                       </div>
                     )
@@ -790,15 +797,15 @@ function ClientesView({
                 return (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-lg bg-[#ECFDF5] p-3">
-                      <p className="text-[11px] font-medium text-[#10B981]">Total pagado</p>
+                      <p className="text-[11px] font-medium text-[#10B981] flex items-center gap-1">Total pagado <InfoTip text="Suma de todos los pagos que el cliente ha hecho en sus préstamos." /></p>
                       <p className="text-sm font-bold text-[#10B981]">{moneyFmt.format(totalPagado)}</p>
                     </div>
                     <div className="rounded-lg bg-[#FFFBEB] p-3">
-                      <p className="text-[11px] font-medium text-[#F59E0B]">Saldo pendiente</p>
+                      <p className="text-[11px] font-medium text-[#F59E0B] flex items-center gap-1">Saldo pendiente <InfoTip text="Dinero que el cliente aún debe. Baja con cada pago que haga." /></p>
                       <p className="text-sm font-bold text-[#F59E0B]">{moneyFmt.format(saldoTotal)}</p>
                     </div>
                     <div className="rounded-lg bg-[#EEF0FF] p-3">
-                      <p className="text-[11px] font-medium text-[#5B5FEF]">Total prestado</p>
+                      <p className="text-[11px] font-medium text-[#5B5FEF] flex items-center gap-1">Total prestado <InfoTip text="Dinero total que se le ha prestado al cliente en todos sus préstamos." /></p>
                       <p className="text-sm font-bold text-[#5B5FEF]">{moneyFmt.format(montoTotalPrestado)}</p>
                     </div>
                     <div className={`rounded-lg p-3 ${maxDiasAtraso > 0 ? 'bg-[#FEF2F2]' : 'bg-[#ECFDF5]'}`}>
@@ -865,19 +872,19 @@ function ClientesView({
                           {/* Resumen financiero del préstamo */}
                           <div className="mb-3 rounded-lg bg-[#F7F8FA] p-3 grid grid-cols-2 gap-2 text-xs">
                             <div>
-                              <p className="text-[#6B7280]">Monto + interés</p>
+                              <p className="text-[#6B7280] flex items-center gap-1">Monto + interés <InfoTip text="El dinero prestado más el interés. Es el total que debe pagar el cliente." /></p>
                               <p className="font-semibold text-[#111827]">{moneyFmt.format(montoConInteres)}</p>
                             </div>
                             <div>
-                              <p className="text-[#6B7280]">Cuota diaria</p>
+                              <p className="text-[#6B7280] flex items-center gap-1">Cuota diaria <InfoTip text="Cuánto debe pagar el cliente cada día." /></p>
                               <p className="font-semibold text-[#111827]">{moneyFmt.format(Number(p.cuotaDiaria))}</p>
                             </div>
                             <div>
-                              <p className="text-[#6B7280]">Saldo restante</p>
+                              <p className="text-[#6B7280] flex items-center gap-1">Saldo restante <InfoTip text="Lo que falta por pagar. Con cada pago, este monto baja." /></p>
                               <p className="font-semibold text-[#F59E0B]">{moneyFmt.format(Number(p.saldoPendiente))}</p>
                             </div>
                             <div>
-                              <p className="text-[#6B7280]">Cuotas por pagar</p>
+                              <p className="text-[#6B7280] flex items-center gap-1">Cuotas por pagar <InfoTip text="Días que quedan para terminar de pagar." /></p>
                               <p className="font-semibold text-[#111827]">{cuotasRestantes} de {p.diasPlazo}</p>
                             </div>
                           </div>
@@ -885,7 +892,7 @@ function ClientesView({
                           {/* Barra de progreso */}
                           <div className="mb-2">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[11px] text-[#6B7280]">Progreso</span>
+                              <span className="text-[11px] text-[#6B7280] flex items-center gap-1">Progreso <InfoTip text="Porcentaje pagado del préstamo. Al llegar a 100%, el préstamo queda completo." /></span>
                               <span className="text-[11px] font-medium text-[#5B5FEF]">{pct}%</span>
                             </div>
                             <div className="h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
@@ -944,25 +951,31 @@ function ClientesView({
                   return (
                     <div className="mt-3">
                       {clienteYaPagoHoy || esPrimerDia ? (
-                        <div className="flex items-center justify-center gap-1.5 rounded-lg bg-[#E5E7EB] px-3 py-3 text-sm font-medium text-[#9CA3AF] cursor-not-allowed">
-                          <Clock size={14} /> {esPrimerDia ? 'Primer día — cobra mañana' : 'Ya cobró hoy'}
-                        </div>
+                        <Tooltip text={esPrimerDia ? 'El préstamo empezó hoy. El primer cobro se hace mañana.' : 'Este cliente ya pagó hoy. Vuelve mañana para cobrar.'}>
+                          <div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#E5E7EB] px-3 py-3 text-sm font-medium text-[#9CA3AF] cursor-not-allowed">
+                            <Clock size={14} /> {esPrimerDia ? 'Primer día — cobra mañana' : 'Ya cobró hoy'}
+                          </div>
+                        </Tooltip>
                       ) : totalDiasAtrasados > 0 ? (
-                        <button onClick={() => {
-                          const primerActivo = activos[0] as unknown as Prestamo
-                          handleCobrar(primerActivo, totalSaldoHoy)
-                        }}
-                          className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-[#EF4444] px-3 py-3 text-sm font-medium text-white hover:bg-[#DC2626] transition-colors">
-                          <AlertTriangle size={14} /> Ponerse al día ({moneyFmt.format(totalSaldoHoy)})
-                        </button>
+                        <Tooltip text={`Registra el pago para cubrir ${totalDiasAtrasados} día(s) de atraso más la cuota de hoy. Total: ${moneyFmt.format(totalSaldoHoy)}`}>
+                          <button onClick={() => {
+                            const primerActivo = activos[0] as unknown as Prestamo
+                            handleCobrar(primerActivo, totalSaldoHoy)
+                          }}
+                            className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-[#EF4444] px-3 py-3 text-sm font-medium text-white hover:bg-[#DC2626] transition-colors">
+                            <AlertTriangle size={14} /> Ponerse al día ({moneyFmt.format(totalSaldoHoy)})
+                          </button>
+                        </Tooltip>
                       ) : (
-                        <button onClick={() => {
-                          const primerActivo = activos[0] as unknown as Prestamo
-                          handleCobrar(primerActivo, totalCuotaDiaria)
-                        }}
-                          className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-[#5B5FEF] px-3 py-3 text-sm font-medium text-white hover:bg-[#4B4FDF] transition-colors">
-                          <Banknote size={14} /> Cobrar cuota ({moneyFmt.format(totalCuotaDiaria)})
-                        </button>
+                        <Tooltip text={`Registra el cobro de la cuota diaria. Se descuenta del saldo pendiente del préstamo.`}>
+                          <button onClick={() => {
+                            const primerActivo = activos[0] as unknown as Prestamo
+                            handleCobrar(primerActivo, totalCuotaDiaria)
+                          }}
+                            className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-[#5B5FEF] px-3 py-3 text-sm font-medium text-white hover:bg-[#4B4FDF] transition-colors">
+                            <Banknote size={14} /> Cobrar cuota ({moneyFmt.format(totalCuotaDiaria)})
+                          </button>
+                        </Tooltip>
                       )}
                     </div>
                   )
@@ -1352,11 +1365,11 @@ function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; car
                     </div>
                   )}
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#6B7280]">Monto solicitado</span>
+                    <span className="text-[#6B7280] flex items-center gap-1">Monto solicitado <InfoTip text="El dinero que el cliente pide prestado." /></span>
                     <span className="font-medium text-[#111827]">{moneyFmt.format(montoNum)}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#6B7280]">Interés ({tasa}%)</span>
+                    <span className="text-[#6B7280] flex items-center gap-1">Interés ({tasa}%) <InfoTip text="El porcentaje que se cobra por prestar el dinero. Se calcula sobre el monto solicitado." /></span>
                     <span className="font-medium text-[#EF4444]">+ {moneyFmt.format(interesNuevo)}</span>
                   </div>
                   {tieneActivo && (
@@ -1374,16 +1387,16 @@ function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; car
                     </>
                   )}
                   <div className="border-t border-[#E5E7EB] pt-3 flex items-center justify-between text-sm">
-                    <span className="font-semibold text-[#111827]">{tieneActivo ? 'Deuda total' : 'Total a pagar'}</span>
+                    <span className="font-semibold text-[#111827] flex items-center gap-1">{tieneActivo ? 'Deuda total' : 'Total a pagar'} <InfoTip text={tieneActivo ? 'La suma de lo que ya debe más el nuevo préstamo con interés.' : 'El dinero prestado más el interés. Es lo que el cliente debe devolver en total.'} /></span>
                     <span className="font-bold text-[#5B5FEF] text-lg">{moneyFmt.format(montoTotalFinal)}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     <div className="rounded-lg bg-white p-3 text-center border border-[#E5E7EB]">
-                      <p className="text-[11px] text-[#6B7280]">Cuota diaria</p>
+                      <p className="text-[11px] text-[#6B7280] flex items-center justify-center gap-1">Cuota diaria <InfoTip text="Cuánto debe pagar el cliente cada día para cubrir el préstamo en el plazo establecido." /></p>
                       <p className="text-sm font-bold text-[#111827]">{moneyFmt.format(cuotaDiaria)}</p>
                     </div>
                     <div className="rounded-lg bg-white p-3 text-center border border-[#E5E7EB]">
-                      <p className="text-[11px] text-[#6B7280]">{tieneActivo ? 'Días totales' : 'Días a pagar'}</p>
+                      <p className="text-[11px] text-[#6B7280] flex items-center justify-center gap-1">{tieneActivo ? 'Días totales' : 'Días a pagar'} <InfoTip text={tieneActivo ? 'Días totales que el cliente tendrá para pagar toda su deuda.' : 'Cantidad de días que el cliente tendrá para pagar el préstamo completo.'} /></p>
                       <p className="text-sm font-bold text-[#111827]">{diasPlazo} días</p>
                     </div>
                   </div>
@@ -1720,11 +1733,14 @@ function SidebarBtn({ icon, label, active, onClick }: { icon: React.ReactNode; l
   )
 }
 
-function StatCard({ icon, iconBg, label, value, color }: { icon: React.ReactNode; iconBg: string; label: string; value: string; color?: string }) {
+function StatCard({ icon, iconBg, label, value, color, tip }: { icon: React.ReactNode; iconBg: string; label: string; value: string; color?: string; tip?: string }) {
   return (
     <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
       <div className="flex h-9 w-9 items-center justify-center rounded-lg mb-3" style={{}}><div className={iconBg + ' flex h-9 w-9 items-center justify-center rounded-lg'}>{icon}</div></div>
-      <p className="text-sm text-[#6B7280]">{label}</p>
+      <div className="flex items-center gap-1.5">
+        <p className="text-sm text-[#6B7280]">{label}</p>
+        {tip && <InfoTip text={tip} />}
+      </div>
       <p className={`text-2xl font-bold ${color || 'text-[#111827]'}`}>{value}</p>
     </div>
   )

@@ -8,6 +8,7 @@ import {
   BarChart3, X, CheckCircle2, Clock, ArrowUpRight, ArrowDownRight,
   Calendar, TrendingUp, AlertCircle, ChevronRight, FileText, Settings, Bell, History,
 } from 'lucide-react'
+import { Tooltip, InfoTip } from '@/components/Tooltip'
 
 const moneyFmt = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -233,6 +234,7 @@ export default function AdminPage() {
                   value={numberFmt.format(vendedoresActivos)}
                   variacion="+0%"
                   variacionLabel="vs mes anterior"
+                  tip="Cantidad de vendedores que están trabajando en el sistema"
                 />
                 <KpiCard
                   icon={<DollarSign size={18} />}
@@ -241,6 +243,7 @@ export default function AdminPage() {
                   value={moneyFmt.format(colocacion)}
                   variacion={colocacion > 0 ? '+12.5%' : '0%'}
                   variacionLabel="total prestado"
+                  tip="Dinero total que se ha prestado a todos los clientes"
                 />
                 <KpiCard
                   icon={<CreditCard size={18} />}
@@ -249,6 +252,7 @@ export default function AdminPage() {
                   value="—"
                   variacion="+2.1%"
                   variacionLabel="este mes"
+                  tip="Préstamos que están en curso y aún no se pagan completamente"
                 />
                 <KpiCard
                   icon={<AlertTriangle size={18} />}
@@ -257,6 +261,7 @@ export default function AdminPage() {
                   value={numberFmt.format(atrasados)}
                   variacion={atrasados > 0 ? `+${atrasados}` : '0'}
                   variacionLabel="requieren atención"
+                  tip="Clientes que tienen préstamos con días de atraso en sus pagos"
                 />
               </div>
 
@@ -601,35 +606,35 @@ export default function AdminPage() {
                             {/* Montos */}
                             <div className="grid grid-cols-4 gap-4 mb-4">
                               <div>
-                                <p className="text-xs text-[#6B7280]">Monto solicitado</p>
+                                <p className="text-xs text-[#6B7280] flex items-center gap-1">Monto solicitado <InfoTip text="Dinero que el cliente pidió prestado." /></p>
                                 <p className="text-sm font-semibold text-[#111827]">{moneyFmt.format(Number(p.montoSolicitado))}</p>
                               </div>
                               <div>
-                                <p className="text-xs text-[#6B7280]">Total deuda (+{Number(p.tasaInteres)}%)</p>
+                                <p className="text-xs text-[#6B7280] flex items-center gap-1">Total deuda (+{Number(p.tasaInteres)}%) <InfoTip text="El monto prestado más el interés. Es lo total que debe devolver el cliente." /></p>
                                 <p className="text-sm font-semibold text-[#111827]">{moneyFmt.format(montoTotal)}</p>
                               </div>
                               <div>
-                                <p className="text-xs text-[#6B7280]">Monto pagado</p>
+                                <p className="text-xs text-[#6B7280] flex items-center gap-1">Monto pagado <InfoTip text="Dinero que el cliente ya ha pagado. Reduce el saldo pendiente." /></p>
                                 <p className="text-sm font-semibold text-[#10B981]">{moneyFmt.format(montoPagado)}</p>
                               </div>
                               <div>
-                                <p className="text-xs text-[#6B7280]">Saldo pendiente</p>
+                                <p className="text-xs text-[#6B7280] flex items-center gap-1">Saldo pendiente <InfoTip text="Lo que falta por pagar. Cuando llega a $0, el préstamo está completado." /></p>
                                 <p className="text-sm font-semibold text-[#EF4444]">{moneyFmt.format(Number(p.saldoPendiente))}</p>
                               </div>
                             </div>
 
                             {/* Detalles */}
                             <div className="grid grid-cols-4 gap-3 text-center mb-4">
-                              <DetailChip label="Cuota diaria" value={moneyFmt.format(cuotaDiaria)} />
-                              <DetailChip label="Tasa interés" value={`${tasaInteres}%`} />
-                              <DetailChip label="Días pagados" value={`${p.diasPagados}/${p.diasPlazo}`} />
-                              <DetailChip label="Días restantes" value={`${Math.max(0, diasRestantes)}`} />
+                              <DetailChip label="Cuota diaria" value={moneyFmt.format(cuotaDiaria)} tip="Cantidad que el cliente debe pagar cada día." />
+                              <DetailChip label="Tasa interés" value={`${tasaInteres}%`} tip="Porcentaje de interés que se aplica sobre el monto prestado." />
+                              <DetailChip label="Días pagados" value={`${p.diasPagados}/${p.diasPlazo}`} tip="Días que el cliente ya pagó vs el total del plazo." />
+                              <DetailChip label="Días restantes" value={`${Math.max(0, diasRestantes)}`} tip="Días que faltan para terminar de pagar el préstamo." />
                             </div>
 
                             {/* Barra de progreso */}
                             <div className="mb-4">
                               <div className="flex justify-between text-xs text-[#6B7280] mb-1">
-                                <span>Progreso</span>
+                                <span className="flex items-center gap-1">Progreso <InfoTip text="Porcentaje del préstamo que ya fue pagado. Al llegar a 100%, el préstamo está completo." /></span>
                                 <span>{porcentaje.toFixed(0)}%</span>
                               </div>
                               <div className="h-2 w-full rounded-full bg-[#E5E7EB]">
@@ -690,8 +695,8 @@ function SidebarBtn({ icon, label, active, onClick }: { icon: React.ReactNode; l
   )
 }
 
-function KpiCard({ icon, iconBg, label, value, variacion, variacionLabel }: {
-  icon: React.ReactNode; iconBg: string; label: string; value: string; variacion: string; variacionLabel: string
+function KpiCard({ icon, iconBg, label, value, variacion, variacionLabel, tip }: {
+  icon: React.ReactNode; iconBg: string; label: string; value: string; variacion: string; variacionLabel: string; tip?: string
 }) {
   const isPos = !variacion.startsWith('-')
   return (
@@ -700,7 +705,10 @@ function KpiCard({ icon, iconBg, label, value, variacion, variacionLabel }: {
         <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg}`}>{icon}</div>
         <Variacion valor={variacion} label={variacion} />
       </div>
-      <p className="text-sm text-[#6B7280] mb-0.5">{label}</p>
+      <div className="flex items-center gap-1.5 mb-0.5">
+        <p className="text-sm text-[#6B7280]">{label}</p>
+        {tip && <InfoTip text={tip} />}
+      </div>
       <p className="text-2xl font-bold text-[#111827]">{value}</p>
       <p className="mt-1 text-xs text-[#6B7280]">{variacionLabel}</p>
     </div>
@@ -719,10 +727,10 @@ function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string
   )
 }
 
-function DetailChip({ label, value }: { label: string; value: string }) {
+function DetailChip({ label, value, tip }: { label: string; value: string; tip?: string }) {
   return (
     <div className="rounded-lg bg-[#F7F8FA] p-2">
-      <p className="text-[10px] text-[#6B7280] mb-0.5">{label}</p>
+      <p className="text-[10px] text-[#6B7280] mb-0.5 flex items-center justify-center gap-1">{label} {tip && <InfoTip text={tip} />}</p>
       <p className="text-sm font-semibold text-[#111827]">{value}</p>
     </div>
   )
@@ -772,14 +780,14 @@ function ConfigView() {
         </div>
         <form onSubmit={handleSave} className="p-5 space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#6B7280]">Tasa de interés (%)</label>
+            <label className="mb-1.5 block text-xs font-medium text-[#6B7280] flex items-center gap-1">Tasa de interés (%) <InfoTip text="Porcentaje que se cobra por prestar dinero. Se calcula sobre el monto solicitado. Ej: si prestas $100.000 con 20% de interés, el cliente debe devolver $120.000." /></label>
             <input type="number" step="0.01" min="0.01"
               className="w-full rounded-lg border border-[#E5E7EB] px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF] focus:ring-2 focus:ring-[#EEF0FF]"
               value={tasaInteres} onChange={(e) => setTasaInteres(e.target.value)} required />
             <p className="mt-1 text-[11px] text-[#6B7280]">Porcentaje de interés aplicado sobre el monto solicitado</p>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#6B7280]">Cuota diaria mínima ($)</label>
+            <label className="mb-1.5 block text-xs font-medium text-[#6B7280] flex items-center gap-1">Cuota diaria mínima ($) <InfoTip text="El valor mínimo que el cliente debe pagar cada día. Se usa para calcular cuántos días tardará en pagar un préstamo." /></label>
             <input type="number" step="100" min="100"
               className="w-full rounded-lg border border-[#E5E7EB] px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF] focus:ring-2 focus:ring-[#EEF0FF]"
               value={cuotaDiaria} onChange={(e) => setCuotaDiaria(e.target.value)} required />
