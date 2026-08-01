@@ -1,6 +1,7 @@
 import 'server-only'
 import { PrismaClient } from '@prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { getSession } from './session'
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined }
 

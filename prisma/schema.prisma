@@ -6,6 +6,43 @@ datasource db {
   provider = "mysql"
 }
 
+enum TenantStatus {
+  TRIAL
+  ACTIVE
+  TRIAL_EXPIRED
+  SUSPENDED
+  CANCELLED
+}
+
+enum PlanInterval {
+  MONTHLY
+  ANUAL
+}
+
+enum SuscripcionStatus {
+  PENDING
+  ACTIVE
+  PAUSED
+  CANCELLED
+  PAST_DUE
+}
+
+enum PlanRecurso {
+  MAX_VENDEDORES
+  MAX_CLIENTES
+  MAX_PRESTAMOS
+  REPORTES_AVANZADOS
+  API_ACCESS
+  CUSTOM_BRANDING
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  CANCELLED
+}
+
 model Configuracion {
   id                Int      @id @default(autoincrement())
   tasaInteres       Decimal  @default(20.00) @map("tasa_interes")
@@ -14,6 +51,126 @@ model Configuracion {
   updatedAt         DateTime @updatedAt @map("updated_at")
 
   @@map("configuracion")
+}
+
+model Tenant {
+  id              Int            @id @default(autoincrement())
+  nombre          String         @db.VarChar(200)
+  slug            String         @unique @db.VarChar(100)
+  subdominio      String         @unique @db.VarChar(100)
+  logoUrl         String?        @db.VarChar(500)
+  planId          Int?
+  status          TenantStatus   @default(TRIAL)
+  trialStartsAt   DateTime
+  trialEndsAt     DateTime
+  planStartsAt    DateTime?
+  planExpiresAt   DateTime?
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  usuarios           Usuario[]
+  prestamos          Prestamo[]
+  pagos              Pago[]
+  historial          Historial[]
+  invitaciones       Invitacion[]
+  suscripciones      Suscripcion[]
+  configuracion      ConfiguracionTenant?
+  plan               Plan?           @relation(fields: [planId], references: [id])
+
+  @@index([slug])
+  @@index([subdominio])
+  @@index([planId])
+  @@index([status])
+  @@map("tenants")
+}
+
+model Plan {
+  id                    Int          @id @default(autoincrement())
+  nombre                String       @db.VarChar(100)
+  slug                  String       @unique @db.VarChar(50)
+  precioMensual         Decimal      @db.Decimal(10,2)
+  precioAnual           Decimal?     @db.Decimal(10,2)
+  intervalo             PlanInterval @default(MONTHLY)
+  description           String?      @db.Text
+  activo                Boolean      @default(true)
+  trialDays             Int          @default(14)
+  stripePriceMensualId  String?      @db.VarChar(255)
+  stripePriceAnualId    String?      @db.VarChar(255)
+  limietes              PlanLimites[]
+  tenants               Tenant[]
+  suscripciones         Suscripcion[]
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  @@map("planes")
+}
+
+model PlanLimites {
+  id       Int          @id @default(autoincrement())
+  planId   Int
+  plan     Plan         @relation(fields: [planId], references: [id])
+  recurso  PlanRecurso
+  valor    Int
+  createdAt DateTime    @default(now())
+
+  @@unique([planId, recurso])
+  @@map("plan_limites")
+}
+
+model Suscripcion {
+  id                   Int                @id @default(autoincrement())
+  tenantId             Int                @unique @map("tenant_id")
+  tenant               Tenant             @relation(fields: [tenantId], references: [id])
+  planId               Int
+  plan                 Plan               @relation(fields: [planId], references: [id])
+  stripeCustomerId     String?            @db.VarChar(255)
+  stripeSubscriptionId String?            @db.VarChar(255)
+  stripePriceId        String?            @db.VarChar(255)
+  intervalo            PlanInterval       @default(MONTHLY)
+  wompiCustomerId      String?            @db.VarChar(255)
+  estado               SuscripcionStatus  @default(PENDING)
+  cicloActual          Int                @default(1)
+  renovacionProxima    DateTime?
+  pagadoHasta          DateTime?
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+  @@index([wompiCustomerId])
+  @@map("suscripciones")
+}
+
+model Invitacion {
+  id          Int            @id @default(autoincrement())
+  tenantId    Int            @map("tenant_id")
+  tenant      Tenant         @relation(fields: [tenantId], references: [id])
+  email       String         @db.VarChar(255)
+  rol         String         @db.VarChar(20)
+  token       String         @unique @db.VarChar(255)
+  invitadoPor Int            @map("invitado_por")
+  aceptada    Boolean        @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime       @default(now())
+
+  @@index([tenantId])
+  @@index([token])
+  @@map("invitaciones")
+}
+
+model ConfiguracionTenant {
+  id               Int      @id @default(autoincrement())
+  tenantId         Int      @unique @map("tenant_id")
+  tenant           Tenant   @relation(fields: [tenantId], references: [id])
+  tasaInteres      Decimal  @default(20.00) @map("tasa_interes")
+  cuotaDiariaMin   Decimal  @default(0) @map("cuota_diaria_minima")
+  nombreEmpresa    String?  @db.VarChar(200) @map("nombre_empresa")
+  logoUrl          String?  @db.VarChar(500)
+  notificaciones   String?  @db.Text
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracion_tenant")
 }
 
 model Usuario {
@@ -28,11 +185,13 @@ model Usuario {
   password   String    @db.VarChar(255)
   activo     Int       @default(1)
   vendedorId Int?      @map("vendedor_id")
+  tenantId   Int?      @map("tenant_id")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
 
-  vendedor    Usuario?    @relation("VendedorClientes", fields: [vendedorId], references: [id])
-  clientes    Usuario[]   @relation("VendedorClientes")
+  tenant      Tenant?      @relation(fields: [tenantId], references: [id])
+  vendedor    Usuario?     @relation("VendedorClientes", fields: [vendedorId], references: [id])
+  clientes    Usuario[]    @relation("VendedorClientes")
   prestamosCreados    Prestamo[] @relation("VendedorPrestamos")
   prestamosCliente    Prestamo[] @relation("ClientePrestamos")
   pagos       Pago[]
@@ -41,34 +200,38 @@ model Usuario {
   @@index([cedula])
   @@index([rol])
   @@index([nombre, apellido])
+  @@index([tenantId])
   @@map("usuarios")
 }
 
 model Prestamo {
-  id                Int      @id @default(autoincrement())
-  clienteId         Int      @map("cliente_id")
-  vendedorId        Int      @map("vendedor_id")
-  montoSolicitado   Decimal  @map("monto_solicitado")
-  tasaInteres       Decimal  @map("tasa_interes")
-  interesTotal      Decimal  @map("interes_total")
-  montoTotal        Decimal  @map("monto_total")
-  cuotaDiaria       Decimal  @map("cuota_diaria")
-  diasPlazo         Int      @map("dias_plazo")
-  montoPagado       Decimal  @default(0) @map("monto_pagado")
-  saldoPendiente    Decimal  @map("saldo_pendiente")
-  estado            String   @default("activo") @db.VarChar(20)
-  fechaInicio       DateTime @map("fecha_inicio")
-  fechaFinEsperada  DateTime @map("fecha_fin_esperada")
-  fechaUltimoPago   DateTime? @map("fecha_ultimo_pago")
-  diasPagados       Int      @default(0) @map("dias_pagados")
-  diasAtrasados     Int      @default(0) @map("dias_atrasados")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id                  Int      @id @default(autoincrement())
+  tenantId            Int      @map("tenant_id")
+  clienteId           Int      @map("cliente_id")
+  vendedorId          Int      @map("vendedor_id")
+  montoSolicitado    Decimal  @map("monto_solicitado")
+  tasaInteres        Decimal  @map("tasa_interes")
+  interesTotal       Decimal  @map("interes_total")
+  montoTotal         Decimal  @map("monto_total")
+  cuotaDiaria        Decimal  @map("cuota_diaria")
+  diasPlazo          Int      @map("dias_plazo")
+  montoPagado        Decimal  @default(0) @map("monto_pagado")
+  saldoPendiente     Decimal  @map("saldo_pendiente")
+  estado             String   @default("activo") @db.VarChar(20)
+  fechaInicio        DateTime @map("fecha_inicio")
+  fechaFinEsperada   DateTime @map("fecha_fin_esperada")
+  fechaUltimoPago    DateTime? @map("fecha_ultimo_pago")
+  diasPagados        Int      @default(0) @map("dias_pagados")
+  diasAtrasados      Int      @default(0) @map("dias_atrasados")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
 
+  tenant  Tenant @relation(fields: [tenantId], references: [id])
   cliente  Usuario @relation("ClientePrestamos", fields: [clienteId], references: [id])
   vendedor Usuario @relation("VendedorPrestamos", fields: [vendedorId], references: [id])
   pagos    Pago[]
 
+  @@index([tenantId])
   @@index([clienteId])
   @@index([vendedorId])
   @@index([estado])
@@ -78,6 +241,7 @@ model Prestamo {
 
 model Pago {
   id             Int      @id @default(autoincrement())
+  tenantId       Int      @map("tenant_id")
   prestamoId     Int      @map("prestamo_id")
   vendedorId     Int      @map("vendedor_id")
   fechaPago      DateTime @map("fecha_pago")
@@ -89,9 +253,11 @@ model Pago {
   observaciones  String?  @db.Text
   createdAt      DateTime @default(now()) @map("created_at")
 
+  tenant  Tenant @relation(fields: [tenantId], references: [id])
   prestamo Prestamo @relation(fields: [prestamoId], references: [id])
   vendedor Usuario  @relation(fields: [vendedorId], references: [id])
 
+  @@index([tenantId])
   @@index([prestamoId])
   @@index([fechaPago])
   @@index([fechaEsperada])
@@ -101,6 +267,7 @@ model Pago {
 model Historial {
   id             Int      @id @default(autoincrement())
   usuarioId      Int      @map("usuario_id")
+  tenantId       Int      @map("tenant_id")
   accion         String   @db.VarChar(100)
   tablaAfectada  String?  @db.VarChar(50) @map("tabla_afectada")
   registroId     Int?     @map("registro_id")
@@ -109,8 +276,10 @@ model Historial {
   createdAt      DateTime @default(now()) @map("created_at")
 
   usuario Usuario @relation(fields: [usuarioId], references: [id])
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
 
   @@index([usuarioId])
+  @@index([tenantId])
   @@index([createdAt])
   @@map("historial")
 }

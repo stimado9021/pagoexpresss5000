@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed": "node scripts/seed.mjs",
+    "setup-stripe": "node scripts/setup-stripe.mjs"
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.8.0",
@@ -20,7 +22,9 @@
     "pdf-lib": "^1.17.1",
     "prisma": "^7.8.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "resend": "^6.18.1",
+    "stripe": "^22.4.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

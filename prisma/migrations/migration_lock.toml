@@ -1,0 +1,6 @@
+# Prisma Migrate Lock File v1
+# This file is managed by Prisma Migrate. Do not edit it manually.
+# It records the migration engine version used to create the migrations.
+
+prisma-version = "7.8.0"
+provider = "mysql"

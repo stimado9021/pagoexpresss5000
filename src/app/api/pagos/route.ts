@@ -9,6 +9,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
   }
 
+  if (session.tenantId) {
+    const { checkTenantActive } = await import('@/lib/tenant')
+    const active = await checkTenantActive(session.tenantId)
+    if (!active.ok) {
+      return NextResponse.json({ success: false, message: active.message }, { status: 403 })
+    }
+  }
+
   try {
     const data = await request.json()
     const prestamoId = parseInt(data.prestamo_id)
@@ -35,6 +43,7 @@ export async function POST(request: Request) {
         data: {
           prestamoId,
           vendedorId: session.userId,
+          tenantId: session.tenantId!,
           fechaPago: new Date(),
           fechaEsperada: prestamo.fechaUltimoPago || prestamo.fechaInicio,
           monto,
@@ -133,6 +142,7 @@ export async function PUT(request: Request) {
       prisma.historial.create({
         data: {
           usuarioId: session.userId,
+          tenantId: session.tenantId || 1,
           accion: 'editar_pago',
           tablaAfectada: 'pagos',
           registroId: pagoId,
@@ -198,6 +208,7 @@ export async function DELETE(request: Request) {
       prisma.historial.create({
         data: {
           usuarioId: session.userId,
+          tenantId: session.tenantId || 1,
           accion: 'eliminar_pago',
           tablaAfectada: 'pagos',
           registroId: pagoId,

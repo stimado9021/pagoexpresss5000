@@ -62,6 +62,65 @@ export async function GET() {
       })
     }
 
+    if (session.rol === 'empresario') {
+      const tenantId = session.tenantId
+      if (!tenantId) {
+        return NextResponse.json({ success: false, message: 'Tenant no asignado' }, { status: 400 })
+      }
+
+      const vendedores = await prisma.usuario.findMany({
+        where: { tenantId, rol: 'vendedor', activo: 1 },
+        select: {
+          id: true, cedula: true, nombre: true, apellido: true, telefono: true, email: true,
+          _count: { select: { clientes: true } },
+          prestamosCreados: { select: { montoSolicitado: true, estado: true } },
+        },
+      })
+
+      const rawClientes = await prisma.prestamo.findMany({
+        where: { tenantId, estado: 'activo' },
+        select: {
+          cliente: { select: { nombre: true, apellido: true } },
+          cuotaDiaria: true,
+          saldoPendiente: true,
+          diasAtrasados: true,
+          fechaInicio: true,
+          fechaUltimoPago: true,
+          estado: true,
+          vendedor: { select: { nombre: true, apellido: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      })
+      const clientes = rawClientes.map((c) => ({
+        ...c,
+        diasAtrasados: calcularDiasAtrasados(c),
+      }))
+
+      const stats = {
+        total_vendedores: vendedores.length,
+        colocacion_total: vendedores.reduce((sum, v) =>
+          sum + v.prestamosCreados.reduce((s, p) => s + Number(p.montoSolicitado), 0), 0),
+        atrasados: clientes.filter((c) => c.diasAtrasados > 0).length,
+      }
+
+      const mappedVendedores = vendedores.map((v) => ({
+        id: v.id,
+        cedula: v.cedula,
+        nombre: v.nombre,
+        apellido: v.apellido,
+        telefono: v.telefono,
+        email: v.email,
+        total_clientes: v._count.clientes,
+        total_prestado: v.prestamosCreados.reduce((s, p) => s + Number(p.montoSolicitado), 0),
+      }))
+
+      return NextResponse.json({
+        success: true,
+        data: { vendedores: mappedVendedores, clientes, stats },
+      })
+    }
+
     if (session.rol === 'vendedor') {
       const [rawPrestamos, totalClientes] = await Promise.all([
         prisma.prestamo.findMany({

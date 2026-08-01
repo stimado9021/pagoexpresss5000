@@ -11,6 +11,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
   }
 
+  if (session.tenantId) {
+    const { checkTenantActive } = await import('@/lib/tenant')
+    const active = await checkTenantActive(session.tenantId)
+    if (!active.ok) {
+      return NextResponse.json({ success: false, message: active.message }, { status: 403 })
+    }
+  }
+
   try {
     const data = await request.json()
     let clienteId = data.cliente_id ? parseInt(data.cliente_id) : null
@@ -21,17 +29,18 @@ export async function POST(request: Request) {
     if (!clienteId) {
       telefono = data.telefono?.replace(/[^0-9]/g, '') || null
       const passHash = await bcrypt.hash(data.cedula, 10)
-      const nuevo = await prisma.usuario.create({
-        data: {
-          cedula: data.cedula,
-          nombre: data.nombre,
-          apellido: data.apellido || '',
-          telefono,
-          rol: 'cliente',
-          password: passHash,
-          vendedorId: session.userId,
-        },
-      })
+       const nuevo = await prisma.usuario.create({
+       data: {
+         cedula: data.cedula,
+         nombre: data.nombre,
+         apellido: data.apellido || '',
+         telefono,
+         rol: 'cliente',
+         password: passHash,
+         vendedorId: session.userId,
+         tenantId: session.tenantId!,
+       },
+     })
       clienteId = nuevo.id
       nombreCliente = `${data.nombre} ${data.apellido || ''}`.trim()
     } else {
@@ -102,22 +111,23 @@ export async function POST(request: Request) {
     const fechaFin = new Date(fechaInicio)
     fechaFin.setDate(fechaFin.getDate() + diasPlazo)
 
-    const prestamo = await prisma.prestamo.create({
-      data: {
-        clienteId,
-        vendedorId: session.userId,
-        montoSolicitado,
-        tasaInteres: tasa,
-        interesTotal: interesNuevo,
-        montoTotal: montoNuevoConInteres,
-        cuotaDiaria: cuotaConfig,
-        diasPlazo,
-        saldoPendiente: montoNuevoConInteres,
-        estado: 'activo',
-        fechaInicio,
-        fechaFinEsperada: fechaFin,
-      },
-    })
+     const prestamo = await prisma.prestamo.create({
+       data: {
+         clienteId,
+         vendedorId: session.userId,
+         tenantId: session.tenantId!,
+         montoSolicitado,
+         tasaInteres: tasa,
+         interesTotal: interesNuevo,
+         montoTotal: montoNuevoConInteres,
+         cuotaDiaria: cuotaConfig,
+         diasPlazo,
+         saldoPendiente: montoNuevoConInteres,
+         estado: 'activo',
+         fechaInicio,
+         fechaFinEsperada: fechaFin,
+       },
+     })
 
     if (telefono) {
       const msg = formatNuevoPrestamo({

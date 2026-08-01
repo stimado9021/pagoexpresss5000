@@ -1,17 +1,29 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createSession } from '@/lib/session'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 import bcrypt from 'bcryptjs'
 
 export async function POST(request: Request) {
   try {
-    const { cedula, password } = await request.json()
-
-    if (!cedula || !password) {
-      return NextResponse.json({ success: false, message: 'Cédula y contraseña requeridas' }, { status: 400 })
+    const ip = getClientIp(request)
+    if (!rateLimit(`login:${ip}`, 10, 60_000)) {
+      return NextResponse.json({ success: false, message: 'Demasiados intentos. Espera un minuto.' }, { status: 429 })
     }
 
-    const user = await prisma.usuario.findUnique({ where: { cedula } })
+    const { identificacion, password } = await request.json()
+
+    if (!identificacion || !password) {
+      return NextResponse.json({ success: false, message: 'Identificación y contraseña requeridas' }, { status: 400 })
+    }
+
+    const query = String(identificacion).trim()
+
+    const user = await prisma.usuario.findFirst({
+      where: {
+        OR: [{ cedula: query }, { email: query }],
+      },
+    })
     if (!user) {
       return NextResponse.json({ success: false, message: 'Credenciales incorrectas' }, { status: 401 })
     }
@@ -31,6 +43,7 @@ export async function POST(request: Request) {
       rol: user.rol,
       nombre: user.nombre,
       apellido: user.apellido,
+      tenantId: user.tenantId,
     })
 
     return NextResponse.json({
@@ -42,6 +55,7 @@ export async function POST(request: Request) {
         apellido: user.apellido,
         rol: user.rol,
         email: user.email,
+        tenantId: user.tenantId,
       },
     })
   } catch (error) {

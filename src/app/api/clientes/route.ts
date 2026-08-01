@@ -169,6 +169,18 @@ export async function POST(request: Request) {
   }
 
   try {
+    if (session.rol !== 'superadmin' && session.tenantId) {
+      const { checkTenantLimit, checkTenantActive } = await import('@/lib/tenant')
+      const active = await checkTenantActive(session.tenantId)
+      if (!active.ok) {
+        return NextResponse.json({ success: false, message: active.message }, { status: 403 })
+      }
+      const limitCheck = await checkTenantLimit(session.tenantId, 'MAX_CLIENTES')
+      if (!limitCheck.ok) {
+        return NextResponse.json({ success: false, message: limitCheck.message }, { status: 403 })
+      }
+    }
+
     const datos = await request.json()
     if (!datos.nombre || !datos.cedula) {
       return NextResponse.json({ success: false, message: 'Datos incompletos' }, { status: 400 })
@@ -192,6 +204,7 @@ export async function POST(request: Request) {
         password: passHash,
         activo: 1,
         vendedorId: datos.vendedor_id ? parseInt(datos.vendedor_id) : session.userId,
+        tenantId: session.tenantId!,
       },
     })
 

@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { LogIn, CreditCard, User } from 'lucide-react'
+import { LogIn, User } from 'lucide-react'
 
 export default function LoginPage() {
   const [cedula, setCedula] = useState('')
@@ -20,13 +20,14 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cedula, password }),
+        body: JSON.stringify({ identificacion: cedula.trim(), password }),
       })
       const data = await res.json()
 
       if (data.success) {
         const routes: Record<string, string> = {
           superadmin: '/admin',
+          empresario: '/empresario',
           vendedor: '/vendedor',
           cliente: '/cliente',
         }
@@ -44,51 +45,49 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F7F8FA] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-emerald-950 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#5B5FEF] shadow-lg shadow-[#5B5FEF]/20">
-            <CreditCard size={22} className="text-white" />
-          </div>
-          <h1 className="text-xl font-bold text-[#111827]">PagoExpress</h1>
-          <p className="mt-1 text-sm text-[#6B7280]">Cobros rápidos y seguros</p>
+          <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg shadow-lime/20"><img src="/logo.png" alt="PagoExpress" className="h-10 w-10 object-contain" /></span>
+          <h1 className="text-xl font-bold text-zinc-100 font-display">PagoExpress</h1>
+          <p className="mt-1 text-sm text-zinc-400">Cobros rápidos y seguros</p>
         </div>
 
-        <div className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-[#111827]">Cédula / DNI</label>
+              <label className="mb-1.5 block text-sm font-medium text-zinc-400 uppercase tracking-wide text-xs">Cédula o correo</label>
               <div className="relative">
-                <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]" />
+                <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
                 <input
                   type="text" value={cedula} onChange={(e) => setCedula(e.target.value)}
-                  className="w-full rounded-lg border border-[#E5E7EB] bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#5B5FEF] focus:ring-2 focus:ring-[#EEF0FF] transition-all"
-                  placeholder="Identificación" required
+                  className="w-full rounded-lg border border-zinc-800 bg-zinc-800 py-3 pl-9 pr-3 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 transition-all"
+                  placeholder="Identificación o correo" required
                 />
               </div>
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-[#111827]">Contraseña</label>
+              <label className="mb-1.5 block text-sm font-medium text-zinc-400 uppercase tracking-wide text-xs">Contraseña</label>
               <input
                 type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF] focus:ring-2 focus:ring-[#EEF0FF] transition-all"
+                className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 transition-all"
                 placeholder="••••••••" required
               />
             </div>
 
             {error && (
-              <div className="rounded-lg bg-[#FEF2F2] p-3 text-sm text-[#EF4444]">{error}</div>
+              <div className="rounded-lg bg-red-500/15 border border-red-500/30 p-3 text-sm text-red-400">{error}</div>
             )}
 
             <button type="submit" disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#5B5FEF] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#4B4FDF] disabled:opacity-50 transition-all shadow-sm">
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-lime-500 px-4 py-3 text-sm font-semibold text-emerald-950 font-display hover:bg-zinc-200 disabled:opacity-50 transition-colors shadow-sm">
               {loading ? 'Ingresando...' : <>Ingresar <LogIn size={15} /></>}
             </button>
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs text-[#6B7280]">
+        <p className="mt-6 text-center text-xs text-zinc-400">
           &copy; 2026 PagoExpress &bull; Gestión de Préstamos
         </p>
       </div>

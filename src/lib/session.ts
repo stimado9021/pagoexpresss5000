@@ -11,6 +11,7 @@ export type SessionPayload = {
   rol: string
   nombre: string
   apellido: string
+  tenantId?: number
   expiresAt: Date
 }
 
@@ -33,9 +34,9 @@ export async function decrypt(session: string | undefined = '') {
   }
 }
 
-export async function createSession(user: { id: number; cedula: string; rol: string; nombre: string; apellido: string }) {
+export async function createSession(user: { id: number; cedula: string; rol: string; nombre: string; apellido: string; tenantId?: number | null }) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-  const session = await encrypt({ userId: user.id, cedula: user.cedula, rol: user.rol, nombre: user.nombre, apellido: user.apellido, expiresAt })
+  const session = await encrypt({ userId: user.id, cedula: user.cedula, rol: user.rol, nombre: user.nombre, apellido: user.apellido, tenantId: user.tenantId ?? undefined, expiresAt })
   const cookieStore = await cookies()
 
   cookieStore.set('session', session, {

@@ -3,21 +3,47 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/session'
 import bcrypt from 'bcryptjs'
 
+async function checkVendedorLimit(tenantId: number): Promise<{ ok: boolean; message?: string }> {
+  const { getTenantLimits } = await import('@/lib/tenant')
+  const result = await getTenantLimits(tenantId)
+  const limit = result?.limits?.['MAX_VENDEDORES'] ?? 2
+  if (limit === -1) return { ok: true }
+  const count = await prisma.usuario.count({
+    where: { tenantId, rol: { in: ['vendedor', 'empresario'] } },
+  })
+  if (count >= limit) {
+    return { ok: false, message: `L�mite de ${limit} vendedores alcanzado. Actualiza tu plan.` }
+  }
+  return { ok: true }
+}
+
 export async function POST(request: Request) {
   const session = await getSession()
-  if (!session || session.rol !== 'superadmin') {
+  if (!session || (session.rol !== 'superadmin' && session.rol !== 'empresario')) {
     return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
+  }
+
+  if (session.rol === 'empresario') {
+    const { checkTenantActive } = await import('@/lib/tenant')
+    const active = await checkTenantActive(session.tenantId!)
+    if (!active.ok) {
+      return NextResponse.json({ success: false, message: active.message }, { status: 403 })
+    }
+    const limitCheck = await checkVendedorLimit(session.tenantId!)
+    if (!limitCheck.ok) {
+      return NextResponse.json({ success: false, message: limitCheck.message }, { status: 403 })
+    }
   }
 
   try {
     const data = await request.json()
     if (!data.nombre || !data.cedula) {
-      return NextResponse.json({ success: false, message: 'Nombre y cédula requeridos' }, { status: 400 })
+      return NextResponse.json({ success: false, message: 'Nombre y c�dula requeridos' }, { status: 400 })
     }
 
     const existing = await prisma.usuario.findUnique({ where: { cedula: data.cedula } })
     if (existing) {
-      return NextResponse.json({ success: false, message: 'La cédula ya existe' }, { status: 400 })
+      return NextResponse.json({ success: false, message: 'La c�dula ya existe' }, { status: 400 })
     }
 
     const passHash = await bcrypt.hash(data.cedula, 10)
@@ -32,6 +58,7 @@ export async function POST(request: Request) {
         rol: 'vendedor',
         password: passHash,
         activo: 1,
+        tenantId: session.tenantId!,
       },
     })
 
@@ -43,7 +70,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   const session = await getSession()
-  if (!session || session.rol !== 'superadmin') {
+  if (!session) {
     return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
   }
 
@@ -52,8 +79,10 @@ export async function GET(request: Request) {
 
   try {
     if (id) {
+      const whereClause: Record<string, unknown> = { id: parseInt(id), rol: 'vendedor' }
+      if (session.rol !== 'superadmin') whereClause.tenantId = session.tenantId
       const vendedor = await prisma.usuario.findFirst({
-        where: { id: parseInt(id), rol: 'vendedor' },
+        where: whereClause,
         select: {
           id: true, cedula: true, nombre: true, apellido: true,
           telefono: true, email: true, direccion: true, activo: true,
@@ -63,9 +92,7 @@ export async function GET(request: Request) {
               id: true, cedula: true, nombre: true, apellido: true,
               telefono: true, email: true, direccion: true, activo: true,
               createdAt: true,
-              prestamosCliente: {
-                select: { estado: true, montoSolicitado: true, montoPagado: true, saldoPendiente: true },
-              },
+              prestamosCliente: { select: { estado: true, montoSolicitado: true, montoPagado: true, saldoPendiente: true } },
             },
           },
         },
@@ -76,8 +103,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, data: vendedor })
     }
 
+    const whereClause: Record<string, unknown> = { rol: 'vendedor' }
+    if (session.rol !== 'superadmin') whereClause.tenantId = session.tenantId
+
     const vendedores = await prisma.usuario.findMany({
-      where: { rol: 'vendedor' },
+      where: whereClause,
       select: {
         id: true, cedula: true, nombre: true, apellido: true,
         telefono: true, email: true, direccion: true, activo: true,
