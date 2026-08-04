@@ -161,7 +161,7 @@ export async function GET(request: Request) {
       const rawPrestamos = await prisma.prestamo.findMany({
         where: { clienteId: parseInt(clienteId) },
         orderBy: { createdAt: 'desc' },
-        include: { pagos: { orderBy: { fechaPago: 'desc' } } },
+        include: { pagos: { orderBy: { fechaPago: 'desc' }, take: 5 } },
       })
       const prestamos = rawPrestamos.map((p) => ({
         ...p,

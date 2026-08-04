@@ -81,6 +81,9 @@ export default function AdminTenantPage() {
   return (
     <div className="min-h-screen bg-emerald-950 text-bone font-body p-6">
       <div className="max-w-7xl mx-auto">
+        <div className="mb-6">
+          <h1 className="font-display font-bold text-4xl text-white uppercase tracking-wider">ADMINISTRADOR</h1>
+        </div>
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.png" alt="PagoExpress" className="h-7 w-7 object-contain" /></span>
@@ -93,7 +96,7 @@ export default function AdminTenantPage() {
             <button onClick={() => router.push('/empresario')} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-bone/10 text-bone/60 hover:bg-emerald-950 transition-colors">
               <LayoutDashboard size={16} /> Ver Dashboard
             </button>
-            <button onClick={() => { router.push('/login'); localStorage.removeItem('session') }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors">
+            <button onClick={async () => { await fetch('/api/auth/logout', { method: 'POST' }); localStorage.removeItem('session'); router.push('/login') }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors">
               <LogOut size={16} /> Cerrar sesi�n
             </button>
           </div>

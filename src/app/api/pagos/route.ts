@@ -34,9 +34,7 @@ export async function POST(request: Request) {
     const nuevoPagado = Number(prestamo.montoPagado) + monto
     const nuevoSaldo = Math.max(0, Number(prestamo.saldoPendiente) - monto)
     const diasCubiertos = Math.ceil(monto / Number(prestamo.cuotaDiaria))
-    const diasAtraso = Math.max(0, (prestamo.fechaUltimoPago
-      ? Math.floor((Date.now() - new Date(prestamo.fechaUltimoPago).getTime()) / (1000 * 60 * 60 * 24))
-      : Math.floor((Date.now() - new Date(prestamo.fechaInicio).getTime()) / (1000 * 60 * 60 * 24))) - 1)
+    const nuevosDiasAtrasados = Math.max(0, Number(prestamo.diasAtrasados) - diasCubiertos + (nuevoSaldo > 0 ? 0 : 0))
 
     const [pago] = await prisma.$transaction([
       prisma.pago.create({
@@ -48,8 +46,8 @@ export async function POST(request: Request) {
           fechaEsperada: prestamo.fechaUltimoPago || prestamo.fechaInicio,
           monto,
           diasCubiertos,
-          esPagoAtrasado: diasAtraso > 0 ? 1 : 0,
-          diasAtraso,
+          esPagoAtrasado: Number(prestamo.diasAtrasados) > 0 ? 1 : 0,
+          diasAtraso: Number(prestamo.diasAtrasados),
           observaciones: data.observaciones || null,
         },
       }),
@@ -61,7 +59,7 @@ export async function POST(request: Request) {
           diasPagados: { increment: diasCubiertos },
           fechaUltimoPago: new Date(),
           estado: nuevoSaldo <= 0 ? 'pagado' : 'activo',
-          diasAtrasados: diasAtraso > 0 ? diasAtraso : 0,
+          diasAtrasados: nuevosDiasAtrasados,
         },
       }),
     ])
@@ -236,7 +234,7 @@ export async function GET(request: Request) {
   const limit = parseInt(searchParams.get('limit') || '50')
 
   try {
-    const where: any = {}
+    const where: { prestamoId?: number | { in: number[] }; vendedorId?: number } = {}
     if (prestamoId) where.prestamoId = parseInt(prestamoId)
     if (session.rol === 'vendedor') where.vendedorId = session.userId
     if (session.rol === 'cliente') {

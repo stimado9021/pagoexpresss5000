@@ -33,6 +33,7 @@ export default function RootLayout({
       className={`${sora.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
         <body className="min-h-full flex flex-col bg-emerald-950 text-zinc-100 font-body">
+        <script dangerouslySetInnerHTML={{ __html: "if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(s){s.unregister()})})}" }} />
         {children}
       </body>
     </html>

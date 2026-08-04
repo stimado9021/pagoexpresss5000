@@ -91,7 +91,7 @@ export async function GET(request: Request) {
 
     if (buscar) {
       const term = `%${buscar}%`
-      const whereClause: any = {
+      const whereClause: { rol: string; OR: { cedula?: { contains: string }; nombre?: { contains: string }; apellido?: { contains: string } }[]; vendedorId?: number } = {
         rol: 'cliente',
         OR: [
           { cedula: { contains: buscar } },
@@ -122,7 +122,7 @@ export async function GET(request: Request) {
       const prestamosRaw = await prisma.prestamo.findMany({
         where: { clienteId: usuario.id },
         orderBy: { fechaInicio: 'desc' },
-        include: { pagos: { orderBy: { fechaPago: 'desc' } } },
+        include: { pagos: { orderBy: { fechaPago: 'desc' }, take: 5 } },
       })
       const prestamos = prestamosRaw.map((p) => ({
         ...p,

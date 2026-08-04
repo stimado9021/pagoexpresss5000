@@ -121,6 +121,34 @@ export default function LandingPage() {
   const statAgentes = useRef<HTMLParagraphElement>(null);
   const statMora = useRef<HTMLParagraphElement>(null);
   const heroCountersFired = useRef(false);
+  const [stats, setStats] = useState<{
+    carteraActiva: number;
+    saldoPendiente: number;
+    prestamosActivos: number;
+    totalPrestamos: number;
+    clientes: number;
+    agentes: number;
+    tasaMora: number;
+    cobrosSemana: number;
+    empresasActivas: number;
+    cobrosPorDia: { fecha: string; etiqueta: string; monto: number; height: number }[];
+  }>({
+    carteraActiva: 0,
+    saldoPendiente: 0,
+    prestamosActivos: 0,
+    totalPrestamos: 0,
+    clientes: 0,
+    agentes: 0,
+    tasaMora: 0,
+    cobrosSemana: 0,
+    empresasActivas: 0,
+    cobrosPorDia: [],
+  });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setMounted(true));
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setNavScrolled(window.scrollY > 24);
@@ -137,16 +165,25 @@ export default function LandingPage() {
     return () => obs.disconnect();
   }, []);
 
+  const dataLoadedRef = useRef(false);
+
   useEffect(() => {
-    if (!statCartera.current) return;
+    fetch('/api/public/stats')
+      .then((r) => r.json())
+      .then((d) => { if (d.success) { setStats(d.data); dataLoadedRef.current = true; } })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!statCartera.current || !dataLoadedRef.current) return;
     const heroObs = new IntersectionObserver(
       (entries) => entries.forEach((e) => {
-        if (e.isIntersecting && !heroCountersFired.current) {
+        if (e.isIntersecting && !heroCountersFired.current && dataLoadedRef.current) {
           heroCountersFired.current = true;
-          if (statCartera.current) animateCount(statCartera.current, 284500000, { prefix: '$' });
-          if (statClientes.current) animateCount(statClientes.current, 1284);
-          if (statAgentes.current) animateCount(statAgentes.current, 47);
-          if (statMora.current) animateCount(statMora.current, 2.3, { suffix: '%', decimals: 1 });
+          if (statCartera.current) animateCount(statCartera.current, stats.carteraActiva, { prefix: '$' });
+          if (statClientes.current) animateCount(statClientes.current, stats.clientes);
+          if (statAgentes.current) animateCount(statAgentes.current, stats.agentes);
+          if (statMora.current) animateCount(statMora.current, stats.tasaMora, { suffix: '%', decimals: 1 });
           heroObs.disconnect();
         }
       }),
@@ -154,10 +191,10 @@ export default function LandingPage() {
     );
     heroObs.observe(statCartera.current);
     return () => heroObs.disconnect();
-  }, []);
+  }, [stats.carteraActiva, stats.clientes, stats.agentes, stats.tasaMora, mounted]);
 
   const closeMobile = () => setMobileOpen(false);
-  const price = (m: number, a: number) => `$${yearly ? a : m}`;
+  const price = (monthly: number) => yearly ? `$${Math.round(monthly * 0.95)}` : `$${monthly}`;
 
   return (
     <div className="text-bone antialiased bg-emerald-900 font-body">
@@ -223,6 +260,7 @@ export default function LandingPage() {
       <section id="top" className="relative overflow-hidden pt-36 pb-0 lg:pt-44">
         <div className="absolute inset-0 grid-lines" />
         <div className="absolute inset-0 noise-overlay" />
+        <img src="/smiling-young-asian-woman-holding-money-showing-thumbs-up.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none" />
         <div className="pointer-events-none absolute -top-40 right-[-10%] h-[520px] w-[520px] rounded-full bg-emerald-600/25 blur-[120px]" />
         <div className="pointer-events-none absolute top-40 left-[-15%] h-[420px] w-[420px] rounded-full bg-lime/10 blur-[110px]" />
 
@@ -285,53 +323,89 @@ export default function LandingPage() {
                   </div>
 
                   <div className="p-5 lg:p-6">
-                    <div className="flex items-center justify-between mb-5">
-                      <div>
-                        <p className="font-mono text-[11px] uppercase tracking-widest text-bone/40">Cartera activa</p>
-                        <p ref={statCartera} className="font-display font-bold text-2xl text-bone mt-1">$0</p>
+                    {!mounted ? (
+                      <div className="space-y-4 animate-pulse">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-2">
+                            <div className="h-3 w-24 rounded bg-bone/10" />
+                            <div className="h-7 w-32 rounded bg-bone/10" />
+                          </div>
+                          <div className="h-6 w-16 rounded-full bg-emerald-500/10" />
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                          {[1,2,3].map((n) => (
+                            <div key={n} className="rounded-xl bg-graphite-800 border border-bone/5 p-3.5 space-y-2">
+                              <div className="h-2 w-12 rounded bg-bone/10" />
+                              <div className="h-5 w-10 rounded bg-bone/10" />
+                            </div>
+                          ))}
+                        </div>
+                        <div className="rounded-xl bg-graphite-800 border border-bone/5 p-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="h-2 w-32 rounded bg-bone/10" />
+                            <div className="h-2 w-10 rounded bg-bone/10" />
+                          </div>
+                          <div className="flex items-end gap-2 h-24">
+                            {[1,2,3,4,5,6,7].map((n) => (
+                              <div key={n} className="flex-1 flex flex-col items-center gap-1">
+                                <div className="w-full max-w-6 rounded-t-md bg-bone/10" style={{ height: `${20 + n * 8}%` }} />
+                                <div className="h-1.5 w-4 rounded bg-bone/10" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600/20 border border-emerald-500/30 px-3 py-1 font-mono text-xs text-emerald-400">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 pulse-dot" />
-                        En vivo
-                      </span>
-                    </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between mb-5">
+                          <div>
+                            <p className="font-mono text-[11px] uppercase tracking-widest text-bone/40">Cartera activa</p>
+                            <p ref={statCartera} className="font-display font-bold text-2xl text-bone mt-1">$0</p>
+                          </div>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600/20 border border-emerald-500/30 px-3 py-1 font-mono text-xs text-emerald-400">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 pulse-dot" />
+                            En vivo
+                          </span>
+                        </div>
 
-                    {/* mini stat grid */}
-                    <div className="grid grid-cols-3 gap-3 mb-6">
-                      <div className="rounded-xl bg-graphite-800 border border-bone/5 p-3.5">
-                        <p className="font-mono text-[10px] uppercase text-bone/40">Clientes</p>
-                        <p ref={statClientes} className="font-display font-semibold text-lg text-bone mt-1">0</p>
-                      </div>
-                      <div className="rounded-xl bg-graphite-800 border border-bone/5 p-3.5">
-                        <p className="font-mono text-[10px] uppercase text-bone/40">Agentes</p>
-                        <p ref={statAgentes} className="font-display font-semibold text-lg text-bone mt-1">0</p>
-                      </div>
-                      <div className="rounded-xl bg-graphite-800 border border-bone/5 p-3.5">
-                        <p className="font-mono text-[10px] uppercase text-bone/40">Mora</p>
-                        <p ref={statMora} className="font-display font-semibold text-lg text-lime mt-1">0%</p>
-                      </div>
-                    </div>
+                        {/* mini stat grid */}
+                        <div className="grid grid-cols-3 gap-3 mb-6">
+                          <div className="rounded-xl bg-graphite-800 border border-bone/5 p-3.5">
+                            <p className="font-mono text-[10px] uppercase text-bone/40">Clientes</p>
+                            <p ref={statClientes} className="font-display font-semibold text-lg text-bone mt-1">0</p>
+                          </div>
+                          <div className="rounded-xl bg-graphite-800 border border-bone/5 p-3.5">
+                            <p className="font-mono text-[10px] uppercase text-bone/40">Agentes</p>
+                            <p ref={statAgentes} className="font-display font-semibold text-lg text-bone mt-1">0</p>
+                          </div>
+                          <div className="rounded-xl bg-graphite-800 border border-bone/5 p-3.5">
+                            <p className="font-mono text-[10px] uppercase text-bone/40">Mora</p>
+                            <p ref={statMora} className="font-display font-semibold text-lg text-lime mt-1">0%</p>
+                          </div>
+                        </div>
 
-                    {/* bar chart */}
-                    <div className="rounded-xl bg-graphite-800 border border-bone/5 p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <p className="font-mono text-[10px] uppercase tracking-widest text-bone/40">Cobros de la semana</p>
-                        <p className="font-mono text-[10px] text-emerald-400">+18%</p>
-                      </div>
-                      <div className="flex items-end gap-2 h-24">
-                        {[
-                          { h: '45%', cls: 'bg-emerald-700', d: '.05s' },
-                          { h: '65%', cls: 'bg-emerald-700', d: '.12s' },
-                          { h: '40%', cls: 'bg-emerald-600', d: '.19s' },
-                          { h: '88%', cls: 'bg-lime',        d: '.26s' },
-                          { h: '58%', cls: 'bg-emerald-700', d: '.33s' },
-                          { h: '72%', cls: 'bg-emerald-700', d: '.4s'  },
-                          { h: '50%', cls: 'bg-emerald-600', d: '.47s' },
-                        ].map(({ h, cls, d }, i) => (
-                          <div key={i} className={`flex-1 rounded-t-md ${cls} grow-bar`} style={{ height: h, animationDelay: d }} />
-                        ))}
-                      </div>
-                    </div>
+                        {/* bar chart */}
+                        <div className="rounded-xl bg-graphite-800 border border-bone/5 p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <p className="font-mono text-[10px] uppercase tracking-widest text-bone/40">Cobros de la semana</p>
+                            <p className="font-mono text-[10px] text-emerald-400">${stats.cobrosSemana.toLocaleString('es-CO')}</p>
+                          </div>
+                          <div className="flex items-end gap-2 h-24">
+                            {(stats.cobrosPorDia.length > 0 ? stats.cobrosPorDia : Array.from({ length: 7 }, (_, i) => ({
+                              etiqueta: '', monto: 0, height: 4, fecha: '',
+                            }))).map((c, i) => (
+                              <div key={i} className="flex-1 flex flex-col items-center gap-1 group" title={`${c.etiqueta}: $${c.monto.toLocaleString('es-CO')}`}>
+                                <div
+                                  className={`w-full max-w-6 rounded-t-md ${c.monto > 0 ? 'bg-lime' : 'bg-emerald-800'} grow-bar transition-colors group-hover:bg-lime`}
+                                  style={{ height: `${Math.max(c.height, 4)}%`, animationDelay: `${i * 0.07}s` }}
+                                />
+                                <span className="text-[8px] uppercase text-bone/40 truncate w-full text-center hidden sm:block">{c.etiqueta}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -345,16 +419,22 @@ export default function LandingPage() {
           <div className="ticker-track font-mono text-sm text-bone/60 whitespace-nowrap">
             {[...Array(2)].map((_, i) => (
               <span key={i}>
-                <span className="mx-6">Cobros procesados hoy: <span className="text-lime">$48,210,000</span></span>
-                <span className="mx-6 text-bone/20">/</span>
-                <span className="mx-6">Tasa de mora promedio: <span className="text-lime">2.3%</span></span>
-                <span className="mx-6 text-bone/20">/</span>
-                <span className="mx-6">Empresas activas en PagoExpress: <span className="text-lime">1,240+</span></span>
-                <span className="mx-6 text-bone/20">/</span>
-                <span className="mx-6">Agentes de cobro conectados: <span className="text-lime">6,800+</span></span>
-                <span className="mx-6 text-bone/20">/</span>
-                <span className="mx-6">Reportes generados esta semana: <span className="text-lime">15,400</span></span>
-                <span className="mx-6 text-bone/20">/</span>
+                {mounted ? (
+                  <>
+                    <span className="mx-6">Cobros procesados hoy: <span className="text-lime">${stats.cobrosSemana.toLocaleString('es-CO')}</span></span>
+                    <span className="mx-6 text-bone/20">/</span>
+                    <span className="mx-6">Tasa de mora promedio: <span className="text-lime">{stats.tasaMora}%</span></span>
+                    <span className="mx-6 text-bone/20">/</span>
+                    <span className="mx-6">Empresas activas en PagoExpress: <span className="text-lime">{stats.empresasActivas || 0}</span></span>
+                    <span className="mx-6 text-bone/20">/</span>
+                    <span className="mx-6">Préstamos activos: <span className="text-lime">{stats.prestamosActivos}</span></span>
+                    <span className="mx-6 text-bone/20">/</span>
+                    <span className="mx-6">Clientes registrados: <span className="text-lime">{stats.clientes}</span></span>
+                    <span className="mx-6 text-bone/20">/</span>
+                  </>
+                ) : (
+                  <span className="mx-6 text-bone/30">Cargando datos del sistema...</span>
+                )}
               </span>
             ))}
           </div>
@@ -362,8 +442,9 @@ export default function LandingPage() {
       </section>
 
       {/* ════════════════════════ BENEFICIOS ══════════════════════════ */}
-      <section id="beneficios" className="relative py-24 lg:py-32 bg-emerald-950">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
+      <section id="beneficios" className="relative py-24 lg:py-32 bg-emerald-950 overflow-hidden">
+        <img src="/la-mano-de-los-hombres-que-lleva-cabo-billetes-de-d%C3%B3lar-del-americano-ciento-del-dinero-mano-del-dinero-de-ofrecimiento-del-45658769.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none" />
+        <div className="mx-auto max-w-7xl px-6 lg:px-10 relative z-10">
           <div className="max-w-2xl fade-up">
             <p className="font-mono text-xs uppercase text-lime sub-eyebrow">Todo en un solo lugar</p>
             <h2 className="font-display font-bold text-3xl sm:text-4xl mt-3 text-bone leading-tight">
@@ -455,7 +536,7 @@ export default function LandingPage() {
               />
             </button>
             <span id="label-anual" className={`font-body text-sm ${yearly ? 'font-semibold text-bone' : 'text-bone/60'}`}>
-              Anual <span className="text-lime font-mono">(-20%)</span>
+              Anual <span className="text-lime font-mono">(-5%)</span>
             </span>
           </div>
 
@@ -466,12 +547,12 @@ export default function LandingPage() {
               <h3 className="font-display font-semibold text-xl text-bone">Independiente</h3>
               <p className="mt-2 font-body text-sm text-bone/55">Para prestamistas que están comenzando a formalizar su cartera.</p>
               <div className="mt-6 flex items-baseline gap-1">
-                <span className="font-display font-bold text-4xl text-bone">{price(39,31)}</span>
+                <span className="font-display font-bold text-4xl text-bone">{price(39)}</span>
                 <span className="font-body text-bone/50 text-sm">/mes</span>
               </div>
               <p className="font-mono text-xs text-bone/40 mt-1">Facturado {yearly ? 'anualmente' : 'mensualmente'}</p>
               <ul className="mt-7 space-y-3.5 font-body text-sm text-bone/75 flex-1">
-                {['Hasta 150 clientes activos','1 agente / usuario adicional','Cálculo automático de intereses','Reportes básicos mensuales','Soporte por correo'].map((f) => (
+                {['Hasta 25 clientes activos','Hasta 4 vendedores / agentes','Cálculo automático de intereses','Reportes básicos mensuales','Soporte por correo'].map((f) => (
                   <li key={f} className="flex gap-2.5"><Check />{f}</li>
                 ))}
               </ul>
@@ -488,12 +569,12 @@ export default function LandingPage() {
               <h3 className="font-display font-semibold text-xl text-bone">Empresarial</h3>
               <p className="mt-2 font-body text-sm text-bone/55">Para empresas de crédito con equipo de cobro y agentes en campo.</p>
               <div className="mt-6 flex items-baseline gap-1">
-                <span className="font-display font-bold text-4xl text-bone">{price(99,79)}</span>
+                <span className="font-display font-bold text-4xl text-bone">{price(99)}</span>
                 <span className="font-body text-bone/50 text-sm">/mes</span>
               </div>
               <p className="font-mono text-xs text-bone/40 mt-1">Facturado {yearly ? 'anualmente' : 'mensualmente'}</p>
               <ul className="mt-7 space-y-3.5 font-body text-sm text-bone/75 flex-1">
-                {['Hasta 1,500 clientes activos','Hasta 15 agentes / terceros','Comisiones y control de terceros','Reportes avanzados y exportables','Subdominio y marca propia','Soporte prioritario 24/7'].map((f) => (
+                {['Hasta 50 clientes activos','Hasta 8 vendedores / agentes','Comisiones y control de terceros','Reportes avanzados y exportables','Subdominio y marca propia','Soporte prioritario 24/7'].map((f) => (
                   <li key={f} className="flex gap-2.5"><Check />{f}</li>
                 ))}
               </ul>
@@ -507,12 +588,12 @@ export default function LandingPage() {
               <h3 className="font-display font-semibold text-xl text-bone">Corporativo</h3>
               <p className="mt-2 font-body text-sm text-bone/55">Para redes de prestamistas y operaciones de alto volumen.</p>
               <div className="mt-6 flex items-baseline gap-1">
-                <span className="font-display font-bold text-4xl text-bone">{price(249,199)}</span>
+                <span className="font-display font-bold text-4xl text-bone">{price(249)}</span>
                 <span className="font-body text-bone/50 text-sm">/mes</span>
               </div>
               <p className="font-mono text-xs text-bone/40 mt-1">Facturado {yearly ? 'anualmente' : 'mensualmente'}</p>
               <ul className="mt-7 space-y-3.5 font-body text-sm text-bone/75 flex-1">
-                {['Clientes y carteras ilimitadas','Agentes y sucursales ilimitados','Integraciones vía API','Panel multi-empresa / multi-sede','Gerente de cuenta dedicado'].map((f) => (
+                {['Clientes ilimitados','Vendedores / agentes ilimitados','Integraciones vía API','Panel multi-empresa / multi-sede','Gerente de cuenta dedicado'].map((f) => (
                   <li key={f} className="flex gap-2.5"><Check />{f}</li>
                 ))}
               </ul>
@@ -530,8 +611,9 @@ export default function LandingPage() {
       </section>
 
       {/* ════════════════════════ OFERTA ESPECIAL ═════════════════════ */}
-      <section id="oferta" className="relative py-16 lg:py-20 bg-emerald-950">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
+      <section id="oferta" className="relative py-16 lg:py-20 bg-emerald-950 overflow-hidden">
+        <img src="/png-transparent-money-wallet-woman-united-states-dollar-banknote-money-bag-saving-service-public-relations-thumbnail.png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none" />
+        <div className="mx-auto max-w-7xl px-6 lg:px-10 relative z-10">
           <div className="fade-up relative overflow-hidden rounded-3xl border border-lime/25 bg-gradient-to-br from-emerald-800 via-emerald-900 to-graphite-900 px-8 py-12 lg:px-14 lg:py-14">
             <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-lime/10 blur-[100px]" />
             <div className="absolute -left-16 bottom-0 h-56 w-56 rounded-full bg-gold/10 blur-[90px]" />

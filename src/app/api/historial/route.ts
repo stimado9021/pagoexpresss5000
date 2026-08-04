@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const offset = parseInt(searchParams.get('offset') || '0')
 
   try {
-    const where: any = {
+    const where: { accion: { in: string[] }; tablaAfectada?: string } = {
       accion: { in: ['editar_pago', 'eliminar_pago'] },
     }
     if (tabla) where.tablaAfectada = tabla

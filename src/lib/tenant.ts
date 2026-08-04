@@ -41,7 +41,7 @@ export async function checkTenantLimit(tenantId: number, recurso: string): Promi
   const table = tableMap[recurso]
   if (!table) return { ok: true, used: 0, limit: -1 }
 
-  const whereClause: Record<string, unknown> = { tenantId }
+  const whereClause: { tenantId: number; rol?: string | { in: string[] } } = { tenantId }
   if (recurso === 'MAX_VENDEDORES') {
     whereClause.rol = { in: ['vendedor', 'empresario'] }
   } else if (recurso === 'MAX_CLIENTES') {
@@ -50,9 +50,9 @@ export async function checkTenantLimit(tenantId: number, recurso: string): Promi
 
   let used: number
   if (table === 'usuarios') {
-    used = await prisma.usuario.count({ where: whereClause as any })
+    used = await prisma.usuario.count({ where: whereClause })
   } else {
-    used = await prisma.prestamo.count({ where: whereClause as any })
+    used = await prisma.prestamo.count({ where: { tenantId } })
   }
 
   if (used >= limit) {

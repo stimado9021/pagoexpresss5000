@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, CreditCard, DollarSign, LogOut, Plus, Search,
   TrendingUp, CheckCircle2, X, AlertTriangle, Phone, Mail, MapPin,
-  Calendar, ArrowRight, ChevronRight, Banknote, Clock, BadgeCheck, Bell,
+  Calendar, ArrowRight, ChevronRight, ChevronDown, Banknote, Clock, BadgeCheck, Bell,
 } from 'lucide-react'
 import { Tooltip, InfoTip } from '@/components/Tooltip'
 
@@ -38,6 +38,9 @@ type Stats = {
 }
 
 type View = 'dashboard' | 'clientes' | 'prestamos' | 'pagos'
+
+type PagoItem = { id: number; monto: string; fechaPago: string; diasCubiertos: number; esPagoAtrasado: number }
+type PagoHistorial = PagoItem & { montoPrestamo: string }
 
 function Avatar({ nombre, apellido, size = 'md' }: { nombre: string; apellido: string; size?: 'sm' | 'md' }) {
   const s = size === 'sm' ? 'w-7 h-7 text-[10px]' : 'w-9 h-9 text-xs'
@@ -72,6 +75,18 @@ function yaPagoHoy(prestamo: { pagos?: { fechaPago: string }[] }): boolean {
   })
 }
 
+function cuotaHoyPagada(prestamo: { cuotaDiaria: number | string; pagos?: { fechaPago: string; monto: number | string }[] }): boolean {
+  if (!prestamo.pagos) return false
+  const hoy = new Date()
+  const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`
+  const cuotaNum = Number(prestamo.cuotaDiaria)
+  return prestamo.pagos.some((pg) => {
+    const f = new Date(pg.fechaPago)
+    const pgStr = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`
+    return pgStr === hoyStr && Number(pg.monto) >= cuotaNum
+  })
+}
+
 export default function VendedorPage() {
   const router = useRouter()
   const [view, setView] = useState<View>('dashboard')
@@ -81,6 +96,9 @@ export default function VendedorPage() {
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null)
   const [selectedPrestamo, setSelectedPrestamo] = useState<Prestamo | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userInfo, setUserInfo] = useState<{ nombre: string; apellido: string } | null>(null)
+  const [tenantName, setTenantName] = useState<string | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const cargarDashboard = async () => {
     setLoading(true)
@@ -106,9 +124,31 @@ export default function VendedorPage() {
   }
 
   useEffect(() => {
-    if (view === 'dashboard') cargarDashboard()
-    else if (view === 'clientes') cargarClientes()
-    else if (view === 'prestamos') cargarClientes()
+    let cancelled = false
+    const load = async () => {
+      setLoading(true)
+      try {
+        if (view === 'dashboard') {
+          const r = await fetch('/api/dashboard')
+          const d = await r.json()
+          if (cancelled) return
+          if (!d.success) { router.push('/login'); return }
+          setPrestamos(d.data.prestamos || [])
+          setStats(d.data.stats || null)
+          setClientes(d.data.clientes || [])
+          if (d.data.user) setUserInfo(d.data.user)
+          if (d.data.tenantName) setTenantName(d.data.tenantName)
+        } else if (view === 'clientes' || view === 'prestamos') {
+          const r = await fetch('/api/clientes?resumen=true')
+          const d = await r.json()
+          if (cancelled) return
+          if (d.success) setClientes(d.data)
+        }
+      } catch { }
+      if (!cancelled) setLoading(false)
+    }
+    load()
+    return () => { cancelled = true }
   }, [view, router])
 
   async function logout() {
@@ -120,18 +160,28 @@ export default function VendedorPage() {
 
   return (
     <div className="flex min-h-screen bg-emerald-950">
+      {/* ── Overlay para cerrar sidebar en móvil ── */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+
       {/* ── Sidebar ── */}
-      <aside className="fixed left-0 top-0 z-30 flex h-screen w-[220px] flex-col border-r border-bone/10 bg-graphite-900">
-        <div className="flex items-center gap-2.5 border-b border-bone/10 px-5 py-4">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.png" alt="PagoExpress" className="h-6 w-6 object-contain" /></span>
-          <span className="text-base font-bold text-bone">PagoExpress</span>
+      <aside className={`fixed left-0 top-0 z-50 flex h-screen w-[220px] flex-col border-r border-bone/10 bg-graphite-900 transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between border-b border-bone/10 px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.png" alt="PagoExpress" className="h-6 w-6 object-contain" /></span>
+            <span className="text-base font-bold text-bone">PagoExpress</span>
+          </div>
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-bone/60 hover:text-bone">
+            <X size={18} />
+          </button>
         </div>
 
         <nav className="mt-5 flex-1 space-y-1 px-3">
-          <SidebarBtn icon={<LayoutDashboard size={18} />} label="Dashboard" active={view === 'dashboard'} onClick={() => { setView('dashboard'); setSelectedCliente(null) }} />
-          <SidebarBtn icon={<Users size={18} />} label="Clientes" active={view === 'clientes'} onClick={() => { setView('clientes'); setSelectedCliente(null) }} />
-          <SidebarBtn icon={<CreditCard size={18} />} label="Préstamos" active={view === 'prestamos'} onClick={() => setView('prestamos')} />
-          <SidebarBtn icon={<DollarSign size={18} />} label="Pagos" active={view === 'pagos'} onClick={() => setView('pagos')} />
+          <SidebarBtn icon={<LayoutDashboard size={18} />} label="Dashboard" active={view === 'dashboard'} onClick={() => { setView('dashboard'); setSelectedCliente(null); setSidebarOpen(false) }} />
+          <SidebarBtn icon={<Users size={18} />} label="Clientes" active={view === 'clientes'} onClick={() => { setView('clientes'); setSelectedCliente(null); setSidebarOpen(false) }} />
+          <SidebarBtn icon={<CreditCard size={18} />} label="Préstamos" active={view === 'prestamos'} onClick={() => { setView('prestamos'); setSidebarOpen(false) }} />
+          <SidebarBtn icon={<DollarSign size={18} />} label="Pagos" active={view === 'pagos'} onClick={() => { setView('pagos'); setSidebarOpen(false) }} />
         </nav>
 
         <div className="border-t border-bone/10 px-3 py-4">
@@ -149,22 +199,35 @@ export default function VendedorPage() {
       </aside>
 
       {/* ── Main ── */}
-      <div className="ml-[220px] flex-1">
-        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-bone/10 bg-graphite-900 px-8 py-3.5">
-          <div className="flex items-center gap-2 text-sm text-bone/60">
-            <span className="text-bone font-medium">Vendedor</span>
-            <span className="mx-1">/</span>
-            <span>{view === 'dashboard' ? 'Resumen' : view === 'clientes' ? 'Clientes' : view === 'prestamos' ? 'Préstamos' : 'Pagos'}</span>
+      <div className="flex-1 lg:ml-[220px]">
+        {/* Header */}
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-bone/10 bg-graphite-900 px-4 py-3 lg:px-8">
+          <div className="flex items-center gap-2">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-bone/60 hover:text-bone p-1">
+              <LayoutDashboard size={20} />
+            </button>
+            <div className="flex items-center gap-1.5 text-xs text-bone/60 sm:text-sm">
+              <span className="text-bone font-medium">Vendedor</span>
+              <span className="mx-0.5">/</span>
+              <span>{view === 'dashboard' ? 'Resumen' : view === 'clientes' ? 'Clientes' : view === 'prestamos' ? 'Préstamos' : 'Pagos'}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-bone/60">{today}</span>
-            <button onClick={logout} className="flex items-center gap-1.5 rounded-lg border border-bone/10 px-3 py-1.5 text-sm text-bone/60 hover:bg-emerald-950 transition-colors">
-              <LogOut size={15} /> Salir
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className="hidden sm:inline text-sm text-bone/60">{today}</span>
+            <button onClick={logout} className="flex items-center gap-1.5 rounded-lg border border-bone/10 px-2.5 py-1.5 text-xs text-bone/60 hover:bg-emerald-950 transition-colors sm:px-3 sm:text-sm">
+              <LogOut size={14} /> Salir
             </button>
           </div>
         </header>
 
-        <div className="p-8">
+        {/* Title — centrado en móvil */}
+        <div className="px-4 pt-4 text-center lg:px-8 lg:pt-6 lg:text-left">
+          <h1 className="font-display font-bold text-xl text-white uppercase tracking-wider sm:text-2xl lg:text-4xl">
+            {tenantName || 'EMPRESA'} : {userInfo ? `${userInfo.nombre} ${userInfo.apellido}` : 'Vendedor'}
+          </h1>
+        </div>
+
+        <div className="p-4 sm:p-6 lg:p-8">
           {view === 'dashboard' && <DashboardView stats={stats} prestamos={prestamos} loading={loading} />}
           {view === 'clientes' && (
             <ClientesView
@@ -184,7 +247,7 @@ export default function VendedorPage() {
 /* ═══════════════════════════ DASHBOARD VIEW ═══════════════════════════ */
 
 function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; prestamos: Prestamo[]; loading: boolean }) {
-  const [selectedPrestamoId, setSelectedPrestamoId] = useState<number | null>(null)
+  const [expandedClientId, setExpandedClientId] = useState<string | null>(null)
 
   async function handleCobrar(prestamo: Prestamo, montoExtra?: number) {
     const monto = montoExtra || Number(prestamo.cuotaDiaria)
@@ -214,12 +277,12 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
 
   return (
     <>
-      <div className="mb-8">
-        <h2 className="text-base font-semibold text-bone">Resumen de cobros</h2>
-        <p className="mt-0.5 text-sm text-bone/60">Vista general de tus clientes y préstamos</p>
+      <div className="mb-4 text-center sm:mb-6 sm:text-left">
+        <h2 className="text-sm font-semibold text-bone sm:text-base">Resumen de cobros</h2>
+        <p className="mt-0.5 text-xs text-bone/60 sm:text-sm">Vista general de tus clientes y préstamos</p>
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-3 lg:grid-cols-4">
         <StatCard icon={<CreditCard size={16} />} iconBg="bg-lime/10 text-lime" label="Activos" value={String(stats?.activos ?? 0)} tip="Cantidad de préstamos que están en curso y aún no se han pagado completamente" />
         <StatCard icon={<DollarSign size={16} />} iconBg="bg-emerald-500/20 text-emerald-400" label="Recuperado" value={stats ? moneyFmt.format(stats.monto_recuperado) : '$0'} color="text-emerald-400" tip="Dinero total que tus clientes ya han pagado" />
         <StatCard icon={<TrendingUp size={16} />} iconBg="bg-amber-500/15 text-amber-400" label="Pendiente" value={stats ? moneyFmt.format(stats.saldo_pendiente) : '$0'} color="text-amber-400" tip="Dinero que aún te deben los clientes por pagar" />
@@ -231,227 +294,198 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
         if (enMora.length === 0) return null
         const maxDias = Math.max(...enMora.map(p => p.diasAtrasados))
         return (
-          <div className={`rounded-xl border-2 p-4 mb-6 ${maxDias >= 7 ? 'border-[#EF4444] bg-red-500/15' : 'border-[#F59E0B] bg-amber-500/15'}`}>
-            <div className="flex items-start gap-3">
-              <div className={`flex h-9 w-9 items-center justify-center rounded-full ${maxDias >= 7 ? 'bg-red-500' : 'bg-amber-500'}`}>
-                <AlertTriangle size={18} className="text-bone" />
+          <div className={`rounded-xl border-2 p-3 mb-4 ${maxDias >= 7 ? 'border-[#EF4444] bg-red-500/15' : 'border-[#F59E0B] bg-amber-500/15'}`}>
+            <div className="flex items-center gap-3">
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full shrink-0 ${maxDias >= 7 ? 'bg-red-500' : 'bg-amber-500'}`}>
+                <AlertTriangle size={16} className="text-bone" />
               </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className={`text-sm font-bold ${maxDias >= 7 ? 'text-red-400' : 'text-amber-400'}`}>
-                      {enMora.length} cliente{enMora.length !== 1 ? 's' : ''} con atraso
-                    </p>
-                    <p className="text-xs mt-0.5 text-bone/60">
-                      {maxDias >= 7 ? 'Hay clientes con mora severa. Envía recordatorios urgentes.' : `Máximo atraso: ${maxDias} días`}
-                    </p>
-                  </div>
-                  <button onClick={async () => {
-                    try {
-                      const r = await fetch('/api/recordatorios', { method: 'POST' })
-                      const d = await r.json()
-                      alert(d.message || 'Recordatorios enviados')
-                    } catch { alert('Error al enviar recordatorios') }
-                  }} className="flex items-center gap-1.5 rounded-lg bg-graphite-900 border border-bone/10 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-emerald-950 transition-colors shadow-sm">
-                    <Bell size={13} /> Recordatorios
-                  </button>
-                </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-xs font-bold ${maxDias >= 7 ? 'text-red-400' : 'text-amber-400'}`}>
+                  {enMora.length} cliente{enMora.length !== 1 ? 's' : ''} con atraso
+                </p>
+                <p className="text-[11px] text-bone/60">
+                  {maxDias >= 7 ? 'Mora severa — envía recordatorios' : `Máx: ${maxDias} días`}
+                </p>
               </div>
+              <button onClick={async () => {
+                try {
+                  const r = await fetch('/api/recordatorios', { method: 'POST' })
+                  const d = await r.json()
+                  alert(d.message || 'Recordatorios enviados')
+                } catch { alert('Error al enviar recordatorios') }
+              }} className="shrink-0 flex items-center gap-1 rounded-lg bg-graphite-900 border border-bone/10 px-2.5 py-1.5 text-[11px] font-medium text-red-400 hover:bg-emerald-950 transition-colors">
+                <Bell size={12} /> Enviar
+              </button>
             </div>
           </div>
         )
       })()}
 
       {prestamos.length === 0 ? (
-        <div className="rounded-xl border border-bone/10 bg-graphite-900 p-12 text-center shadow-sm">
-          <p className="text-sm text-bone/60">No hay préstamos registrados</p>
+        <div className="rounded-xl border border-bone/10 bg-graphite-900 p-8 text-center shadow-sm sm:p-12">
+          <p className="text-xs text-bone/60 sm:text-sm">No hay préstamos registrados</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-2 sm:space-y-3">
           {Array.from(prestamosPorCliente.values()).map(({ cliente, prestamos: ps }) => {
             const activos = ps.filter(p => p.estado === 'activo')
             const maxDiasAtraso = Math.max(0, ...activos.map(p => p.diasAtrasados))
             const saldoTotal = activos.reduce((s, p) => s + Number(p.saldoPendiente), 0)
             const pagadoTotal = ps.reduce((s, p) => s + Number(p.montoPagado), 0)
+            const isExpanded = expandedClientId === cliente.cedula
 
             return (
               <div key={cliente.cedula} className="rounded-xl border border-bone/10 bg-graphite-900 shadow-sm overflow-hidden">
-                {/* Header del cliente */}
-                <div className={`flex items-center justify-between px-5 py-4 ${
-                  maxDiasAtraso >= 7 ? 'bg-red-500/15 border-b-2 border-[#EF4444]' :
-                  maxDiasAtraso > 0 ? 'bg-amber-500/15 border-b-2 border-[#F59E0B]' :
-                  'bg-emerald-950 border-b border-bone/10'
-                }`}>
-                  <div className="flex items-center gap-3">
-                    <Avatar nombre={cliente.nombre} apellido={cliente.apellido} />
-                    <div>
-                      <p className="text-sm font-semibold text-bone uppercase">{cliente.nombre} {cliente.apellido}</p>
-                      <p className="text-xs text-bone/60">{cliente.cedula}</p>
+                {/* Header clickeable — accordion trigger */}
+                <button
+                  onClick={() => setExpandedClientId(isExpanded ? null : cliente.cedula)}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors sm:px-4 sm:py-3 ${
+                    maxDiasAtraso >= 7 ? 'bg-red-500/15' :
+                    maxDiasAtraso > 0 ? 'bg-amber-500/15' :
+                    'bg-emerald-950'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0 sm:gap-2.5">
+                    <Avatar nombre={cliente.nombre} apellido={cliente.apellido} size="sm" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-bone uppercase truncate sm:text-sm">{cliente.nombre} {cliente.apellido}</p>
+                      <p className="text-[10px] text-bone/60 sm:text-[11px]">{cliente.cedula}</p>
                     </div>
                     {maxDiasAtraso > 0 && (
-                      <span className={`ml-2 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                      <span className={`shrink-0 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-semibold sm:px-2 sm:text-[10px] ${
                         maxDiasAtraso >= 7 ? 'bg-red-500 text-bone' : 'bg-amber-500 text-bone'
                       }`}>
-                        <AlertTriangle size={11} /> {maxDiasAtraso}d atraso
+                        <AlertTriangle size={8} className="sm:hidden" /><AlertTriangle size={9} className="hidden sm:block" /> {maxDiasAtraso}d
                       </span>
                     )}
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-bone/60">Saldo: <span className="font-semibold text-amber-400">{moneyFmt.format(saldoTotal)}</span></p>
-                    <p className="text-xs text-bone/60">Pagado: <span className="font-semibold text-emerald-400">{moneyFmt.format(pagadoTotal)}</span></p>
+                  <div className="flex items-center gap-1.5 shrink-0 sm:gap-2">
+                    <div className="text-right text-[10px] sm:text-[11px]">
+                      <p className="text-amber-400 font-semibold">{moneyFmt.format(saldoTotal)}</p>
+                      <p className="text-bone/60">/{moneyFmt.format(pagadoTotal)}</p>
+                    </div>
+                    <ChevronDown size={14} className={`text-bone/60 transition-transform duration-200 sm:size-4 ${isExpanded ? 'rotate-180' : ''}`} />
                   </div>
-                </div>
+                </button>
 
-                {/* Préstamos del cliente */}
-                <div className="divide-y divide-[#E5E7EB]">
-                  {ps.map((p) => {
-                    const pct = Number(p.montoSolicitado) > 0 ? Math.round((Number(p.montoPagado) / Number(p.montoSolicitado)) * 100) : 0
-                    const montoConInteres = Number(p.montoSolicitado) * 1.20
-                    const cuotasRestantes = Math.max(0, p.diasPlazo - p.diasPagados)
-                    const saldoAtrasado = p.diasAtrasados > 0 ? Number(p.cuotaDiaria) * p.diasAtrasados : 0
-                    const fechaInicio = new Date(p.fechaInicio)
-                    const fechaFin = new Date(fechaInicio)
-                    fechaFin.setDate(fechaFin.getDate() + p.diasPlazo)
-                    const isSelected = selectedPrestamoId === p.id
+                {/* Contenido del accordion */}
+                {isExpanded && (
+                  <div className="border-t border-bone/10 divide-y divide-bone/10">
+                    {/* Préstamos del cliente */}
+                    {ps.map((p) => {
+                      const pct = Number(p.montoSolicitado) > 0 ? Math.round((Number(p.montoPagado) / Number(p.montoSolicitado)) * 100) : 0
+                      const cuotasRestantes = Math.max(0, p.diasPlazo - p.diasPagados)
+                      const saldoAtrasado = p.diasAtrasados > 0 ? Number(p.cuotaDiaria) * p.diasAtrasados : 0
 
-                    return (
-                      <div key={p.id} className={`transition-colors ${isSelected ? 'bg-lime/10/30' : ''}`}>
-                        {/* Fila resumen (clickeable) */}
-                        <button onClick={() => setSelectedPrestamoId(isSelected ? null : p.id)}
-                          className="flex w-full items-center justify-between px-5 py-3.5 hover:bg-emerald-950 transition-colors text-left">
-                          <div className="flex items-center gap-3">
-                            <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
-                              p.estado === 'pagado' ? 'bg-emerald-500/20 text-emerald-400' :
-                              p.diasAtrasados > 0 ? 'bg-red-500/15 text-red-400' : 'bg-lime/10 text-lime'
-                            }`}>
-                              {p.estado === 'pagado' ? <CheckCircle2 size={13} /> : `${p.diasPagados}/${p.diasPlazo}`}
-                            </span>
-                            <div>
-                              <p className="text-sm font-medium text-bone">{moneyFmt.format(Number(p.montoSolicitado))}</p>
-                              <p className="text-[11px] text-bone/60">{pct}% pagado · {cuotasRestantes} días restantes</p>
+                      return (
+                        <div key={p.id} className="px-3 py-2.5 sm:px-4 sm:py-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-semibold sm:h-6 sm:w-6 sm:text-[10px] ${
+                                p.estado === 'pagado' ? 'bg-emerald-500/20 text-emerald-400' :
+                                p.diasAtrasados > 0 ? 'bg-red-500/15 text-red-400' : 'bg-lime/10 text-lime'
+                              }`}>
+                                {p.estado === 'pagado' ? <CheckCircle2 size={10} /> : `${p.diasPagados}/${p.diasPlazo}`}
+                              </span>
+                              <div>
+                                <p className="text-[11px] font-medium text-bone sm:text-xs">{moneyFmt.format(Number(p.montoSolicitado))}</p>
+                                <p className="text-[9px] text-bone/60 sm:text-[10px]">{pct}% · {cuotasRestantes}d restantes</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <BadgeEstado estado={p.estado} />
+                              {p.diasAtrasados > 0 && (
+                                <span className="text-[9px] font-semibold text-red-400 sm:text-[10px]">{p.diasAtrasados}d</span>
+                              )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <BadgeEstado estado={p.estado} />
-                            {p.diasAtrasados > 0 && (
-                              <span className="text-[11px] font-semibold text-red-400">{p.diasAtrasados}d atraso</span>
-                            )}
-                            <ChevronRight size={16} className={`text-bone/60 transition-transform ${isSelected ? 'rotate-90' : ''}`} />
+
+                          {/* Barra de progreso compacta */}
+                          <div className="h-1 overflow-hidden rounded-full bg-bone/10 sm:h-1.5">
+                            <div className={`h-full rounded-full transition-all ${p.diasAtrasados > 0 ? 'bg-amber-500' : 'bg-lime'}`} style={{ width: `${Math.min(100, pct)}%` }} />
                           </div>
-                        </button>
 
-                        {/* Panel expandido */}
-                        {isSelected && (
-                          <div className="border-t border-bone/10 px-5 py-4 bg-emerald-900 space-y-4">
-                            {/* Fechas */}
-                            <div className="grid grid-cols-2 gap-3 text-xs">
-                              <div className="flex items-center gap-1.5 text-bone/60">
-                                <Calendar size={11} />
-                                <span>Inicio: {fechaInicio.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                              </div>
-                              <div className="flex items-center gap-1.5 text-bone/60">
-                                <Calendar size={11} />
-                                <span>Fin: {fechaFin.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                              </div>
+                          {/* Detalle expandido del préstamo */}
+                          <div className="mt-2 grid grid-cols-2 gap-2 text-[10px]">
+                            <div className="rounded-md bg-emerald-950 p-2">
+                              <p className="text-bone/60">Cuota diaria</p>
+                              <p className="font-semibold text-bone">{moneyFmt.format(Number(p.cuotaDiaria))}</p>
                             </div>
-
-                            {/* Resumen financiero */}
-                            <div className="grid grid-cols-2 gap-3 text-xs">
-                              <div className="rounded-lg bg-graphite-900 p-3 border border-bone/10">
-                                <p className="text-bone/60 flex items-center gap-1">Monto + interés <InfoTip text="El dinero prestado más el interés calculado. Es lo que el cliente debe en total." /></p>
-                                <p className="font-semibold text-bone">{moneyFmt.format(montoConInteres)}</p>
-                              </div>
-                              <div className="rounded-lg bg-graphite-900 p-3 border border-bone/10">
-                                <p className="text-bone/60 flex items-center gap-1">Cuota diaria <InfoTip text="Cantidad que el cliente debe pagar cada día para cubrir el préstamo." /></p>
-                                <p className="font-semibold text-bone">{moneyFmt.format(Number(p.cuotaDiaria))}</p>
-                              </div>
-                              <div className="rounded-lg bg-graphite-900 p-3 border border-bone/10">
-                                <p className="text-bone/60 flex items-center gap-1">Saldo restante <InfoTip text="Dinero que falta por pagar del préstamo. Baja cada vez que el cliente paga." /></p>
-                                <p className="font-semibold text-amber-400">{moneyFmt.format(Number(p.saldoPendiente))}</p>
-                              </div>
-                              <div className="rounded-lg bg-graphite-900 p-3 border border-bone/10">
-                                <p className="text-bone/60 flex items-center gap-1">Cuotas por pagar <InfoTip text="Días que quedan para terminar de pagar el préstamo." /></p>
-                                <p className="font-semibold text-bone">{cuotasRestantes} de {p.diasPlazo}</p>
-                              </div>
+                            <div className="rounded-md bg-emerald-950 p-2">
+                              <p className="text-bone/60">Saldo</p>
+                              <p className="font-semibold text-amber-400">{moneyFmt.format(Number(p.saldoPendiente))}</p>
                             </div>
-
-                            {/* Barra de progreso */}
-                            <div>
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-[11px] text-bone/60 flex items-center gap-1">Progreso <InfoTip text="Porcentaje del préstamo que ya fue pagado. Cuando llega a 100%, el préstamo está completo." /></span>
-                                <span className="text-[11px] font-medium text-lime">{pct}%</span>
-                              </div>
-                              <div className="h-2 overflow-hidden rounded-full bg-bone/10">
-                                <div className={`h-full rounded-full transition-all ${p.diasAtrasados > 0 ? 'bg-amber-500' : 'bg-lime'}`} style={{ width: `${Math.min(100, pct)}%` }} />
-                              </div>
-                              <div className="flex items-center justify-between mt-1">
-                                <span className="text-[10px] text-bone/60">{p.diasPagados} días pagados</span>
-                                <span className="text-[10px] text-bone/60">Quedan {cuotasRestantes} días</span>
-                              </div>
-                            </div>
-
-                            {/* Alerta de atraso */}
-                            {p.diasAtrasados > 0 && (
-                              <div className="rounded-lg bg-red-500/15 border border-red-500/40 p-3">
-                                <p className="text-[11px] font-medium text-red-400">
-                                  Debe {p.diasAtrasados} día{p.diasAtrasados !== 1 ? 's' : ''} = {moneyFmt.format(saldoAtrasado)}
-                                </p>
-                                <p className="text-[10px] text-bone/60 mt-0.5">
-                                  Pague {moneyFmt.format(saldoAtrasado + Number(p.cuotaDiaria))} para cubrir el atraso y la cuota de hoy.
-                                </p>
-                              </div>
-                            )}
-
-                            {p.estado === 'pagado' && (
-                              <div className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-500/20 px-3 py-2.5 text-xs font-medium text-emerald-400">
-                                <BadgeCheck size={13} /> Préstamo completado
-                              </div>
-                            )}
                           </div>
-                        )}
-                      </div>
-                    )
-                  })}
 
-                  {/* ── Botón único de cobro por cliente ── */}
-                  {(() => {
-                    const activos = ps.filter(p => p.estado === 'activo')
-                    if (activos.length === 0) return null
-
-                    const totalCuotaDiaria = activos.reduce((s, p) => s + Number(p.cuotaDiaria), 0)
-                    const maxDiasAtrasoLocal = Math.max(0, ...activos.map(p => p.diasAtrasados))
-                    const totalSaldoAtrasado = activos.reduce((s, p) => s + (p.diasAtrasados > 0 ? Number(p.cuotaDiaria) * p.diasAtrasados : 0), 0)
-                    const totalSaldoHoy = totalSaldoAtrasado + totalCuotaDiaria
-                    const todosPagaronHoy = activos.every(p => yaPagoHoy(p))
-                    const esPrimerDia = activos.every(p => p.diasPagados === 0 && p.diasAtrasados === 0)
-
-                    return (
-                      <div className="px-5 py-4 border-t border-bone/10">
-                        {todosPagaronHoy || esPrimerDia ? (
-                          <Tooltip text={esPrimerDia ? 'El préstamo fue creado hoy. El primer cobro se hace mañana.' : 'Este cliente ya pagó la cuota de hoy. No hay nada que cobrar.'}>
-                            <div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-bone/10 px-4 py-3.5 text-sm font-medium tracking-wide text-bone/40 cursor-not-allowed">
-                              <Clock size={14} /> {esPrimerDia ? 'Primer día — cobra mañana' : 'Ya cobró hoy'}
+                          {p.diasAtrasados > 0 && (
+                            <div className="mt-2 rounded-md bg-red-500/15 border border-red-500/30 px-2.5 py-1.5">
+                              <p className="text-[10px] text-red-400">
+                                Debe {p.diasAtrasados}d = {moneyFmt.format(saldoAtrasado + Number(p.cuotaDiaria))}
+                              </p>
                             </div>
-                          </Tooltip>
-                        ) : maxDiasAtrasoLocal > 0 ? (
-                          <Tooltip text={`Registra el pago del cliente para cubrir ${maxDiasAtrasoLocal} día(s) de atraso más la cuota de hoy. El saldo atrasado es ${moneyFmt.format(totalSaldoAtrasado)}.`}>
-                            <button onClick={() => handleCobrar(activos[0], totalSaldoHoy)}
-                              className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-red-500 px-4 py-3.5 text-sm font-medium tracking-wide text-bone hover:bg-red-600 transition-colors">
-                              <AlertTriangle size={14} /> Ponerse al día ({moneyFmt.format(totalSaldoHoy)})
-                            </button>
-                          </Tooltip>
-                        ) : (
-                          <Tooltip text={`Registra el cobro de la cuota diaria de este cliente. Se descontará del saldo pendiente del préstamo.`}>
+                          )}
+                        </div>
+                      )
+                    })}
+
+                    {/* Botones de cobro */}
+                    {(() => {
+                      if (activos.length === 0) return null
+                      const totalCuotaDiaria = activos.reduce((s, p) => s + Number(p.cuotaDiaria), 0)
+                      const maxDiasAtrasoLocal = Math.max(0, ...activos.map(p => p.diasAtrasados))
+                      const todosHoyPagado = activos.every(p => cuotaHoyPagada(p))
+                      const esPrimerDia = activos.every(p => p.diasPagados === 0 && p.diasAtrasados === 0)
+                      const hayPendientes = maxDiasAtrasoLocal > 0 || !todosHoyPagado
+
+                      if (!hayPendientes || esPrimerDia) {
+                        return (
+                          <div className="px-3 py-2.5 sm:px-4 sm:py-3">
+                            <Tooltip text={esPrimerDia ? 'El préstamo fue creado hoy. El primer cobro se hace mañana.' : 'Ya pagó todo hoy.'}>
+                              <div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-bone/10 px-2.5 py-2 text-[11px] font-medium text-bone/40 cursor-not-allowed sm:px-3 sm:py-2.5 sm:text-xs">
+                                <Clock size={11} className="sm:hidden" /><Clock size={12} className="hidden sm:block" /> {esPrimerDia ? 'Primer día — cobra mañana' : 'Ya cobró todo hoy'}
+                              </div>
+                            </Tooltip>
+                          </div>
+                        )
+                      }
+
+                      return (
+                        <div className="px-3 py-2.5 space-y-1.5 sm:px-4 sm:py-3 sm:space-y-2">
+                          {maxDiasAtrasoLocal > 0 && (
+                            <>
+                              <p className="text-[10px] text-red-400/80 font-medium sm:text-[11px]">
+                                {maxDiasAtrasoLocal} día{maxDiasAtrasoLocal !== 1 ? 's' : ''} atraso — abonar $5.000 c/u
+                              </p>
+                              <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                                {Array.from({ length: maxDiasAtrasoLocal }, (_, i) => {
+                                  const fecha = new Date()
+                                  fecha.setDate(fecha.getDate() - (maxDiasAtrasoLocal - 1 - i))
+                                  const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
+                                  return (
+                                    <button key={`atraso-${i}`} onClick={() => handleCobrar(activos[0], 5000)}
+                                      className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
+                                      <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                                      <span>{fechaStr}</span>
+                                      <span className="font-semibold">$5k</span>
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </>
+                          )}
+                          {!todosHoyPagado && (
                             <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria)}
-                              className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-lime px-4 py-3.5 text-sm font-medium tracking-wide text-emerald-950 font-display hover:bg-bone transition-colors">
-                              <Banknote size={14} /> Cobrar cuota ({moneyFmt.format(totalCuotaDiaria)})
+                              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2.5 py-2 text-[11px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-[0.98] sm:gap-2 sm:px-3 sm:py-2.5 sm:text-xs">
+                              <Calendar size={11} className="sm:hidden" /><Calendar size={12} className="hidden sm:block" />
+                              <span>Hoy · {new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
+                              <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
                             </button>
-                          </Tooltip>
-                        )}
-                      </div>
-                    )
-                  })()}
-                </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+                  </div>
+                )}
               </div>
             )
           })}
@@ -477,8 +511,8 @@ function ClientesView({
   const [saving, setSaving] = useState(false)
   const [buscar, setBuscar] = useState('')
   const [detailLoading, setDetailLoading] = useState(false)
-  const [pagoEditando, setPagoEditando] = useState<any>(null)
-  const [pagoEliminando, setPagoEliminando] = useState<any>(null)
+  const [pagoEditando, setPagoEditando] = useState<PagoItem | null>(null)
+  const [pagoEliminando, setPagoEliminando] = useState<PagoItem | null>(null)
   const [pagoMotivo, setPagoMotivo] = useState('')
   const [pagoMontoEdit, setPagoMontoEdit] = useState('')
   const [pagoFechaEdit, setPagoFechaEdit] = useState('')
@@ -515,7 +549,7 @@ function ClientesView({
     setSaving(false)
   }
 
-  function openEditPago(pg: any) {
+  function openEditPago(pg: PagoItem) {
     setPagoEditando(pg)
     setPagoMontoEdit(String(Number(pg.monto)))
     const f = new Date(pg.fechaPago)
@@ -554,7 +588,7 @@ function ClientesView({
     setPagoSaving(false)
   }
 
-  function openDeletePago(pg: any) {
+  function openDeletePago(pg: PagoItem) {
     setPagoEliminando(pg)
     setPagoMotivo('')
     setPagoMsg(null)
@@ -835,7 +869,7 @@ function ClientesView({
                       const fechaInicio = new Date(p.fechaInicio)
                       const fechaFin = new Date(fechaInicio)
                       fechaFin.setDate(fechaFin.getDate() + p.diasPlazo)
-                      const pagos = (p as any).pagos || []
+                      const pagos = p.pagos || []
                       const fechaUltimoPago = pagos.length > 0 ? new Date(pagos[0].fechaPago) : null
 
                       return (
@@ -984,9 +1018,9 @@ function ClientesView({
 
               {/* ── Historial de pagos recientes ── */}
               {(() => {
-                const todosLosPagos: any[] = []
+                const todosLosPagos: PagoHistorial[] = []
                 ;(selectedCliente.prestamosCliente || []).forEach(p => {
-                  ;((p as any).pagos || []).forEach((pg: any) => {
+                  ;(p.pagos || []).forEach((pg) => {
                     todosLosPagos.push({ ...pg, montoPrestamo: p.montoSolicitado })
                   })
                 })
@@ -1443,15 +1477,15 @@ function PagosView() {
   const [pagos, setPagos] = useState<PagoConCliente[]>([])
   const [loading, setLoading] = useState(true)
   const [buscar, setBuscar] = useState('')
-  const [pagoEditando, setPagoEditando] = useState<any>(null)
-  const [pagoEliminando, setPagoEliminando] = useState<any>(null)
+  const [pagoEditando, setPagoEditando] = useState<PagoConCliente | null>(null)
+  const [pagoEliminando, setPagoEliminando] = useState<PagoConCliente | null>(null)
   const [pagoMotivo, setPagoMotivo] = useState('')
   const [pagoMontoEdit, setPagoMontoEdit] = useState('')
   const [pagoFechaEdit, setPagoFechaEdit] = useState('')
   const [pagoSaving, setPagoSaving] = useState(false)
   const [pagoMsg, setPagoMsg] = useState<{ ok: boolean; text: string } | null>(null)
 
-  function openEditPago(pg: any) {
+  function openEditPago(pg: PagoConCliente) {
     setPagoEditando(pg)
     setPagoMontoEdit(String(Number(pg.monto)))
     const f = new Date(pg.fechaPago)
@@ -1487,7 +1521,7 @@ function PagosView() {
     setPagoSaving(false)
   }
 
-  function openDeletePago(pg: any) {
+  function openDeletePago(pg: PagoConCliente) {
     setPagoEliminando(pg)
     setPagoMotivo('')
     setPagoMsg(null)
@@ -1735,13 +1769,15 @@ function SidebarBtn({ icon, label, active, onClick }: { icon: React.ReactNode; l
 
 function StatCard({ icon, iconBg, label, value, color, tip }: { icon: React.ReactNode; iconBg: string; label: string; value: string; color?: string; tip?: string }) {
   return (
-    <div className="rounded-xl border border-bone/10 bg-graphite-900 p-5 shadow-sm">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg mb-3" style={{}}><div className={iconBg + ' flex h-9 w-9 items-center justify-center rounded-lg'}>{icon}</div></div>
-      <div className="flex items-center gap-1.5">
-        <p className="text-sm text-bone/60">{label}</p>
-        {tip && <InfoTip text={tip} />}
+    <div className="rounded-xl border border-bone/10 bg-graphite-900 p-3 shadow-sm sm:p-4 lg:p-5">
+      <div className="flex items-center gap-2 mb-1.5 sm:mb-2 lg:mb-3">
+        <div className={`${iconBg} flex h-7 w-7 items-center justify-center rounded-lg sm:h-8 sm:w-8 lg:h-9 lg:w-9`}>{icon}</div>
+        <div className="flex items-center gap-1">
+          <p className="text-[11px] text-bone/60 sm:text-xs lg:text-sm">{label}</p>
+          {tip && <InfoTip text={tip} />}
+        </div>
       </div>
-      <p className={`text-2xl font-bold ${color || 'text-bone'}`}>{value}</p>
+      <p className={`text-lg font-bold sm:text-xl lg:text-2xl ${color || 'text-bone'}`}>{value}</p>
     </div>
   )
 }

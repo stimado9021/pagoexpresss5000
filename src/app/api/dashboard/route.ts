@@ -8,31 +8,44 @@ export async function GET() {
   if (!session) return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
 
   try {
-    if (session.rol === 'superadmin') {
-      const vendedores = await prisma.usuario.findMany({
-        where: { rol: 'vendedor', activo: 1 },
-        select: {
-          id: true, cedula: true, nombre: true, apellido: true, telefono: true, email: true,
-          _count: { select: { clientes: true } },
-          prestamosCreados: { select: { montoSolicitado: true, estado: true } },
-        },
-      })
+    const [userInfo, tenantRecord] = await Promise.all([
+      prisma.usuario.findUnique({
+        where: { id: session.userId },
+        select: { nombre: true, apellido: true },
+      }),
+      session.tenantId
+        ? prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { nombre: true } })
+        : null,
+    ])
+    const tenantName = tenantRecord?.nombre ?? null
 
-      const rawClientes = await prisma.prestamo.findMany({
-        where: { estado: 'activo' },
-        select: {
-          cliente: { select: { nombre: true, apellido: true } },
-          cuotaDiaria: true,
-          saldoPendiente: true,
-          diasAtrasados: true,
-          fechaInicio: true,
-          fechaUltimoPago: true,
-          estado: true,
-          vendedor: { select: { nombre: true, apellido: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-      })
+    if (session.rol === 'superadmin') {
+      const [vendedores, rawClientes] = await Promise.all([
+        prisma.usuario.findMany({
+          where: { rol: 'vendedor', activo: 1 },
+          select: {
+            id: true, cedula: true, nombre: true, apellido: true, telefono: true, email: true,
+            _count: { select: { clientes: true } },
+            prestamosCreados: { select: { montoSolicitado: true, estado: true } },
+          },
+        }),
+        prisma.prestamo.findMany({
+          where: { estado: 'activo' },
+          select: {
+            cliente: { select: { nombre: true, apellido: true } },
+            cuotaDiaria: true,
+            saldoPendiente: true,
+            diasAtrasados: true,
+            fechaInicio: true,
+            fechaUltimoPago: true,
+            estado: true,
+            vendedor: { select: { nombre: true, apellido: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 20,
+        }),
+      ])
+
       const clientes = rawClientes.map((c) => ({
         ...c,
         diasAtrasados: calcularDiasAtrasados(c),
@@ -58,7 +71,7 @@ export async function GET() {
 
       return NextResponse.json({
         success: true,
-        data: { vendedores: mappedVendedores, clientes, stats },
+        data: { vendedores: mappedVendedores, clientes, stats, user: userInfo, tenantName },
       })
     }
 
@@ -68,30 +81,32 @@ export async function GET() {
         return NextResponse.json({ success: false, message: 'Tenant no asignado' }, { status: 400 })
       }
 
-      const vendedores = await prisma.usuario.findMany({
-        where: { tenantId, rol: 'vendedor', activo: 1 },
-        select: {
-          id: true, cedula: true, nombre: true, apellido: true, telefono: true, email: true,
-          _count: { select: { clientes: true } },
-          prestamosCreados: { select: { montoSolicitado: true, estado: true } },
-        },
-      })
+      const [vendedores, rawClientes] = await Promise.all([
+        prisma.usuario.findMany({
+          where: { tenantId, rol: 'vendedor', activo: 1 },
+          select: {
+            id: true, cedula: true, nombre: true, apellido: true, telefono: true, email: true,
+            _count: { select: { clientes: true } },
+            prestamosCreados: { select: { montoSolicitado: true, estado: true } },
+          },
+        }),
+        prisma.prestamo.findMany({
+          where: { tenantId, estado: 'activo' },
+          select: {
+            cliente: { select: { nombre: true, apellido: true } },
+            cuotaDiaria: true,
+            saldoPendiente: true,
+            diasAtrasados: true,
+            fechaInicio: true,
+            fechaUltimoPago: true,
+            estado: true,
+            vendedor: { select: { nombre: true, apellido: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 20,
+        }),
+      ])
 
-      const rawClientes = await prisma.prestamo.findMany({
-        where: { tenantId, estado: 'activo' },
-        select: {
-          cliente: { select: { nombre: true, apellido: true } },
-          cuotaDiaria: true,
-          saldoPendiente: true,
-          diasAtrasados: true,
-          fechaInicio: true,
-          fechaUltimoPago: true,
-          estado: true,
-          vendedor: { select: { nombre: true, apellido: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-      })
       const clientes = rawClientes.map((c) => ({
         ...c,
         diasAtrasados: calcularDiasAtrasados(c),
@@ -117,7 +132,7 @@ export async function GET() {
 
       return NextResponse.json({
         success: true,
-        data: { vendedores: mappedVendedores, clientes, stats },
+        data: { vendedores: mappedVendedores, clientes, stats, user: userInfo, tenantName },
       })
     }
 
@@ -127,7 +142,7 @@ export async function GET() {
           where: { vendedorId: session.userId },
           include: {
             cliente: { select: { nombre: true, apellido: true, cedula: true } },
-            pagos: { orderBy: { fechaPago: 'desc' }, take: 1 },
+            pagos: { orderBy: { fechaPago: 'desc' }, take: 5 },
           },
           orderBy: { createdAt: 'desc' },
         }),
@@ -136,7 +151,7 @@ export async function GET() {
 
       const prestamos = rawPrestamos.map((p) => ({
         ...p,
-        diasAtrasados: calcularDiasAtrasados(p),
+        diasAtrasados: Number(p.diasAtrasados) > 0 ? Number(p.diasAtrasados) : calcularDiasAtrasados(p),
       }))
 
       const stats = {
@@ -149,7 +164,7 @@ export async function GET() {
         total_clientes: totalClientes,
       }
 
-      return NextResponse.json({ success: true, data: { prestamos, stats } })
+      return NextResponse.json({ success: true, data: { prestamos, stats, user: userInfo, tenantName } })
     }
 
     if (session.rol === 'cliente') {
@@ -161,7 +176,7 @@ export async function GET() {
         prisma.prestamo.findMany({
           where: { clienteId: session.userId },
           orderBy: { createdAt: 'desc' },
-          include: { pagos: { orderBy: { fechaPago: 'desc' } } },
+          include: { pagos: { orderBy: { fechaPago: 'desc' }, take: 5 } },
         }),
       ])
       const prestamos = rawPrestamos.map((p) => ({
@@ -169,7 +184,7 @@ export async function GET() {
         diasAtrasados: calcularDiasAtrasados(p),
       }))
 
-      return NextResponse.json({ success: true, data: { cliente: usuario, prestamos } })
+      return NextResponse.json({ success: true, data: { cliente: usuario, prestamos, user: userInfo, tenantName } })
     }
 
     return NextResponse.json({ success: false, message: 'Rol no válido' }, { status: 400 })

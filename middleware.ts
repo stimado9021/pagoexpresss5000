@@ -5,7 +5,7 @@ import { jwtVerify } from 'jose'
 const secretKey = process.env.SESSION_SECRET || 'fallback-secret-key'
 const encodedKey = new TextEncoder().encode(secretKey)
 
-const publicPaths = ['/_next', '/api/auth', '/api/planes', '/favicon.ico', '/api/webhooks']
+const publicPaths = ['/_next', '/api/auth', '/api/planes', '/favicon.ico', '/api/webhooks', '/api/public']
 const protectedPaths = ['/admin', '/empresario', '/vendedor', '/cliente']
 
 function isProtected(pathname: string) {

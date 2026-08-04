@@ -101,6 +101,8 @@ export default function AdminPage() {
   const [modalLoading, setModalLoading] = useState(false)
   const [showVendedorModal, setShowVendedorModal] = useState(false)
   const [planInfo, setPlanInfo] = useState<{ status: string; trialEndsAt?: string } | null>(null)
+  const [userInfo, setUserInfo] = useState<{ nombre: string; apellido: string } | null>(null)
+  const [tenantName, setTenantName] = useState<string | null>(null)
 
   const cargarDatos = async () => {
     const r = await fetch('/api/dashboard')
@@ -108,9 +110,25 @@ export default function AdminPage() {
     if (!d.success) { router.push('/login'); return }
     setVendedores(d.data.vendedores)
     setStats(d.data.stats)
+    if (d.data.user) setUserInfo(d.data.user)
+    if (d.data.tenantName) setTenantName(d.data.tenantName)
   }
 
-  useEffect(() => { cargarDatos() }, [router])
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/dashboard')
+      .then(r => r.json())
+      .then(d => {
+        if (cancelled) return
+        if (!d.success) { router.push('/login'); return }
+        setVendedores(d.data.vendedores)
+        setStats(d.data.stats)
+        if (d.data.user) setUserInfo(d.data.user)
+        if (d.data.tenantName) setTenantName(d.data.tenantName)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [router])
 
   useEffect(() => {
     fetch('/api/subscriptions/me')
@@ -229,6 +247,11 @@ export default function AdminPage() {
 
         {/* Content */}
         <div className="p-8">
+          <div className="mb-6">
+            <h1 className="font-display font-bold text-4xl text-white uppercase tracking-wider">
+              {tenantName || 'EMPRESA'} : {userInfo ? `${userInfo.nombre} ${userInfo.apellido}` : 'Empresario'}
+            </h1>
+          </div>
           {planInfo && (planInfo.status === 'TRIAL_EXPIRED' || planInfo.status === 'SUSPENDED' || planInfo.status === 'CANCELLED') && (
             <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-start gap-3">
@@ -837,8 +860,22 @@ function ConfigView() {
   )
 }
 
+type AuditDetalles = {
+  anterior?: { monto: number; fecha?: string }
+  nuevo?: { monto: number; fecha?: string }
+  motivo?: string
+}
+
+type AuditRecord = {
+  id: number
+  accion: string
+  detalles: string | null
+  createdAt: string
+  usuario: { nombre: string; apellido: string; rol: string }
+}
+
 function AuditoriaView() {
-  const [registros, setRegistros] = useState<any[]>([])
+  const [registros, setRegistros] = useState<AuditRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [total, setTotal] = useState(0)
 
@@ -853,7 +890,21 @@ function AuditoriaView() {
     setLoading(false)
   }
 
-  useEffect(() => { cargar() }, [])
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/historial?tabla=pagos&limit=200')
+      .then(r => r.json())
+      .then(d => {
+        if (cancelled) return
+        if (d.success) {
+          setRegistros(d.data)
+          setTotal(d.total)
+        }
+        setLoading(false)
+      })
+      .catch(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [])
 
   const money = (n: number) => n.toLocaleString('es-CO')
 
@@ -886,7 +937,7 @@ function AuditoriaView() {
             </thead>
             <tbody className="divide-y divide-zinc-700">
               {registros.map((r) => {
-                let detalles: any = {}
+                let detalles: AuditDetalles = {}
                 try { detalles = JSON.parse(r.detalles || '{}') } catch { }
                 const esEliminar = r.accion === 'eliminar_pago'
                 return (
