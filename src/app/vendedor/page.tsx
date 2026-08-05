@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, CreditCard, DollarSign, LogOut, Plus, Search,
   TrendingUp, CheckCircle2, X, AlertTriangle, Phone, Mail, MapPin,
-  Calendar, ArrowRight, ChevronRight, ChevronDown, Banknote, Clock, BadgeCheck, Bell,
+  Calendar, ArrowRight, ChevronRight, ChevronDown, Clock, BadgeCheck, Bell,
 } from 'lucide-react'
 import { Tooltip, InfoTip } from '@/components/Tooltip'
 
@@ -63,16 +63,6 @@ function BadgeEstado({ estado }: { estado: string }) {
       {labels[estado] || estado}
     </span>
   )
-}
-
-function yaPagoHoy(prestamo: { pagos?: { fechaPago: string }[] }): boolean {
-  const hoy = new Date()
-  const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`
-  return (prestamo.pagos || []).some((pg) => {
-    const f = new Date(pg.fechaPago)
-    const pgStr = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`
-    return pgStr === hoyStr
-  })
 }
 
 function cuotaHoyPagada(prestamo: { cuotaDiaria: number | string; pagos?: { fechaPago: string; monto: number | string }[] }): boolean {
@@ -763,7 +753,6 @@ function ClientesView({
                 const activos = (selectedCliente.prestamosCliente || []).filter(p => p.estado === 'activo')
                 const maxDiasAtraso = Math.max(0, ...activos.map(p => p.diasAtrasados))
                 if (maxDiasAtraso <= 0) return null
-                const montoAtrasado = activos.filter(p => p.diasAtrasados > 0).reduce((s, p) => s + Number(p.cuotaDiaria) * p.diasAtrasados, 0)
                 return (
                   <div className={`rounded-xl border-2 p-4 ${
                     maxDiasAtraso >= 7 ? 'border-[#EF4444] bg-red-500/15' :
@@ -786,7 +775,7 @@ function ClientesView({
                         </p>
                         <p className="text-xs mt-1 text-bone/60">
                           {maxDiasAtraso} día{maxDiasAtraso !== 1 ? 's' : ''} sin pago.
-                          Debería pagar al menos {moneyFmt.format(montoAtrasado)} para ponerse al día.
+                          Abonar $5.000 por cada día de atraso para ponerse al día.
                         </p>
                         {maxDiasAtraso >= 7 && (
                           <p className="text-xs mt-1.5 font-medium text-red-400">
@@ -865,7 +854,6 @@ function ClientesView({
                       const pct = Number(p.montoSolicitado) > 0 ? Math.round((Number(p.montoPagado) / Number(p.montoSolicitado)) * 100) : 0
                       const montoConInteres = Number(p.montoSolicitado) * 1.20
                       const cuotasRestantes = Math.max(0, p.diasPlazo - p.diasPagados)
-                      const saldoAtrasado = p.diasAtrasados > 0 ? Number(p.cuotaDiaria) * p.diasAtrasados : 0
                       const fechaInicio = new Date(p.fechaInicio)
                       const fechaFin = new Date(fechaInicio)
                       fechaFin.setDate(fechaFin.getDate() + p.diasPlazo)
@@ -951,10 +939,10 @@ function ClientesView({
                           {p.diasAtrasados > 0 && (
                             <div className="mb-3 rounded-lg bg-red-500/15 border border-red-500/40 p-2.5">
                               <p className="text-[11px] font-medium text-red-400">
-                                Debe {p.diasAtrasados} día{p.diasAtrasados !== 1 ? 's' : ''} = {moneyFmt.format(saldoAtrasado)}
+                                {p.diasAtrasados} día{p.diasAtrasados !== 1 ? 's' : ''} de atraso — abonar $5.000 c/u
                               </p>
                               <p className="text-[10px] text-bone/60 mt-0.5">
-                                Pague {moneyFmt.format(saldoAtrasado)} para cubrir el atraso y luego continúe con la cuota regular.
+                                Usa los botones de pago para abonar por los días atrasados y luego continúa con la cuota regular.
                               </p>
                             </div>
                           )}
@@ -970,47 +958,65 @@ function ClientesView({
                   </div>
                 )}
 
-                {/* ── Botón único de cobro ── */}
+                {/* ── Botones de cobro (mismo estilo que el dashboard) ── */}
                 {(() => {
                   const activos = (selectedCliente.prestamosCliente || []).filter(p => p.estado === 'activo')
                   if (activos.length === 0) return null
 
                   const totalCuotaDiaria = activos.reduce((s, p) => s + Number(p.cuotaDiaria), 0)
-                  const totalDiasAtrasados = Math.max(0, ...activos.map(p => p.diasAtrasados))
-                  const totalSaldoAtrasado = activos.reduce((s, p) => s + (p.diasAtrasados > 0 ? Number(p.cuotaDiaria) * p.diasAtrasados : 0), 0)
-                  const totalSaldoHoy = totalSaldoAtrasado + totalCuotaDiaria
-                  const clienteYaPagoHoy = activos.every(p => yaPagoHoy(p))
+                  const maxDiasAtraso = Math.max(0, ...activos.map(p => p.diasAtrasados))
+                  const todosHoyPagado = activos.every(p => cuotaHoyPagada(p))
                   const esPrimerDia = activos.every(p => p.diasPagados === 0 && p.diasAtrasados === 0)
+                  const hayPendientes = maxDiasAtraso > 0 || !todosHoyPagado
 
-                  return (
-                    <div className="mt-3">
-                      {clienteYaPagoHoy || esPrimerDia ? (
-                        <Tooltip text={esPrimerDia ? 'El préstamo empezó hoy. El primer cobro se hace mañana.' : 'Este cliente ya pagó hoy. Vuelve mañana para cobrar.'}>
-                          <div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-bone/10 px-4 py-3.5 text-sm font-medium tracking-wide text-bone/40 cursor-not-allowed">
-                            <Clock size={14} /> {esPrimerDia ? 'Primer día — cobra mañana' : 'Ya cobró hoy'}
+                  if (!hayPendientes || esPrimerDia) {
+                    return (
+                      <div className="mt-3">
+                        <Tooltip text={esPrimerDia ? 'El préstamo empezó hoy. El primer cobro se hace mañana.' : 'Ya pagó todo hoy.'}>
+                          <div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-bone/10 px-2.5 py-2 text-[11px] font-medium text-bone/40 cursor-not-allowed sm:px-3 sm:py-2.5 sm:text-xs">
+                            <Clock size={11} className="sm:hidden" /><Clock size={12} className="hidden sm:block" /> {esPrimerDia ? 'Primer día — cobra mañana' : 'Ya cobró todo hoy'}
                           </div>
                         </Tooltip>
-                      ) : totalDiasAtrasados > 0 ? (
-                        <Tooltip text={`Registra el pago para cubrir ${totalDiasAtrasados} día(s) de atraso más la cuota de hoy. Total: ${moneyFmt.format(totalSaldoHoy)}`}>
-                          <button onClick={() => {
+                      </div>
+                    )
+                  }
+
+                  return (
+                    <div className="mt-3 space-y-1.5 sm:space-y-2">
+                      {maxDiasAtraso > 0 && (
+                        <p className="text-[10px] text-red-400/80 font-medium sm:text-[11px]">
+                          {maxDiasAtraso} día{maxDiasAtraso !== 1 ? 's' : ''} atraso — abonar $5.000 c/u
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                        {maxDiasAtraso > 0 && (
+                          Array.from({ length: maxDiasAtraso }, (_, i) => {
+                            const fecha = new Date()
+                            fecha.setDate(fecha.getDate() - (maxDiasAtraso - 1 - i))
+                            const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
                             const primerActivo = activos[0] as unknown as Prestamo
-                            handleCobrar(primerActivo, totalSaldoHoy)
-                          }}
-                            className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-red-500 px-4 py-3.5 text-sm font-medium tracking-wide text-bone hover:bg-red-600 transition-colors">
-                            <AlertTriangle size={14} /> Ponerse al día ({moneyFmt.format(totalSaldoHoy)})
-                          </button>
-                        </Tooltip>
-                      ) : (
-                        <Tooltip text={`Registra el cobro de la cuota diaria. Se descuenta del saldo pendiente del préstamo.`}>
+                            return (
+                              <button key={`atraso-${i}`} onClick={() => handleCobrar(primerActivo, 5000)}
+                                className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
+                                <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                                <span>{fechaStr}</span>
+                                <span className="font-semibold">$5k</span>
+                              </button>
+                            )
+                          })
+                        )}
+                        {!todosHoyPagado && (
                           <button onClick={() => {
                             const primerActivo = activos[0] as unknown as Prestamo
                             handleCobrar(primerActivo, totalCuotaDiaria)
                           }}
-                            className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-lime px-4 py-3.5 text-sm font-medium tracking-wide text-emerald-950 font-display hover:bg-bone transition-colors">
-                            <Banknote size={14} /> Cobrar cuota ({moneyFmt.format(totalCuotaDiaria)})
+                            className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
+                            <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                            <span>Hoy · {new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
+                            <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
                           </button>
-                        </Tooltip>
-                      )}
+                        )}
+                      </div>
                     </div>
                   )
                 })()}
