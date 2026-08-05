@@ -28,6 +28,67 @@ export async function sendWhatsAppText(to: string, text: string): Promise<boolea
   }
 }
 
+export async function sendWhatsAppReply(to: string, text: string, replyMessageId?: string): Promise<boolean> {
+  if (!API_KEY || API_KEY === 'tu_api_key') return false
+
+  try {
+    const number = normalizePhone(to)
+    const body: Record<string, unknown> = {
+      number,
+      text,
+      options: { delay: 1200, presence: 'composing' },
+    }
+    if (replyMessageId) body.messageId = replyMessageId
+    const res = await fetch(`${API_URL}/message/sendReply/${INSTANCE}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': API_KEY },
+      body: JSON.stringify(body),
+    })
+    return res.ok
+  } catch (err) {
+    console.error('[WHATSAPP ERROR]', err)
+    return false
+  }
+}
+
+export type InboundWhatsAppEvent = {
+  event?: string
+  from: string
+  fromMe: boolean
+  text?: string
+  messageId?: string
+  pushName?: string
+}
+
+export function parseInboundEvent(payload: unknown): InboundWhatsAppEvent | null {
+  if (!payload || typeof payload !== 'object') return null
+  const root = payload as Record<string, unknown>
+
+  const event = typeof root.event === 'string' ? root.event : undefined
+  const data = (root.data && typeof root.data === 'object' ? root.data : root) as Record<string, unknown>
+
+  const key = (data.key && typeof data.key === 'object' ? data.key : {}) as Record<string, unknown>
+  const remoteJid = typeof key.remoteJid === 'string' ? key.remoteJid : ''
+  const from = remoteJid.replace(/@.*$/, '')
+  if (!from) return null
+
+  const fromMe = key.fromMe === true || key.fromMe === 'true'
+
+  const message = (data.message && typeof data.message === 'object' ? data.message : {}) as Record<string, unknown>
+  let text: string | undefined
+  if (typeof message.conversation === 'string') {
+    text = message.conversation
+  } else if (message.extendedTextMessage && typeof message.extendedTextMessage === 'object') {
+    const ext = message.extendedTextMessage as Record<string, unknown>
+    if (typeof ext.text === 'string') text = ext.text
+  }
+
+  const messageId = typeof key.id === 'string' ? key.id : undefined
+  const pushName = typeof data.pushName === 'string' ? data.pushName : undefined
+
+  return { event, from, fromMe, text, messageId, pushName }
+}
+
 export function formatReceipt(data: {
   cliente: string
   monto: number
