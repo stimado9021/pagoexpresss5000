@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json()
-    const { planId, paymentMethod } = body
+    const { planId } = body
 
     if (!planId) {
       return NextResponse.json({ success: false, message: 'planId requerido' }, { status: 400 })
@@ -68,25 +68,18 @@ export async function POST(request: Request) {
     const now = new Date()
     const billingCycleEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
-    const stripeCustomerId = paymentMethod === 'stripe' ? `mock_${session.tenantId}_${Date.now()}` : null
-    const wompiCustomerId = paymentMethod === 'wompi' ? `mock_${session.tenantId}_${Date.now()}` : null
-
     const subscription = await prisma.suscripcion.upsert({
       where: { tenantId: session.tenantId },
       update: {
         planId,
-        stripeCustomerId,
-        wompiCustomerId,
         estado: 'ACTIVE',
-        cicloActual: isUpgrade ? 1 : 1,
+        cicloActual: 1,
         renovacionProxima: billingCycleEnd,
         pagadoHasta: billingCycleEnd,
       },
       create: {
         tenantId: session.tenantId,
         planId,
-        stripeCustomerId,
-        wompiCustomerId,
         estado: 'ACTIVE',
         cicloActual: 1,
         renovacionProxima: billingCycleEnd,

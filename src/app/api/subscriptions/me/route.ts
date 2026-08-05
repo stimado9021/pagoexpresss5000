@@ -47,6 +47,7 @@ export async function GET() {
               pagadoHasta: suscripcion.pagadoHasta,
               renovacionProxima: suscripcion.renovacionProxima,
               stripeCustomerId: suscripcion.stripeCustomerId,
+              wompiCustomerId: suscripcion.wompiCustomerId,
               limiteVendedores: suscripcion.plan?.limietes.find((l) => l.recurso === 'MAX_VENDEDORES')?.valor ?? -1,
               limiteClientes: suscripcion.plan?.limietes.find((l) => l.recurso === 'MAX_CLIENTES')?.valor ?? -1,
             }

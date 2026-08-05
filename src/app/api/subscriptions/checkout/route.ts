@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/session'
 import { getStripe, APP_URL } from '@/lib/stripe'
+import { createPaymentLink, buildReference, isWompiConfigured } from '@/lib/wompi'
 
 export async function POST(request: NextRequest) {
   const session = await getSession()
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { planId, intervalo } = await request.json()
+    const { planId, intervalo, paymentMethod = 'stripe' } = await request.json()
     if (!planId || !['MONTHLY', 'ANUAL'].includes(intervalo)) {
       return NextResponse.json({ success: false, message: 'planId e intervalo requeridos' }, { status: 400 })
     }
@@ -18,6 +19,31 @@ export async function POST(request: NextRequest) {
     const plan = await prisma.plan.findUnique({ where: { id: parseInt(planId) } })
     if (!plan || !plan.activo) {
       return NextResponse.json({ success: false, message: 'Plan no encontrado' }, { status: 404 })
+    }
+
+    if (paymentMethod === 'wompi') {
+      if (!isWompiConfigured()) {
+        return NextResponse.json({
+          success: false,
+          message: 'Wompi no está configurado. Revisa las variables WOMPI_* en el .env.',
+        }, { status: 400 })
+      }
+
+      const precio = intervalo === 'ANUAL'
+        ? Number(plan.precioAnual ?? plan.precioMensual)
+        : Number(plan.precioMensual)
+      const amountInCents = Math.round(precio * 100)
+      const reference = buildReference(session.tenantId, plan.id, intervalo)
+
+      const link = await createPaymentLink({
+        name: `Suscripción PagoExpress - Plan ${plan.nombre}`,
+        description: `Plan ${plan.nombre} (${intervalo === 'ANUAL' ? 'anual' : 'mensual'}) para ${session.tenantId}`,
+        amountInCents,
+        reference,
+        redirectUrl: `${APP_URL}/empresario/billing?checkout=success`,
+      })
+
+      return NextResponse.json({ success: true, url: link.url })
     }
 
     const priceId = intervalo === 'ANUAL' ? plan.stripePriceAnualId : plan.stripePriceMensualId

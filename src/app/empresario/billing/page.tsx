@@ -9,7 +9,8 @@ type MeData = {
   tenant: { nombre: string; subdominio: string; status: string; trialEndsAt: string; planNombre: string | null }
   suscripcion: {
     id: number; planId: number; planNombre: string | null; estado: string; intervalo: string
-    pagadoHasta: string | null; stripeCustomerId: string | null; limiteVendedores: number; limiteClientes: number
+    pagadoHasta: string | null; stripeCustomerId: string | null; wompiCustomerId: string | null
+    limiteVendedores: number; limiteClientes: number
   } | null
   planes: Plan[]
   uso: { vendedores: number; clientes: number; prestamosActivos: number }
@@ -37,6 +38,7 @@ function BillingContent() {
   const [data, setData] = useState<MeData | null>(null)
   const [loading, setLoading] = useState(true)
   const [yearly, setYearly] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'wompi' | 'stripe'>('wompi')
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [checkoutLoading, setCheckoutLoading] = useState<number | null>(null)
 
@@ -67,7 +69,7 @@ function BillingContent() {
       const res = await fetch('/api/subscriptions/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId, intervalo: yearly ? 'ANUAL' : 'MONTHLY' }),
+        body: JSON.stringify({ planId, intervalo: yearly ? 'ANUAL' : 'MONTHLY', paymentMethod }),
       })
       const json = await res.json()
       if (json.success && json.url) {
@@ -190,6 +192,31 @@ function BillingContent() {
             <span className={`text-sm ${yearly ? 'font-semibold text-zinc-100' : 'text-zinc-400'}`}>
               Anual <span className="font-mono text-lime-400">(-10%)</span>
             </span>
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <h3 className="font-display text-sm font-semibold text-zinc-300">Método de pago</h3>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {([
+              { id: 'wompi', label: 'Wompi', sub: 'Tarjetas · PSE · Nequi · Bancolombia', recommended: true },
+              { id: 'stripe', label: 'Stripe', sub: 'Tarjetas internacionales', recommended: false },
+            ] as const).map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setPaymentMethod(m.id)}
+                className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-colors ${paymentMethod === m.id ? 'border-lime-500 bg-lime-500/10' : 'border-zinc-800 bg-zinc-900 hover:border-zinc-700'}`}
+              >
+                <span className={`mt-1 h-4 w-4 shrink-0 rounded-full border ${paymentMethod === m.id ? 'border-lime-400 bg-lime-400' : 'border-zinc-600'}`} />
+                <span>
+                  <span className="flex items-center gap-2 font-display text-sm font-semibold">
+                    {m.label}
+                    {m.recommended && <span className="rounded-full bg-lime-500 px-2 py-0.5 font-mono text-[10px] font-semibold text-emerald-950">Recomendado</span>}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-zinc-500">{m.sub}</span>
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 

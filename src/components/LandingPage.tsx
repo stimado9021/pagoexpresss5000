@@ -768,7 +768,7 @@ export default function LandingPage() {
                     <label className="mt-5 flex items-start gap-3 cursor-pointer">
                       <input required type="checkbox" className="mt-1 h-4 w-4 rounded border-bone/30 bg-graphite-800 accent-lime" />
                       <span className="font-body text-xs text-bone/50 leading-relaxed">
-                        Acepto los <a href="#" className="text-lime hover:underline">Términos de servicio</a> y la <a href="#" className="text-lime hover:underline">Política de privacidad</a> de PagoExpress.
+                        Acepto los <a href="#" className="text-lime hover:underline">Términos de servicio</a> y la <Link href="/politica-de-datos" className="text-lime hover:underline">Política de privacidad</Link> de PagoExpress.
                       </span>
                     </label>
                     {formError && (
@@ -878,8 +878,8 @@ export default function LandingPage() {
             <div className="lg:col-span-2">
               <h4 className="font-display font-semibold text-sm text-bone mb-4">Legal</h4>
               <ul className="space-y-3 font-body text-sm text-bone/50">
-                {['Política de privacidad','Términos de servicio','Tratamiento de datos'].map((label) => (
-                  <li key={label}><a href="#" className="hover:text-lime transition-colors">{label}</a></li>
+                {[['/politica-de-datos','Política de privacidad'],['#','Términos de servicio'],['/politica-de-datos','Tratamiento de datos']].map(([href, label]) => (
+                  <li key={label}><Link href={href} className="hover:text-lime transition-colors">{label}</Link></li>
                 ))}
               </ul>
             </div>
