@@ -39,7 +39,7 @@ export default function LoginForm() {
         setError(data.message || 'Credenciales incorrectas')
       }
     } catch {
-      setError('Error de conexiÃ³n. Verifica el servidor.')
+      setError('Error de conexión. Verifica el servidor.')
     } finally {
       setLoading(false)
     }
@@ -51,29 +51,29 @@ export default function LoginForm() {
         <div className="mb-8 text-center">
           <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg shadow-lime/20"><img src="/logo.webp" alt="PagoExpress" className="h-10 w-10 object-contain" /></span>
           <h1 className="text-xl font-bold text-zinc-100 font-display">PagoExpress</h1>
-          <p className="mt-1 text-sm text-zinc-400">Cobros rÃ¡pidos y seguros</p>
+          <p className="mt-1 text-sm text-zinc-400">Cobros rápidos y seguros</p>
         </div>
 
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-zinc-400 uppercase tracking-wide text-xs">CÃ©dula o correo</label>
+              <label className="mb-1.5 block text-sm font-medium text-zinc-400 uppercase tracking-wide text-xs">Cédula o correo</label>
               <div className="relative">
                 <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
                 <input
                   type="text" value={cedula} onChange={(e) => setCedula(e.target.value)}
                   className="w-full rounded-lg border border-zinc-800 bg-zinc-800 py-3 pl-9 pr-3 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 transition-all"
-                  placeholder="IdentificaciÃ³n o correo" required
+                  placeholder="Identificación o correo" required
                 />
               </div>
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-zinc-400 uppercase tracking-wide text-xs">ContraseÃ±a</label>
+              <label className="mb-1.5 block text-sm font-medium text-zinc-400 uppercase tracking-wide text-xs">Contraseña</label>
               <input
                 type="password" value={password} onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 transition-all"
-                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required
+                placeholder="••••••••" required
               />
             </div>
 
@@ -89,11 +89,11 @@ export default function LoginForm() {
         </div>
 
         <p className="mt-6 text-center text-xs text-zinc-400">
-          &copy; 2026 PagoExpress &bull; GestiÃ³n de PrÃ©stamos
+          &copy; 2026 PagoExpress &bull; Gestión de Préstamos
         </p>
 
         <p className="mt-4 text-center text-sm text-zinc-500">
-          <Link href="/" className="text-lime hover:underline font-medium">â† Volver al inicio</Link>
+          <Link href="/" className="text-lime hover:underline font-medium">← Volver al inicio</Link>
         </p>
       </div>
     </div>

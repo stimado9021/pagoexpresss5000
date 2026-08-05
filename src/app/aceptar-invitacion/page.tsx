@@ -27,10 +27,10 @@ function AcceptForm() {
         const destino = data.user?.rol === 'vendedor' ? '/vendedor' : data.user?.rol === 'cliente' ? '/cliente' : '/login'
         router.push(destino)
       } else {
-        setError(data.message || 'Error al aceptar la invitaciÃ³n')
+        setError(data.message || 'Error al aceptar la invitación')
       }
     } catch {
-      setError('Error de conexiÃ³n. Intenta de nuevo.')
+      setError('Error de conexión. Intenta de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -39,7 +39,7 @@ function AcceptForm() {
   if (!token) {
     return (
       <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400">
-        Enlace de invitaciÃ³n invÃ¡lido. Solicita un nuevo enlace.
+        Enlace de invitación inválido. Solicita un nuevo enlace.
       </div>
     )
   }
@@ -60,20 +60,20 @@ function AcceptForm() {
           </div>
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-zinc-400 uppercase tracking-wide">CÃ©dula</label>
+          <label className="mb-1.5 block text-xs font-medium text-zinc-400 uppercase tracking-wide">Cédula</label>
           <div className="relative">
             <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
-            <input type="text" required value={form.cedula} onChange={(e) => setForm({ ...form, cedula: e.target.value })} className={`${inputCls} pl-9`} placeholder="NÃºmero de identificaciÃ³n" />
+            <input type="text" required value={form.cedula} onChange={(e) => setForm({ ...form, cedula: e.target.value })} className={`${inputCls} pl-9`} placeholder="Número de identificación" />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-zinc-400 uppercase tracking-wide">ContraseÃ±a</label>
-            <input type="password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className={inputCls} placeholder="MÃ­nimo 8 caracteres" />
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400 uppercase tracking-wide">Contraseña</label>
+            <input type="password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className={inputCls} placeholder="Mínimo 8 caracteres" />
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium text-zinc-400 uppercase tracking-wide">Confirmar</label>
-            <input type="password" required value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} className={inputCls} placeholder="Repite la contraseÃ±a" />
+            <input type="password" required value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} className={inputCls} placeholder="Repite la contraseña" />
           </div>
         </div>
 
@@ -83,7 +83,7 @@ function AcceptForm() {
 
         <button type="submit" disabled={loading}
           className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-lime-500 px-4 py-3 text-sm font-semibold text-emerald-950 font-display hover:bg-zinc-200 disabled:opacity-50 transition-colors shadow-sm">
-          {loading ? 'Activando cuenta...' : 'Aceptar invitaciÃ³n'}
+          {loading ? 'Activando cuenta...' : 'Aceptar invitación'}
         </button>
       </form>
     </div>

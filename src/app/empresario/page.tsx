@@ -191,19 +191,19 @@ export default function AdminPage() {
 
   return (
     <div className="flex min-h-screen bg-emerald-950">
-      {/* â”€â”€ Overlay mÃ³vil â”€â”€ */}
+      {/* ── Overlay móvil ── */}
       {showSidebar && (
         <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden" onClick={() => setShowSidebar(false)} />
       )}
 
-      {/* â”€â”€ Sidebar â”€â”€ */}
+      {/* ── Sidebar ── */}
       <aside className={`fixed left-0 top-0 z-50 flex h-screen w-[220px] flex-col border-r border-zinc-800 bg-zinc-900 transition-transform duration-300 ease-in-out lg:translate-x-0 ${showSidebar ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between border-b border-zinc-800 px-5 py-4">
           <div className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.webp" alt="PagoExpress" className="h-6 w-6 object-contain" /></span>
             <span className="text-base font-bold text-zinc-100">PagoExpress</span>
           </div>
-          <button onClick={() => setShowSidebar(false)} className="lg:hidden text-zinc-400 hover:text-zinc-100" aria-label="Cerrar menÃº">
+          <button onClick={() => setShowSidebar(false)} className="lg:hidden text-zinc-400 hover:text-zinc-100" aria-label="Cerrar menú">
             <X size={18} />
           </button>
         </div>
@@ -218,9 +218,9 @@ export default function AdminPage() {
         <nav className="mt-5 flex-1 space-y-1 px-3">
           <SidebarBtn icon={<LayoutDashboard size={18} />} label="Dashboard" active={view === 'dashboard'} onClick={() => { setView('dashboard'); setShowSidebar(false) }} />
           <SidebarBtn icon={<Users size={18} />} label="Vendedores" active={view === 'vendedores'} onClick={() => { setView('vendedores'); setShowSidebar(false) }} />
-          <SidebarBtn icon={<CreditCard size={18} />} label="SuscripciÃ³n" active={false} onClick={() => { router.push('/empresario/billing'); setShowSidebar(false) }} />
-          <SidebarBtn icon={<Settings size={18} />} label="ConfiguraciÃ³n" active={view === 'configuracion'} onClick={() => { setView('configuracion'); setShowSidebar(false) }} />
-          <SidebarBtn icon={<History size={18} />} label="AuditorÃ­a" active={view === 'auditoria'} onClick={() => { setView('auditoria'); setShowSidebar(false) }} />
+          <SidebarBtn icon={<CreditCard size={18} />} label="Suscripción" active={false} onClick={() => { router.push('/empresario/billing'); setShowSidebar(false) }} />
+          <SidebarBtn icon={<Settings size={18} />} label="Configuración" active={view === 'configuracion'} onClick={() => { setView('configuracion'); setShowSidebar(false) }} />
+          <SidebarBtn icon={<History size={18} />} label="Auditoría" active={view === 'auditoria'} onClick={() => { setView('auditoria'); setShowSidebar(false) }} />
         </nav>
 
         <div className="border-t border-zinc-800 px-3 py-4">
@@ -238,18 +238,18 @@ export default function AdminPage() {
         </div>
       </aside>
 
-      {/* â”€â”€ Main â”€â”€ */}
+      {/* ── Main ── */}
       <div className="flex-1 lg:ml-[220px]">
         {/* Header */}
         <header className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-800 bg-zinc-900 px-4 py-3 sm:px-6 sm:py-3.5 lg:px-8">
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowSidebar(true)} className="lg:hidden text-zinc-400 hover:text-zinc-100 p-1" aria-label="Abrir menÃº">
+            <button onClick={() => setShowSidebar(true)} className="lg:hidden text-zinc-400 hover:text-zinc-100 p-1" aria-label="Abrir menú">
               <LayoutDashboard size={20} />
             </button>
             <div className="flex items-center gap-1.5 text-xs text-zinc-400 sm:text-sm">
               <span className="text-zinc-100 font-medium">Dashboard</span>
               <span className="mx-1">/</span>
-              <span>{view === 'dashboard' ? 'Resumen' : view === 'vendedores' ? 'Vendedores' : view === 'configuracion' ? 'ConfiguraciÃ³n' : view === 'auditoria' ? 'AuditorÃ­a' : 'Clientes'}</span>
+              <span>{view === 'dashboard' ? 'Resumen' : view === 'vendedores' ? 'Vendedores' : view === 'configuracion' ? 'Configuración' : view === 'auditoria' ? 'Auditoría' : 'Clientes'}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
@@ -274,7 +274,7 @@ export default function AdminPage() {
                 <AlertTriangle size={18} className="mt-0.5 shrink-0 text-amber-400 sm:hidden" />
                 <AlertTriangle size={20} className="mt-0.5 shrink-0 text-amber-400 hidden sm:block" />
                 <div className="text-sm">
-                  <p className="font-semibold text-amber-300">Tu plan estÃ¡ {planInfo.status === 'TRIAL_EXPIRED' ? 'vencido' : 'suspendido'}</p>
+                  <p className="font-semibold text-amber-300">Tu plan está {planInfo.status === 'TRIAL_EXPIRED' ? 'vencido' : 'suspendido'}</p>
                   <p className="mt-1 text-amber-200/80">Activa un plan para restablecer el acceso completo.</p>
                 </div>
               </div>
@@ -287,12 +287,12 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* â•â•â•â•â•â• DASHBOARD â•â•â•â•â•â• */}
+          {/* ══════ DASHBOARD ══════ */}
           {view === 'dashboard' && (
             <>
               <div className="mb-8">
                 <h2 className="text-base font-semibold text-zinc-100">Resumen general</h2>
-                <p className="mt-0.5 text-sm text-zinc-400">MÃ©trica general del sistema de prÃ©stamos</p>
+                <p className="mt-0.5 text-sm text-zinc-400">Métrica general del sistema de préstamos</p>
               </div>
 
               <div className="mb-6 grid grid-cols-2 gap-2 sm:mb-8 sm:gap-5 xl:grid-cols-4">
@@ -303,12 +303,12 @@ export default function AdminPage() {
                   value={numberFmt.format(vendedoresActivos)}
                   variacion="+0%"
                   variacionLabel="vs mes anterior"
-                  tip="Cantidad de vendedores que estÃ¡n trabajando en el sistema"
+                  tip="Cantidad de vendedores que están trabajando en el sistema"
                 />
                 <KpiCard
                   icon={<DollarSign size={18} />}
                   iconBg="bg-emerald-500/20 text-emerald-400"
-                  label="ColocaciÃ³n total"
+                  label="Colocación total"
                   value={moneyFmt.format(colocacion)}
                   variacion={colocacion > 0 ? '+12.5%' : '0%'}
                   variacionLabel="total prestado"
@@ -317,11 +317,11 @@ export default function AdminPage() {
                 <KpiCard
                   icon={<CreditCard size={18} />}
                   iconBg="bg-lime/10 text-lime"
-                  label="PrÃ©stamos activos"
-                  value="â€”"
+                  label="Préstamos activos"
+                  value="—"
                   variacion="+2.1%"
                   variacionLabel="este mes"
-                  tip="PrÃ©stamos que estÃ¡n en curso y aÃºn no se pagan completamente"
+                  tip="Préstamos que están en curso y aún no se pagan completamente"
                 />
                 <KpiCard
                   icon={<AlertTriangle size={18} />}
@@ -329,12 +329,12 @@ export default function AdminPage() {
                   label="Clientes en mora"
                   value={numberFmt.format(atrasados)}
                   variacion={atrasados > 0 ? `+${atrasados}` : '0'}
-                  variacionLabel="requieren atenciÃ³n"
-                  tip="Clientes que tienen prÃ©stamos con dÃ­as de atraso en sus pagos"
+                  variacionLabel="requieren atención"
+                  tip="Clientes que tienen préstamos con días de atraso en sus pagos"
                 />
               </div>
 
-              {/* â”€â”€ Alertas de mora â”€â”€ */}
+              {/* ── Alertas de mora ── */}
               {atrasados > 0 && (
                 <div className={`rounded-xl border-2 p-3 sm:p-5 mb-6 ${
                   atrasados >= 5 ? 'border-[#EF4444] bg-red-500/15' : 'border-[#F59E0B] bg-amber-500/15'
@@ -354,8 +354,8 @@ export default function AdminPage() {
                           </p>
                           <p className="text-xs sm:text-sm mt-1 text-zinc-400">
                             {atrasados >= 5
-                              ? 'Se requiere atenciÃ³n urgente. Hay mÃºltiples clientes con pagos atrasados.'
-                              : 'Hay clientes con pagos pendientes. Revisa la lista para tomar acciÃ³n.'}
+                              ? 'Se requiere atención urgente. Hay múltiples clientes con pagos atrasados.'
+                              : 'Hay clientes con pagos pendientes. Revisa la lista para tomar acción.'}
                           </p>
                         </div>
                         <button onClick={async () => {
@@ -441,7 +441,7 @@ export default function AdminPage() {
                                 <p className={`text-sm font-semibold ${enMora ? 'text-red-400' : 'text-zinc-100'}`}>
                                   {moneyFmt.format(saldo)}
                                 </p>
-                                <p className="text-xs text-zinc-400">{activos.length} prÃ©stamo{activos.length !== 1 ? 's' : ''}</p>
+                                <p className="text-xs text-zinc-400">{activos.length} préstamo{activos.length !== 1 ? 's' : ''}</p>
                               </div>
                               <ChevronRight size={16} className="text-zinc-100/40" />
                             </div>
@@ -455,7 +455,7 @@ export default function AdminPage() {
             </>
           )}
 
-          {/* â•â•â•â•â•â• VENDEDORES â•â•â•â•â•â• */}
+          {/* ══════ VENDEDORES ══════ */}
           {view === 'vendedores' && (
             <>
               <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -487,10 +487,10 @@ export default function AdminPage() {
                     <thead>
                       <tr className="border-b border-zinc-800 text-xs text-zinc-400">
                         <th className="px-5 py-3.5 text-left font-medium">Vendedor</th>
-                        <th className="px-5 py-3.5 text-left font-medium">CÃ©dula</th>
+                        <th className="px-5 py-3.5 text-left font-medium">Cédula</th>
                         <th className="px-5 py-3.5 text-left font-medium">Contacto</th>
                         <th className="px-5 py-3.5 text-right font-medium">Clientes</th>
-                        <th className="px-5 py-3.5 text-right font-medium">ColocaciÃ³n</th>
+                        <th className="px-5 py-3.5 text-right font-medium">Colocación</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-700">
@@ -524,16 +524,16 @@ export default function AdminPage() {
             </>
           )}
 
-          {/* â•â•â•â•â•â• CONFIGURACIÃ“N â•â•â•â•â•â• */}
+          {/* ══════ CONFIGURACIÓN ══════ */}
           {view === 'configuracion' && <ConfigView />}
 
-          {/* â•â•â•â•â•â• AUDITORÃA â•â•â•â•â•â• */}
+          {/* ══════ AUDITORÍA ══════ */}
           {view === 'auditoria' && <AuditoriaView />}
 
         </div>
       </div>
 
-      {/* â”€â”€ Modal Crear Vendedor â”€â”€ */}
+      {/* ── Modal Crear Vendedor ── */}
       {showVendedorModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { setShowVendedorModal(false); setFormMsg(null) }} />
@@ -555,20 +555,20 @@ export default function AdminPage() {
                   <input placeholder="Apellido" className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20" value={form.apellido} onChange={(e) => setForm({ ...form, apellido: e.target.value })} />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">CÃ©dula *</label>
-                  <input placeholder="CÃ©dula" className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20" value={form.cedula} onChange={(e) => setForm({ ...form, cedula: e.target.value })} required />
+                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">Cédula *</label>
+                  <input placeholder="Cédula" className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20" value={form.cedula} onChange={(e) => setForm({ ...form, cedula: e.target.value })} required />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">TelÃ©fono</label>
-                  <input placeholder="TelÃ©fono" className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} />
+                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">Teléfono</label>
+                  <input placeholder="Teléfono" className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-zinc-400">Email</label>
                   <input placeholder="Email" type="email" className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">DirecciÃ³n</label>
-                  <input placeholder="DirecciÃ³n" className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20" value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} />
+                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">Dirección</label>
+                  <input placeholder="Dirección" className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20" value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} />
                 </div>
               </div>
               <button type="submit" className="w-full rounded-lg bg-lime px-4 py-2.5 text-sm font-medium text-emerald-950 font-display hover:bg-zinc-100 transition-colors">
@@ -584,7 +584,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* â”€â”€ Modal Cliente Detalle â”€â”€ */}
+      {/* ── Modal Cliente Detalle ── */}
       {(modalCliente || modalLoading) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setModalCliente(null)} />
@@ -596,7 +596,7 @@ export default function AdminPage() {
                   <Avatar nombre={modalCliente.nombre} apellido={modalCliente.apellido} />
                   <div>
                     <h2 className="text-lg font-semibold text-zinc-100 uppercase">{modalCliente.nombre} {modalCliente.apellido}</h2>
-                    <p className="text-sm text-zinc-400">CÃ©dula: {modalCliente.cedula}</p>
+                    <p className="text-sm text-zinc-400">Cédula: {modalCliente.cedula}</p>
                   </div>
                 </div>
               ) : (
@@ -623,10 +623,10 @@ export default function AdminPage() {
               <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
                 {/* Info del cliente */}
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-                  <InfoItem icon={<FileText size={14} />} label="CÃ©dula" value={modalCliente.cedula} />
-                  <InfoItem icon={<Calendar size={14} />} label="TelÃ©fono" value={modalCliente.telefono || 'â€”'} />
-                  <InfoItem icon={<DollarSign size={14} />} label="Email" value={modalCliente.email || 'â€”'} />
-                  <InfoItem icon={<TrendingUp size={14} />} label="DirecciÃ³n" value={modalCliente.direccion || 'â€”'} />
+                  <InfoItem icon={<FileText size={14} />} label="Cédula" value={modalCliente.cedula} />
+                  <InfoItem icon={<Calendar size={14} />} label="Teléfono" value={modalCliente.telefono || '—'} />
+                  <InfoItem icon={<DollarSign size={14} />} label="Email" value={modalCliente.email || '—'} />
+                  <InfoItem icon={<TrendingUp size={14} />} label="Dirección" value={modalCliente.direccion || '—'} />
                 </div>
 
                 {/* Alertas de mora */}
@@ -637,16 +637,16 @@ export default function AdminPage() {
                       Cliente en mora
                     </div>
                     <p className="text-xs text-red-500">
-                      Tiene prÃ©stamos con atraso. El cliente debe ponerse al dÃ­a con sus pagos.
+                      Tiene préstamos con atraso. El cliente debe ponerse al día con sus pagos.
                     </p>
                   </div>
                 )}
 
-                {/* PrÃ©stamos */}
+                {/* Préstamos */}
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-100 mb-3">PrÃ©stamos</h3>
+                  <h3 className="text-sm font-semibold text-zinc-100 mb-3">Préstamos</h3>
                   {modalCliente.prestamos.length === 0 ? (
-                    <p className="text-sm text-zinc-400">No tiene prÃ©stamos registrados</p>
+                    <p className="text-sm text-zinc-400">No tiene préstamos registrados</p>
                   ) : (
                     <div className="space-y-4">
                       {modalCliente.prestamos.map((p) => {
@@ -667,20 +667,20 @@ export default function AdminPage() {
                             <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center gap-2">
                                 <Badge variant={p.estado === 'pagado' ? 'success' : p.diasAtrasados > 0 ? 'warning' : 'info'}>
-                                  {p.estado === 'pagado' ? 'Pagado' : p.diasAtrasados > 0 ? `${p.diasAtrasados} dÃ­as atrasado` : 'Activo'}
+                                  {p.estado === 'pagado' ? 'Pagado' : p.diasAtrasados > 0 ? `${p.diasAtrasados} días atrasado` : 'Activo'}
                                 </Badge>
                               </div>
-                              <span className="text-xs text-zinc-400">{fechaInicio} â†’ {fechaVenc}</span>
+                              <span className="text-xs text-zinc-400">{fechaInicio} → {fechaVenc}</span>
                             </div>
 
                             {/* Montos */}
                             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 mb-4">
                               <div>
-                                <p className="text-xs text-zinc-400 flex items-center gap-1">Monto solicitado <InfoTip text="Dinero que el cliente pidiÃ³ prestado." /></p>
+                                <p className="text-xs text-zinc-400 flex items-center gap-1">Monto solicitado <InfoTip text="Dinero que el cliente pidió prestado." /></p>
                                 <p className="text-sm font-semibold text-zinc-100">{moneyFmt.format(Number(p.montoSolicitado))}</p>
                               </div>
                               <div>
-                                <p className="text-xs text-zinc-400 flex items-center gap-1">Total deuda (+{Number(p.tasaInteres)}%) <InfoTip text="El monto prestado mÃ¡s el interÃ©s. Es lo total que debe devolver el cliente." /></p>
+                                <p className="text-xs text-zinc-400 flex items-center gap-1">Total deuda (+{Number(p.tasaInteres)}%) <InfoTip text="El monto prestado más el interés. Es lo total que debe devolver el cliente." /></p>
                                 <p className="text-sm font-semibold text-zinc-100">{moneyFmt.format(montoTotal)}</p>
                               </div>
                               <div>
@@ -688,23 +688,23 @@ export default function AdminPage() {
                                 <p className="text-sm font-semibold text-emerald-400">{moneyFmt.format(montoPagado)}</p>
                               </div>
                               <div>
-                                <p className="text-xs text-zinc-400 flex items-center gap-1">Saldo pendiente <InfoTip text="Lo que falta por pagar. Cuando llega a $0, el prÃ©stamo estÃ¡ completado." /></p>
+                                <p className="text-xs text-zinc-400 flex items-center gap-1">Saldo pendiente <InfoTip text="Lo que falta por pagar. Cuando llega a $0, el préstamo está completado." /></p>
                                 <p className="text-sm font-semibold text-red-400">{moneyFmt.format(Number(p.saldoPendiente))}</p>
                               </div>
                             </div>
 
                             {/* Detalles */}
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3 text-center mb-4">
-                              <DetailChip label="Cuota diaria" value={moneyFmt.format(cuotaDiaria)} tip="Cantidad que el cliente debe pagar cada dÃ­a." />
-                              <DetailChip label="Tasa interÃ©s" value={`${tasaInteres}%`} tip="Porcentaje de interÃ©s que se aplica sobre el monto prestado." />
-                              <DetailChip label="DÃ­as pagados" value={`${p.diasPagados}/${p.diasPlazo}`} tip="DÃ­as que el cliente ya pagÃ³ vs el total del plazo." />
-                              <DetailChip label="DÃ­as restantes" value={`${Math.max(0, diasRestantes)}`} tip="DÃ­as que faltan para terminar de pagar el prÃ©stamo." />
+                              <DetailChip label="Cuota diaria" value={moneyFmt.format(cuotaDiaria)} tip="Cantidad que el cliente debe pagar cada día." />
+                              <DetailChip label="Tasa interés" value={`${tasaInteres}%`} tip="Porcentaje de interés que se aplica sobre el monto prestado." />
+                              <DetailChip label="Días pagados" value={`${p.diasPagados}/${p.diasPlazo}`} tip="Días que el cliente ya pagó vs el total del plazo." />
+                              <DetailChip label="Días restantes" value={`${Math.max(0, diasRestantes)}`} tip="Días que faltan para terminar de pagar el préstamo." />
                             </div>
 
                             {/* Barra de progreso */}
                             <div className="mb-4">
                               <div className="flex justify-between text-xs text-zinc-400 mb-1">
-                                <span className="flex items-center gap-1">Progreso <InfoTip text="Porcentaje del prÃ©stamo que ya fue pagado. Al llegar a 100%, el prÃ©stamo estÃ¡ completo." /></span>
+                                <span className="flex items-center gap-1">Progreso <InfoTip text="Porcentaje del préstamo que ya fue pagado. Al llegar a 100%, el préstamo está completo." /></span>
                                 <span>{porcentaje.toFixed(0)}%</span>
                               </div>
                               <div className="h-2 w-full rounded-full bg-zinc-100/10">
@@ -729,7 +729,7 @@ export default function AdminPage() {
                                         {pg.observacion && <span className="text-zinc-100/40 italic">({pg.observacion})</span>}
                                       </div>
                                       <div className="flex items-center gap-3">
-                                        <span className="text-zinc-400">{pg.diasCubiertos} dÃ­as</span>
+                                        <span className="text-zinc-400">{pg.diasCubiertos} días</span>
                                         <span className="font-semibold text-zinc-100">{moneyFmt.format(Number(pg.monto))}</span>
                                       </div>
                                     </div>
@@ -752,7 +752,7 @@ export default function AdminPage() {
   )
 }
 
-/* â”€â”€ Subcomponents â”€â”€ */
+/* ── Subcomponents ── */
 
 function SidebarBtn({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active: boolean; onClick: () => void }) {
   return (
@@ -833,39 +833,39 @@ function ConfigView() {
       body: JSON.stringify({ tasaInteres, cuotaDiariaMinima: cuotaDiaria }),
     })
     const d = await res.json()
-    setMsg(d.success ? { ok: true, text: 'ConfiguraciÃ³n guardada' } : { ok: false, text: d.message })
+    setMsg(d.success ? { ok: true, text: 'Configuración guardada' } : { ok: false, text: d.message })
     setSaving(false)
   }
 
   return (
     <>
       <div className="mb-8">
-        <h2 className="text-base font-semibold text-zinc-100">ConfiguraciÃ³n del sistema</h2>
-        <p className="mt-0.5 text-sm text-zinc-400">Tasa de interÃ©s y cuota diaria mÃ­nima</p>
+        <h2 className="text-base font-semibold text-zinc-100">Configuración del sistema</h2>
+        <p className="mt-0.5 text-sm text-zinc-400">Tasa de interés y cuota diaria mínima</p>
       </div>
 
       <div className="max-w-lg rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm">
         <div className="border-b border-zinc-800 px-5 py-4">
-          <h3 className="text-sm font-semibold text-zinc-100">ParÃ¡metros de prÃ©stamos</h3>
+          <h3 className="text-sm font-semibold text-zinc-100">Parámetros de préstamos</h3>
         </div>
         <form onSubmit={handleSave} className="p-5 space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-zinc-400 flex items-center gap-1">Tasa de interÃ©s (%) <InfoTip text="Porcentaje que se cobra por prestar dinero. Se calcula sobre el monto solicitado. Ej: si prestas $100.000 con 20% de interÃ©s, el cliente debe devolver $120.000." /></label>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400 flex items-center gap-1">Tasa de interés (%) <InfoTip text="Porcentaje que se cobra por prestar dinero. Se calcula sobre el monto solicitado. Ej: si prestas $100.000 con 20% de interés, el cliente debe devolver $120.000." /></label>
             <input type="number" step="0.01" min="0.01"
               className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20"
               value={tasaInteres} onChange={(e) => setTasaInteres(e.target.value)} required />
-            <p className="mt-1 text-[11px] text-zinc-400">Porcentaje de interÃ©s aplicado sobre el monto solicitado</p>
+            <p className="mt-1 text-[11px] text-zinc-400">Porcentaje de interés aplicado sobre el monto solicitado</p>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-zinc-400 flex items-center gap-1">Cuota diaria mÃ­nima ($) <InfoTip text="El valor mÃ­nimo que el cliente debe pagar cada dÃ­a. Se usa para calcular cuÃ¡ntos dÃ­as tardarÃ¡ en pagar un prÃ©stamo." /></label>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400 flex items-center gap-1">Cuota diaria mínima ($) <InfoTip text="El valor mínimo que el cliente debe pagar cada día. Se usa para calcular cuántos días tardará en pagar un préstamo." /></label>
             <input type="number" step="100" min="100"
               className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20"
               value={cuotaDiaria} onChange={(e) => setCuotaDiaria(e.target.value)} required />
-            <p className="mt-1 text-[11px] text-zinc-400">Valor de la cuota diaria base para el cÃ¡lculo de los dÃ­as de plazo</p>
+            <p className="mt-1 text-[11px] text-zinc-400">Valor de la cuota diaria base para el cálculo de los días de plazo</p>
           </div>
           <button type="submit" disabled={saving}
             className="w-full rounded-lg bg-lime px-4 py-2.5 text-sm font-medium text-emerald-950 font-display hover:bg-zinc-100 transition-colors disabled:opacity-50">
-            {saving ? 'Guardando...' : 'Guardar configuraciÃ³n'}
+            {saving ? 'Guardando...' : 'Guardar configuración'}
           </button>
           {msg && (
             <div className={`rounded-lg p-3 text-sm ${msg.ok ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
@@ -929,8 +929,8 @@ function AuditoriaView() {
   return (
     <>
       <div className="mb-8">
-        <h2 className="text-base font-semibold text-zinc-100">AuditorÃ­a de pagos</h2>
-        <p className="mt-0.5 text-sm text-zinc-400">{total} registro(s) â€” ediciones y eliminaciones de pagos</p>
+        <h2 className="text-base font-semibold text-zinc-100">Auditoría de pagos</h2>
+        <p className="mt-0.5 text-sm text-zinc-400">{total} registro(s) — ediciones y eliminaciones de pagos</p>
       </div>
 
       {loading ? (
@@ -939,7 +939,7 @@ function AuditoriaView() {
         </div>
       ) : registros.length === 0 ? (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-10 text-center text-sm text-zinc-400">
-          No hay registros de auditorÃ­a
+          No hay registros de auditoría
         </div>
       ) : (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm overflow-x-auto">
@@ -948,7 +948,7 @@ function AuditoriaView() {
               <tr className="border-b border-zinc-800 text-xs text-zinc-400">
                 <th className="px-5 py-3.5 text-left font-medium">Fecha</th>
                 <th className="px-5 py-3.5 text-left font-medium">Usuario</th>
-                <th className="px-5 py-3.5 text-left font-medium">AcciÃ³n</th>
+                <th className="px-5 py-3.5 text-left font-medium">Acción</th>
                 <th className="px-5 py-3.5 text-left font-medium">Detalles</th>
                 <th className="px-5 py-3.5 text-left font-medium">Motivo</th>
               </tr>
@@ -971,7 +971,7 @@ function AuditoriaView() {
                       <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         esEliminar ? 'bg-red-500/15 text-red-400' : 'bg-amber-500/15 text-amber-400'
                       }`}>
-                        {esEliminar ? 'EliminaciÃ³n' : 'EdiciÃ³n'}
+                        {esEliminar ? 'Eliminación' : 'Edición'}
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-xs text-zinc-400">
