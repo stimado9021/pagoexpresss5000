@@ -90,19 +90,6 @@ export default function VendedorPage() {
   const [tenantName, setTenantName] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const cargarDashboard = async () => {
-    setLoading(true)
-    try {
-      const r = await fetch('/api/dashboard')
-      const d = await r.json()
-      if (!d.success) { router.push('/login'); return }
-      setPrestamos(d.data.prestamos || [])
-      setStats(d.data.stats || null)
-      setClientes(d.data.clientes || [])
-    } catch { }
-    setLoading(false)
-  }
-
   const cargarClientes = async () => {
     setLoading(true)
     try {
@@ -226,7 +213,7 @@ export default function VendedorPage() {
               loading={loading} cargarClientes={cargarClientes} setPrestamos={setPrestamos}
             />
           )}
-          {view === 'prestamos' && <PrestamosView clientes={clientes} cargarPrestamos={cargarDashboard} />}
+          {view === 'prestamos' && <PrestamosView clientes={clientes} cargarClientes={cargarClientes} />}
           {view === 'pagos' && <PagosView />}
         </div>
       </div>
@@ -1271,7 +1258,7 @@ function ClientesView({
 
 /* ═══════════════════════════ PRESTAMOS VIEW ═══════════════════════════ */
 
-function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; cargarPrestamos: () => Promise<void> }) {
+function PrestamosView({ clientes, cargarClientes }: { clientes: Cliente[]; cargarClientes: () => Promise<void> }) {
   const [buscarCliente, setBuscarCliente] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [selectedClientePrestamo, setSelectedClientePrestamo] = useState<Cliente | null>(null)
@@ -1331,7 +1318,7 @@ function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; car
       setShowModal(false)
       setSelectedClientePrestamo(null)
       setMonto('')
-      await cargarPrestamos()
+      await cargarClientes()
     } else {
       setFormMsg({ ok: false, text: data.message })
     }
