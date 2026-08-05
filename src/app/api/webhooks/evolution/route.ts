@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { parseInboundEvent, sendWhatsAppReply } from '@/lib/evolution-api'
 import { getBotResponse } from '@/lib/whatsapp-bot'
+import { prisma } from '@/lib/prisma'
 
 const WEBHOOK_TOKEN = process.env.EVOLUTION_WEBHOOK_TOKEN || ''
 
@@ -30,6 +31,19 @@ export async function POST(request: NextRequest) {
   const response = getBotResponse(msg.text)
   if (response) {
     await sendWhatsAppReply(msg.from, response, msg.messageId)
+  }
+
+  const sesion = await prisma.chatSesion.findUnique({ where: { telefono: msg.from } })
+  if (sesion) {
+    await prisma.$transaction([
+      prisma.chatMensaje.create({
+        data: { sesionId: sesion.id, direccion: 'entrada', texto: msg.text },
+      }),
+      prisma.chatMensaje.create({
+        data: { sesionId: sesion.id, direccion: 'salida', texto: response },
+      }),
+      prisma.chatSesion.update({ where: { id: sesion.id }, data: { updatedAt: new Date() } }),
+    ])
   }
 
   return NextResponse.json({ success: true, received: true })

@@ -4,7 +4,7 @@ const API_URL = process.env.EVOLUTION_API_URL || 'https://evolutionapi2.globalpr
 const INSTANCE = process.env.EVOLUTION_INSTANCE || 'ventaschicho'
 const API_KEY = process.env.EVOLUTION_API_KEY || ''
 
-function normalizePhone(phone: string): string {
+export function normalizePhone(phone: string): string {
   const cleaned = phone.replace(/[^0-9]/g, '')
   if (cleaned.startsWith('57')) return cleaned
   if (cleaned.startsWith('0')) return `57${cleaned.slice(1)}`

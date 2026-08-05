@@ -1,20 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 
-const WHATSAPP_NUMBER = '573247716650';
+type ChatMsg = {
+  id: number;
+  direccion: 'entrada' | 'salida' | string;
+  texto: string;
+  createdAt: string;
+};
 
-const waLink = (text: string) =>
-  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-
-const QUICK_REPLIES = [
-  'Hola, quiero ver los planes y precios de PagoExpress.',
-  '¿Cómo funcionan los préstamos?',
-  '¿Cómo creo mi empresa?',
-  'Quiero hablar con un asesor.',
-];
-
-type ChatMsg = { from: 'bot' | 'user'; text: string };
+const STORAGE_KEY = 'pe_chat_telefono';
 
 const WhatsAppIcon = ({ size = 22 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -24,33 +20,99 @@ const WhatsAppIcon = ({ size = 22 }: { size?: number }) => (
 
 export default function WhatsAppWidget() {
   const [open, setOpen] = useState(false);
+  const [telefono, setTelefono] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null
+  );
+  const [telefonoInput, setTelefonoInput] = useState('');
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<ChatMsg[]>([
-    {
-      from: 'bot',
-      text: '¡Hola! 👋 Bienvenido a PagoExpress. Elige una opción o escríbenos y continuamos la conversación por WhatsApp.',
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
   const bodyRef = useRef<HTMLDivElement>(null);
+  const telefonoRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    telefonoRef.current = telefono;
+  }, [telefono]);
+
+  const cargarMensajes = useCallback(async () => {
+    const tel = telefonoRef.current;
+    if (!tel) return;
+    try {
+      const res = await fetch(`/api/chat?telefono=${encodeURIComponent(tel)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.success) {
+        setMessages((prev) => (prev.length === data.mensajes.length ? prev : data.mensajes));
+      }
+    } catch {
+      /* sin conexión */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!open || !telefono) return;
+    cargarMensajes();
+    const id = setInterval(cargarMensajes, 4000);
+    return () => clearInterval(id);
+  }, [open, telefono, cargarMensajes]);
 
   useEffect(() => {
     if (open && bodyRef.current) {
       bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
     }
-  }, [open, messages]);
+  }, [open, messages, sending]);
 
-  const send = (value?: string) => {
-    const text = (value ?? input).trim();
-    if (!text) return;
-    setMessages((m) => [...m, { from: 'user', text }]);
+  const iniciarChat = (e: FormEvent) => {
+    e.preventDefault();
+    const digits = telefonoInput.replace(/[^0-9]/g, '');
+    if (digits.length < 10) {
+      setError('Ingresa un número de teléfono válido (ej: 3001234567).');
+      return;
+    }
+    setError('');
+    setTelefono(digits);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, digits);
+    }
+    cargarMensajes();
+  };
+
+  const enviar = async (e: FormEvent) => {
+    e.preventDefault();
+    const texto = input.trim();
+    if (!texto || !telefono || sending) return;
+    setSending(true);
+    setError('');
     setInput('');
-    window.open(waLink(text), '_blank', 'noopener,noreferrer');
-    setTimeout(() => {
-      setMessages((m) => [
-        ...m,
-        { from: 'bot', text: '¡Perfecto! Te redirigí a WhatsApp para continuar 💬' },
-      ]);
-    }, 500);
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telefono, texto }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setMessages(data.mensajes);
+      } else {
+        setError(data.message || 'No se pudo enviar el mensaje.');
+        setInput(texto);
+      }
+    } catch {
+      setError('Sin conexión. Intenta de nuevo.');
+      setInput(texto);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const iniciarDeNuevo = () => {
+    setTelefono(null);
+    setMessages([]);
+    setTelefonoInput('');
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
   };
 
   return (
@@ -82,59 +144,91 @@ export default function WhatsAppWidget() {
             </button>
           </div>
 
-          {/* Messages */}
-          <div ref={bodyRef} className="flex h-64 flex-col gap-3 overflow-y-auto bg-emerald-950/40 p-4">
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                  msg.from === 'bot'
-                    ? 'self-start rounded-tl-sm border border-bone/10 bg-graphite-800 text-bone/90'
-                    : 'self-end rounded-tr-sm bg-lime text-emerald-950'
-                }`}
-              >
-                {msg.text}
-              </div>
-            ))}
-          </div>
-
-          {/* Quick replies */}
-          <div className="flex flex-col gap-1.5 border-t border-bone/10 bg-graphite-900 px-4 py-3">
-            {QUICK_REPLIES.map((q) => (
+          {!telefono ? (
+            /* Paso 1: pedir teléfono */
+            <form onSubmit={iniciarChat} className="flex flex-col gap-3 bg-emerald-950/40 p-4">
+              <p className="text-sm leading-relaxed text-bone/85">
+                ¡Hola! 👋 Para atenderte por WhatsApp, déjanos tu número y nuestro asistente te responderá aquí mismo.
+              </p>
+              <input
+                value={telefonoInput}
+                onChange={(e) => setTelefonoInput(e.target.value)}
+                type="tel"
+                inputMode="numeric"
+                placeholder="Número de WhatsApp, ej: 3001234567"
+                className="rounded-full border border-bone/15 bg-graphite-800 px-4 py-2.5 text-sm text-bone placeholder:text-bone/35 focus:border-lime focus:outline-none"
+              />
+              {error && <p className="text-xs text-red-400">{error}</p>}
               <button
-                key={q}
-                onClick={() => send(q)}
-                className="rounded-full border border-[#25D366]/40 px-3.5 py-1.5 text-left text-xs text-bone/85 hover:border-[#25D366] hover:text-[#25D366] transition-colors"
+                type="submit"
+                className="rounded-full bg-lime px-4 py-2.5 font-display text-sm font-semibold text-emerald-950 hover:bg-bone transition-colors"
               >
-                {q}
+                Comenzar conversación
               </button>
-            ))}
-          </div>
+            </form>
+          ) : (
+            /* Paso 2: chat */
+            <>
+              <div ref={bodyRef} className="flex h-72 flex-col gap-3 overflow-y-auto bg-emerald-950/40 p-4">
+                {messages.length === 0 && !sending && (
+                  <div className="max-w-[85%] self-start rounded-2xl rounded-tl-sm border border-bone/10 bg-graphite-800 px-3.5 py-2.5 text-sm leading-relaxed text-bone/90">
+                    ¡Hola! 👋 Escríbenos y nuestro asistente te responderá al instante.
+                  </div>
+                )}
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+                      msg.direccion === 'entrada'
+                        ? 'self-end rounded-tr-sm bg-lime text-emerald-950'
+                        : 'self-start rounded-tl-sm border border-bone/10 bg-graphite-800 text-bone/90'
+                    }`}
+                  >
+                    {msg.texto}
+                  </div>
+                ))}
+                {sending && (
+                  <div className="self-start flex gap-1.5 rounded-2xl rounded-tl-sm border border-bone/10 bg-graphite-800 px-4 py-3">
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-bone/50" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-bone/50" style={{ animationDelay: '150ms' }} />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-bone/50" style={{ animationDelay: '300ms' }} />
+                  </div>
+                )}
+                {error && <p className="text-center text-xs text-red-400">{error}</p>}
+              </div>
 
-          {/* Input */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              send();
-            }}
-            className="flex items-center gap-2 border-t border-bone/10 bg-graphite-900 px-3 py-3"
-          >
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Escribe tu mensaje..."
-              className="flex-1 rounded-full border border-bone/15 bg-graphite-800 px-4 py-2.5 text-sm text-bone placeholder:text-bone/35 focus:border-lime focus:outline-none"
-            />
-            <button
-              type="submit"
-              aria-label="Enviar mensaje"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white hover:opacity-90 transition-opacity"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M4 12H20M20 12L14 6M20 12L14 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </form>
+              <div className="flex items-center justify-between border-t border-bone/10 bg-graphite-900 px-3 py-1.5">
+                <button
+                  onClick={iniciarDeNuevo}
+                  className="rounded-full px-2 py-1 text-[11px] text-bone/45 hover:text-bone transition-colors"
+                >
+                  Cambiar número
+                </button>
+                <span className="font-mono text-[10px] text-bone/30">
+                  Continuamos por WhatsApp: {telefono.replace(/^57/, '+57 ').replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3')}
+                </span>
+              </div>
+
+              <form onSubmit={enviar} className="flex items-center gap-2 border-t border-bone/10 bg-graphite-900 px-3 py-3">
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Escribe tu mensaje..."
+                  className="flex-1 rounded-full border border-bone/15 bg-graphite-800 px-4 py-2.5 text-sm text-bone placeholder:text-bone/35 focus:border-lime focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={sending}
+                  aria-label="Enviar mensaje"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 12H20M20 12L14 6M20 12L14 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </form>
+            </>
+          )}
         </div>
       )}
 

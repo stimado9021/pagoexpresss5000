@@ -283,3 +283,27 @@ model Historial {
   @@index([createdAt])
   @@map("historial")
 }
+
+model ChatSesion {
+  id        Int            @id @default(autoincrement()) @map("id")
+  telefono  String         @unique @db.VarChar(20) @map("telefono")
+  estado    String         @default("abierta") @db.VarChar(20) @map("estado")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+  mensajes  ChatMensaje[]
+
+  @@map("chat_sesiones")
+}
+
+model ChatMensaje {
+  id        Int         @id @default(autoincrement()) @map("id")
+  sesionId  Int         @map("sesion_id")
+  direccion String      @db.VarChar(10) @map("direccion")
+  texto     String      @db.Text @map("texto")
+  createdAt DateTime    @default(now()) @map("created_at")
+  sesion    ChatSesion  @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+
+  @@index([sesionId])
+  @@index([createdAt])
+  @@map("chat_mensajes")
+}
