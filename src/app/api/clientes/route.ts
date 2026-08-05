@@ -44,9 +44,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, data: clientesConAtraso })
     }
 
-    if (vendedorId && session.rol === 'superadmin') {
+    if (vendedorId && (session.rol === 'superadmin' || session.rol === 'empresario')) {
       const clientes = await prisma.usuario.findMany({
-        where: { rol: 'cliente', vendedorId: parseInt(vendedorId) },
+        where: { rol: 'cliente', vendedorId: parseInt(vendedorId), tenantId: session.tenantId ?? undefined },
         select: {
           id: true, cedula: true, nombre: true, apellido: true,
           telefono: true, email: true, direccion: true, activo: true, createdAt: true,

@@ -68,7 +68,7 @@ export default function ClientePage() {
     <div className="min-h-screen bg-emerald-950">
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-bone/10 bg-graphite-900 px-4 py-3 sm:px-6 sm:py-3.5 lg:px-8">
         <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shrink-0 sm:h-7 sm:w-7"><img src="/logo.png" alt="PagoExpress" className="h-4 w-4 object-contain sm:h-5 sm:w-5" /></span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shrink-0 sm:h-7 sm:w-7"><img src="/logo.webp" alt="PagoExpress" className="h-4 w-4 object-contain sm:h-5 sm:w-5" /></span>
           <span className="text-xs font-semibold text-bone sm:text-sm">PagoExpress</span>
           <span className="mx-1 text-bone/20 sm:mx-2">|</span>
           <span className="text-xs text-bone/60 sm:text-sm">Cliente</span>
@@ -84,7 +84,7 @@ export default function ClientePage() {
             {tenantName || 'EMPRESA'} : {cliente ? `${cliente.nombre} ${cliente.apellido}` : 'Cliente'}
           </h1>
         </div>
-        {/* ── Info del cliente ── */}
+        {/* â”€â”€ Info del cliente â”€â”€ */}
         {cliente && (
           <div className="flex items-start gap-3 rounded-xl border border-bone/10 bg-graphite-900 p-3 shadow-sm sm:gap-4 sm:p-5">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-lime/10 text-xs font-semibold text-lime sm:h-10 sm:w-10 sm:text-sm">
@@ -102,7 +102,7 @@ export default function ClientePage() {
           </div>
         )}
 
-        {/* ── Alerta de mora ── */}
+        {/* â”€â”€ Alerta de mora â”€â”€ */}
         {maxDiasAtraso > 0 && (
           <div className={`rounded-xl border-2 p-3 sm:p-4 ${
             maxDiasAtraso >= 7 ? 'border-[#EF4444] bg-red-500/15' : 'border-[#F59E0B] bg-amber-500/15'
@@ -115,21 +115,21 @@ export default function ClientePage() {
               </div>
               <div>
                 <p className={`text-xs font-semibold sm:text-sm ${maxDiasAtraso >= 7 ? 'text-red-400' : 'text-amber-400'}`}>
-                  {maxDiasAtraso >= 7 ? 'ALERTA: Tienes pagos muy atrasados' : 'AVISO: Tienes un pequeño atraso'}
+                  {maxDiasAtraso >= 7 ? 'ALERTA: Tienes pagos muy atrasados' : 'AVISO: Tienes un pequeÃ±o atraso'}
                 </p>
                 <p className="mt-0.5 text-[10px] text-bone/60 sm:mt-1 sm:text-xs">
-                  Llevas {maxDiasAtraso} día{maxDiasAtraso !== 1 ? 's' : ''} sin pagar. Contacta a tu vendedor para ponerte al día.
+                  Llevas {maxDiasAtraso} dÃ­a{maxDiasAtraso !== 1 ? 's' : ''} sin pagar. Contacta a tu vendedor para ponerte al dÃ­a.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── Stats ── */}
+        {/* â”€â”€ Stats â”€â”€ */}
         <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
           <div className="rounded-xl border border-bone/10 bg-graphite-900 p-3 shadow-sm sm:p-4 lg:p-5">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-lime/10 text-lime mb-1.5 sm:h-8 sm:w-8 sm:mb-2 lg:h-9 lg:w-9 lg:mb-3"><CreditCard size={14} className="sm:hidden" /><CreditCard size={16} className="hidden sm:block" /></div>
-            <p className="text-[10px] text-bone/60 sm:text-xs lg:text-sm">Préstamos activos</p>
+            <p className="text-[10px] text-bone/60 sm:text-xs lg:text-sm">PrÃ©stamos activos</p>
             <p className="text-lg font-bold text-bone sm:text-xl lg:text-2xl">{activos.length}</p>
           </div>
           <div className="rounded-xl border border-bone/10 bg-graphite-900 p-3 shadow-sm sm:p-4 lg:p-5">
@@ -145,16 +145,16 @@ export default function ClientePage() {
           <div className="rounded-xl border border-bone/10 bg-graphite-900 p-3 shadow-sm sm:p-4 lg:p-5">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 mb-1.5 sm:h-8 sm:w-8 sm:mb-2 lg:h-9 lg:w-9 lg:mb-3"><Clock size={14} className="sm:hidden" /><Clock size={16} className="hidden sm:block" /></div>
             <p className="text-[10px] text-bone/60 sm:text-xs lg:text-sm">Cuotas pendientes</p>
-            <p className="text-lg font-bold text-amber-400 sm:text-xl lg:text-2xl">{cuotasPendientes} días</p>
+            <p className="text-lg font-bold text-amber-400 sm:text-xl lg:text-2xl">{cuotasPendientes} dÃ­as</p>
           </div>
         </div>
 
-        {/* ── Préstamos detallados ── */}
+        {/* â”€â”€ PrÃ©stamos detallados â”€â”€ */}
         <div>
-          <h2 className="text-sm font-semibold text-bone mb-3 sm:text-base sm:mb-4">Mis préstamos</h2>
+          <h2 className="text-sm font-semibold text-bone mb-3 sm:text-base sm:mb-4">Mis prÃ©stamos</h2>
           {prestamos.length === 0 ? (
             <div className="rounded-xl border border-bone/10 bg-graphite-900 p-8 text-center shadow-sm sm:p-12">
-              <p className="text-xs text-bone/60 sm:text-sm">No tienes préstamos registrados</p>
+              <p className="text-xs text-bone/60 sm:text-sm">No tienes prÃ©stamos registrados</p>
             </div>
           ) : (
             <div className="space-y-3 sm:space-y-4">
@@ -203,7 +203,7 @@ export default function ClientePage() {
                                 </span>
                               )}
                             </div>
-                            <p className="text-[10px] text-bone/60 sm:text-xs lg:text-sm mt-0.5">{cuotasRestantes} días restantes · {pct}% completado</p>
+                            <p className="text-[10px] text-bone/60 sm:text-xs lg:text-sm mt-0.5">{cuotasRestantes} dÃ­as restantes Â· {pct}% completado</p>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
@@ -234,7 +234,7 @@ export default function ClientePage() {
                           <p className="font-semibold text-bone">{moneyFmt.format(Number(p.montoSolicitado))}</p>
                         </div>
                         <div className="rounded-lg bg-emerald-950 p-2 sm:p-2.5 lg:p-3">
-                          <p className="text-bone/60">Interés ({p.tasaInteres}%)</p>
+                          <p className="text-bone/60">InterÃ©s ({p.tasaInteres}%)</p>
                           <p className="font-semibold text-red-400">+ {moneyFmt.format(Number(p.interesTotal))}</p>
                         </div>
                         <div className="rounded-lg bg-emerald-950 p-2 sm:p-2.5 lg:p-3">
@@ -265,8 +265,8 @@ export default function ClientePage() {
                           <div className={`h-full rounded-full ${p.diasAtrasados > 0 ? 'bg-amber-500' : 'bg-lime'}`} style={{ width: `${Math.min(100, pct)}%` }} />
                         </div>
                         <div className="flex items-center justify-between mt-1">
-                          <span className="text-[9px] text-bone/60 sm:text-[10px]">{p.diasPagados} días pagados</span>
-                          <span className="text-[9px] text-bone/60 sm:text-[10px]">Quedan {cuotasRestantes} días</span>
+                          <span className="text-[9px] text-bone/60 sm:text-[10px]">{p.diasPagados} dÃ­as pagados</span>
+                          <span className="text-[9px] text-bone/60 sm:text-[10px]">Quedan {cuotasRestantes} dÃ­as</span>
                         </div>
                       </div>
 
@@ -274,24 +274,24 @@ export default function ClientePage() {
                       {p.diasAtrasados > 0 && (
                         <div className="rounded-lg bg-red-500/15 border border-red-500/40 p-2 sm:p-3">
                           <p className="text-[10px] font-medium text-red-400 sm:text-xs">
-                            Debes {p.diasAtrasados} día{p.diasAtrasados !== 1 ? 's' : ''} = {moneyFmt.format(saldoAtrasado)}
+                            Debes {p.diasAtrasados} dÃ­a{p.diasAtrasados !== 1 ? 's' : ''} = {moneyFmt.format(saldoAtrasado)}
                           </p>
                           <p className="text-[9px] text-bone/60 mt-0.5 sm:text-[11px]">
-                            Paga {moneyFmt.format(saldoAtrasado + Number(p.cuotaDiaria))} para ponerte al día con tu vendedor.
+                            Paga {moneyFmt.format(saldoAtrasado + Number(p.cuotaDiaria))} para ponerte al dÃ­a con tu vendedor.
                           </p>
                         </div>
                       )}
 
                       {p.estado === 'pagado' && (
                         <div className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-500/20 px-3 py-2 text-[10px] font-medium text-emerald-400 sm:text-xs">
-                          <BadgeCheck size={12} /> Préstamo completado — ¡Felicidades!
+                          <BadgeCheck size={12} /> PrÃ©stamo completado â€” Â¡Felicidades!
                         </div>
                       )}
 
                       {/* Pagos recientes */}
                       {recientes.length > 0 && (
                         <div>
-                          <p className="text-[10px] font-semibold uppercase tracking-wider text-bone/60 mb-1.5 sm:text-[11px] sm:mb-2">Últimos pagos</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-bone/60 mb-1.5 sm:text-[11px] sm:mb-2">Ãšltimos pagos</p>
                           <div className="rounded-lg border border-bone/10 divide-y divide-[#E5E7EB]">
                             {recientes.map((pg) => (
                               <div key={pg.id} className="flex items-center justify-between px-2.5 py-2 sm:px-3 sm:py-2.5">
@@ -304,7 +304,7 @@ export default function ClientePage() {
                                   </div>
                                   <div>
                                     <p className="text-[10px] font-medium text-bone sm:text-xs">{moneyFmt.format(Number(pg.monto))}</p>
-                                    <p className="text-[9px] text-bone/60 sm:text-[10px]">{pg.diasCubiertos} día{pg.diasCubiertos !== 1 ? 's' : ''} cubierto{pg.diasCubiertos !== 1 ? 's' : ''}</p>
+                                    <p className="text-[9px] text-bone/60 sm:text-[10px]">{pg.diasCubiertos} dÃ­a{pg.diasCubiertos !== 1 ? 's' : ''} cubierto{pg.diasCubiertos !== 1 ? 's' : ''}</p>
                                   </div>
                                 </div>
                                 <span className="text-[9px] text-bone/60 sm:text-[10px]">

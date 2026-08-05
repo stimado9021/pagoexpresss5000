@@ -1,0 +1,22 @@
+# PagoExpress
+
+> Software para prestamistas y empresas de crédito en Colombia: gestión de cobros, agentes, intereses, cartera y reportes desde un solo panel de control.
+
+## Qué es PagoExpress
+
+PagoExpress es una plataforma web diseñada para prestamistas, empresas de crédito, cooperativas y negocios de cobranza. Permite gestionar clientes, crear préstamos con cálculo automático de intereses, programar cuotas diarias, registrar pagos, controlar la mora, asignar carteras a vendedores y generar reportes. Cada empresa obtiene su propio subdominio y panel independiente.
+
+## Funcionalidades principales
+
+- Gestión de clientes y cartera de préstamos
+- Cálculo automático de intereses y cuotas
+- Control de cobros diarios y morosidad
+- Agentes y vendedores con permisos independientes
+- Reportes de cartera, mora y rendimiento
+- Espacio de trabajo propio por empresa (subdominio)
+
+## Links
+
+- [PagoExpress](https://pagoexpress.com/)
+- [Iniciar sesión](https://pagoexpress.com/login)
+- [Crear mi espacio de trabajo](https://pagoexpress.com/#registro)

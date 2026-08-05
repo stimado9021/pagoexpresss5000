@@ -160,16 +160,16 @@ export default function VendedorPage() {
 
   return (
     <div className="flex min-h-screen bg-emerald-950">
-      {/* ── Overlay para cerrar sidebar en móvil ── */}
+      {/* â”€â”€ Overlay para cerrar sidebar en mÃ³vil â”€â”€ */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* ── Sidebar ── */}
+      {/* â”€â”€ Sidebar â”€â”€ */}
       <aside className={`fixed left-0 top-0 z-50 flex h-screen w-[220px] flex-col border-r border-bone/10 bg-graphite-900 transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between border-b border-bone/10 px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.png" alt="PagoExpress" className="h-6 w-6 object-contain" /></span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.webp" alt="PagoExpress" className="h-6 w-6 object-contain" /></span>
             <span className="text-base font-bold text-bone">PagoExpress</span>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-bone/60 hover:text-bone">
@@ -180,7 +180,7 @@ export default function VendedorPage() {
         <nav className="mt-5 flex-1 space-y-1 px-3">
           <SidebarBtn icon={<LayoutDashboard size={18} />} label="Dashboard" active={view === 'dashboard'} onClick={() => { setView('dashboard'); setSelectedCliente(null); setSidebarOpen(false) }} />
           <SidebarBtn icon={<Users size={18} />} label="Clientes" active={view === 'clientes'} onClick={() => { setView('clientes'); setSelectedCliente(null); setSidebarOpen(false) }} />
-          <SidebarBtn icon={<CreditCard size={18} />} label="Préstamos" active={view === 'prestamos'} onClick={() => { setView('prestamos'); setSidebarOpen(false) }} />
+          <SidebarBtn icon={<CreditCard size={18} />} label="PrÃ©stamos" active={view === 'prestamos'} onClick={() => { setView('prestamos'); setSidebarOpen(false) }} />
           <SidebarBtn icon={<DollarSign size={18} />} label="Pagos" active={view === 'pagos'} onClick={() => { setView('pagos'); setSidebarOpen(false) }} />
         </nav>
 
@@ -198,7 +198,7 @@ export default function VendedorPage() {
         </div>
       </aside>
 
-      {/* ── Main ── */}
+      {/* â”€â”€ Main â”€â”€ */}
       <div className="flex-1 lg:ml-[220px]">
         {/* Header */}
         <header className="sticky top-0 z-30 flex items-center justify-between border-b border-bone/10 bg-graphite-900 px-4 py-3 lg:px-8">
@@ -209,7 +209,7 @@ export default function VendedorPage() {
             <div className="flex items-center gap-1.5 text-xs text-bone/60 sm:text-sm">
               <span className="text-bone font-medium">Vendedor</span>
               <span className="mx-0.5">/</span>
-              <span>{view === 'dashboard' ? 'Resumen' : view === 'clientes' ? 'Clientes' : view === 'prestamos' ? 'Préstamos' : 'Pagos'}</span>
+              <span>{view === 'dashboard' ? 'Resumen' : view === 'clientes' ? 'Clientes' : view === 'prestamos' ? 'PrÃ©stamos' : 'Pagos'}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
@@ -220,7 +220,7 @@ export default function VendedorPage() {
           </div>
         </header>
 
-        {/* Title — centrado en móvil */}
+        {/* Title â€” centrado en mÃ³vil */}
         <div className="px-4 pt-4 text-center lg:px-8 lg:pt-6 lg:text-left">
           <h1 className="font-display font-bold text-xl text-white uppercase tracking-wider sm:text-2xl lg:text-4xl">
             {tenantName || 'EMPRESA'} : {userInfo ? `${userInfo.nombre} ${userInfo.apellido}` : 'Vendedor'}
@@ -244,7 +244,7 @@ export default function VendedorPage() {
   )
 }
 
-/* ═══════════════════════════ DASHBOARD VIEW ═══════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• DASHBOARD VIEW â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; prestamos: Prestamo[]; loading: boolean }) {
   const [expandedClientId, setExpandedClientId] = useState<string | null>(null)
@@ -279,13 +279,13 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
     <>
       <div className="mb-4 text-center sm:mb-6 sm:text-left">
         <h2 className="text-sm font-semibold text-bone sm:text-base">Resumen de cobros</h2>
-        <p className="mt-0.5 text-xs text-bone/60 sm:text-sm">Vista general de tus clientes y préstamos</p>
+        <p className="mt-0.5 text-xs text-bone/60 sm:text-sm">Vista general de tus clientes y prÃ©stamos</p>
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-3 lg:grid-cols-4">
-        <StatCard icon={<CreditCard size={16} />} iconBg="bg-lime/10 text-lime" label="Activos" value={String(stats?.activos ?? 0)} tip="Cantidad de préstamos que están en curso y aún no se han pagado completamente" />
+        <StatCard icon={<CreditCard size={16} />} iconBg="bg-lime/10 text-lime" label="Activos" value={String(stats?.activos ?? 0)} tip="Cantidad de prÃ©stamos que estÃ¡n en curso y aÃºn no se han pagado completamente" />
         <StatCard icon={<DollarSign size={16} />} iconBg="bg-emerald-500/20 text-emerald-400" label="Recuperado" value={stats ? moneyFmt.format(stats.monto_recuperado) : '$0'} color="text-emerald-400" tip="Dinero total que tus clientes ya han pagado" />
-        <StatCard icon={<TrendingUp size={16} />} iconBg="bg-amber-500/15 text-amber-400" label="Pendiente" value={stats ? moneyFmt.format(stats.saldo_pendiente) : '$0'} color="text-amber-400" tip="Dinero que aún te deben los clientes por pagar" />
+        <StatCard icon={<TrendingUp size={16} />} iconBg="bg-amber-500/15 text-amber-400" label="Pendiente" value={stats ? moneyFmt.format(stats.saldo_pendiente) : '$0'} color="text-amber-400" tip="Dinero que aÃºn te deben los clientes por pagar" />
         <StatCard icon={<Users size={16} />} iconBg="bg-lime/10 text-lime" label="Clientes" value={String(stats?.total_clientes ?? 0)} tip="Total de clientes que tienes asignados" />
       </div>
 
@@ -304,7 +304,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                   {enMora.length} cliente{enMora.length !== 1 ? 's' : ''} con atraso
                 </p>
                 <p className="text-[11px] text-bone/60">
-                  {maxDias >= 7 ? 'Mora severa — envía recordatorios' : `Máx: ${maxDias} días`}
+                  {maxDias >= 7 ? 'Mora severa â€” envÃ­a recordatorios' : `MÃ¡x: ${maxDias} dÃ­as`}
                 </p>
               </div>
               <button onClick={async () => {
@@ -323,7 +323,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
 
       {prestamos.length === 0 ? (
         <div className="rounded-xl border border-bone/10 bg-graphite-900 p-8 text-center shadow-sm sm:p-12">
-          <p className="text-xs text-bone/60 sm:text-sm">No hay préstamos registrados</p>
+          <p className="text-xs text-bone/60 sm:text-sm">No hay prÃ©stamos registrados</p>
         </div>
       ) : (
         <div className="space-y-2 sm:space-y-3">
@@ -336,7 +336,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
 
             return (
               <div key={cliente.cedula} className="rounded-xl border border-bone/10 bg-graphite-900 shadow-sm overflow-hidden">
-                {/* Header clickeable — accordion trigger */}
+                {/* Header clickeable â€” accordion trigger */}
                 <button
                   onClick={() => setExpandedClientId(isExpanded ? null : cliente.cedula)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors sm:px-4 sm:py-3 ${
@@ -371,7 +371,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                 {/* Contenido del accordion */}
                 {isExpanded && (
                   <div className="border-t border-bone/10 divide-y divide-bone/10">
-                    {/* Préstamos del cliente */}
+                    {/* PrÃ©stamos del cliente */}
                     {ps.map((p) => {
                       const pct = Number(p.montoSolicitado) > 0 ? Math.round((Number(p.montoPagado) / Number(p.montoSolicitado)) * 100) : 0
                       const cuotasRestantes = Math.max(0, p.diasPlazo - p.diasPagados)
@@ -389,7 +389,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                               </span>
                               <div>
                                 <p className="text-[11px] font-medium text-bone sm:text-xs">{moneyFmt.format(Number(p.montoSolicitado))}</p>
-                                <p className="text-[9px] text-bone/60 sm:text-[10px]">{pct}% · {cuotasRestantes}d restantes</p>
+                                <p className="text-[9px] text-bone/60 sm:text-[10px]">{pct}% Â· {cuotasRestantes}d restantes</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-1.5 sm:gap-2">
@@ -405,7 +405,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                             <div className={`h-full rounded-full transition-all ${p.diasAtrasados > 0 ? 'bg-amber-500' : 'bg-lime'}`} style={{ width: `${Math.min(100, pct)}%` }} />
                           </div>
 
-                          {/* Detalle expandido del préstamo */}
+                          {/* Detalle expandido del prÃ©stamo */}
                           <div className="mt-2 grid grid-cols-2 gap-2 text-[10px]">
                             <div className="rounded-md bg-emerald-950 p-2">
                               <p className="text-bone/60">Cuota diaria</p>
@@ -440,9 +440,9 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                       if (!hayPendientes || esPrimerDia) {
                         return (
                           <div className="px-3 py-2.5 sm:px-4 sm:py-3">
-                            <Tooltip text={esPrimerDia ? 'El préstamo fue creado hoy. El primer cobro se hace mañana.' : 'Ya pagó todo hoy.'}>
+                            <Tooltip text={esPrimerDia ? 'El prÃ©stamo fue creado hoy. El primer cobro se hace maÃ±ana.' : 'Ya pagÃ³ todo hoy.'}>
                               <div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-bone/10 px-2.5 py-2 text-[11px] font-medium text-bone/40 cursor-not-allowed sm:px-3 sm:py-2.5 sm:text-xs">
-                                <Clock size={11} className="sm:hidden" /><Clock size={12} className="hidden sm:block" /> {esPrimerDia ? 'Primer día — cobra mañana' : 'Ya cobró todo hoy'}
+                                <Clock size={11} className="sm:hidden" /><Clock size={12} className="hidden sm:block" /> {esPrimerDia ? 'Primer dÃ­a â€” cobra maÃ±ana' : 'Ya cobrÃ³ todo hoy'}
                               </div>
                             </Tooltip>
                           </div>
@@ -454,7 +454,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                           {maxDiasAtrasoLocal > 0 && (
                             <>
                               <p className="text-[10px] text-red-400/80 font-medium sm:text-[11px]">
-                                {maxDiasAtrasoLocal} día{maxDiasAtrasoLocal !== 1 ? 's' : ''} atraso — abonar $5.000 c/u
+                                {maxDiasAtrasoLocal} dÃ­a{maxDiasAtrasoLocal !== 1 ? 's' : ''} atraso â€” abonar $5.000 c/u
                               </p>
                               <div className="flex flex-wrap gap-1 sm:gap-1.5">
                                 {Array.from({ length: maxDiasAtrasoLocal }, (_, i) => {
@@ -477,7 +477,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                             <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria)}
                               className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2.5 py-2 text-[11px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-[0.98] sm:gap-2 sm:px-3 sm:py-2.5 sm:text-xs">
                               <Calendar size={11} className="sm:hidden" /><Calendar size={12} className="hidden sm:block" />
-                              <span>Hoy · {new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
+                              <span>Hoy Â· {new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
                               <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
                             </button>
                           )}
@@ -495,7 +495,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
   )
 }
 
-/* ═══════════════════════════ CLIENTES VIEW ═══════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CLIENTES VIEW â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 function ClientesView({
   clientes, selectedCliente, setSelectedCliente, selectedPrestamo, setSelectedPrestamo,
@@ -691,7 +691,7 @@ function ClientesView({
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-base font-semibold text-bone">Mis clientes</h2>
-          <p className="mt-0.5 text-sm text-bone/60">Gestiona tus clientes y sus préstamos</p>
+          <p className="mt-0.5 text-sm text-bone/60">Gestiona tus clientes y sus prÃ©stamos</p>
         </div>
         <button onClick={() => { setShowModal(true); setFormMsg(null); setForm({ cedula: '', nombre: '', apellido: '', telefono: '', email: '', direccion: '' }) }} className="flex items-center gap-1.5 rounded-lg bg-lime px-3.5 py-1.5 text-sm font-medium text-emerald-950 font-display hover:bg-bone transition-colors shadow-sm">
           <Plus size={15} /> Nuevo cliente
@@ -699,7 +699,7 @@ function ClientesView({
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-        {/* ── Left: Lista de clientes ── */}
+        {/* â”€â”€ Left: Lista de clientes â”€â”€ */}
         <div className="lg:col-span-2 rounded-xl border border-bone/10 bg-graphite-900 shadow-sm">
           <div className="border-b border-bone/10 px-5 py-4">
             <div className="flex items-center gap-2 rounded-lg border border-bone/10 bg-emerald-950 px-3 py-2">
@@ -731,9 +731,9 @@ function ClientesView({
                     </div>
                     <div className="text-right">
                       <p className={`text-xs font-semibold ${enMora ? 'text-red-400' : saldo > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
-                        {saldo > 0 ? moneyFmt.format(saldo) : 'Al día'}
+                        {saldo > 0 ? moneyFmt.format(saldo) : 'Al dÃ­a'}
                       </p>
-                      <p className="text-[11px] text-bone/60">{activos.length} préstamo{activos.length !== 1 ? 's' : ''}</p>
+                      <p className="text-[11px] text-bone/60">{activos.length} prÃ©stamo{activos.length !== 1 ? 's' : ''}</p>
                     </div>
                   </button>
                 )
@@ -742,7 +742,7 @@ function ClientesView({
           </div>
         </div>
 
-        {/* ── Right: Detalle del cliente ── */}
+        {/* â”€â”€ Right: Detalle del cliente â”€â”€ */}
         <div className="lg:col-span-3 rounded-xl border border-bone/10 bg-graphite-900 shadow-sm">
           <div className="border-b border-bone/10 px-5 py-4">
             <h3 className="text-sm font-semibold text-bone uppercase">
@@ -758,7 +758,7 @@ function ClientesView({
             <div className="flex items-center justify-center py-16"><div className="h-6 w-6 animate-spin rounded-full border-2 border-bone/10 border-t-[#5B5FEF]" /></div>
           ) : (
             <div className="p-5 space-y-5 max-h-[calc(100vh-200px)] overflow-y-auto">
-              {/* ── Alerta de mora ── */}
+              {/* â”€â”€ Alerta de mora â”€â”€ */}
               {(() => {
                 const activos = (selectedCliente.prestamosCliente || []).filter(p => p.estado === 'activo')
                 const maxDiasAtraso = Math.max(0, ...activos.map(p => p.diasAtrasados))
@@ -782,11 +782,11 @@ function ClientesView({
                         }`}>
                           {maxDiasAtraso >= 7 ? 'ALERTA: Cliente en mora severa' :
                            maxDiasAtraso >= 3 ? 'AVISO: Cliente con atraso notable' :
-                           'AVISO: Cliente con pequeño atraso'}
+                           'AVISO: Cliente con pequeÃ±o atraso'}
                         </p>
                         <p className="text-xs mt-1 text-bone/60">
-                          {maxDiasAtraso} día{maxDiasAtraso !== 1 ? 's' : ''} sin pago.
-                          Debería pagar al menos {moneyFmt.format(montoAtrasado)} para ponerse al día.
+                          {maxDiasAtraso} dÃ­a{maxDiasAtraso !== 1 ? 's' : ''} sin pago.
+                          DeberÃ­a pagar al menos {moneyFmt.format(montoAtrasado)} para ponerse al dÃ­a.
                         </p>
                         {maxDiasAtraso >= 7 && (
                           <p className="text-xs mt-1.5 font-medium text-red-400">
@@ -799,7 +799,7 @@ function ClientesView({
                 )
               })()}
 
-              {/* ── Info del cliente ── */}
+              {/* â”€â”€ Info del cliente â”€â”€ */}
               <div className="flex items-start gap-4">
                 <Avatar nombre={selectedCliente.nombre} apellido={selectedCliente.apellido} size="md" />
                 <div className="flex-1 space-y-1">
@@ -819,7 +819,7 @@ function ClientesView({
                 </div>
               </div>
 
-              {/* ── Resumen financiero ── */}
+              {/* â”€â”€ Resumen financiero â”€â”€ */}
               {(() => {
                 const todos = selectedCliente.prestamosCliente || []
                 const activos = todos.filter(p => p.estado === 'activo')
@@ -831,34 +831,34 @@ function ClientesView({
                 return (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-lg bg-emerald-500/20 p-3">
-                      <p className="text-[11px] font-medium text-emerald-400 flex items-center gap-1">Total pagado <InfoTip text="Suma de todos los pagos que el cliente ha hecho en sus préstamos." /></p>
+                      <p className="text-[11px] font-medium text-emerald-400 flex items-center gap-1">Total pagado <InfoTip text="Suma de todos los pagos que el cliente ha hecho en sus prÃ©stamos." /></p>
                       <p className="text-sm font-bold text-emerald-400">{moneyFmt.format(totalPagado)}</p>
                     </div>
                     <div className="rounded-lg bg-amber-500/15 p-3">
-                      <p className="text-[11px] font-medium text-amber-400 flex items-center gap-1">Saldo pendiente <InfoTip text="Dinero que el cliente aún debe. Baja con cada pago que haga." /></p>
+                      <p className="text-[11px] font-medium text-amber-400 flex items-center gap-1">Saldo pendiente <InfoTip text="Dinero que el cliente aÃºn debe. Baja con cada pago que haga." /></p>
                       <p className="text-sm font-bold text-amber-400">{moneyFmt.format(saldoTotal)}</p>
                     </div>
                     <div className="rounded-lg bg-lime/10 p-3">
-                      <p className="text-[11px] font-medium text-lime flex items-center gap-1">Total prestado <InfoTip text="Dinero total que se le ha prestado al cliente en todos sus préstamos." /></p>
+                      <p className="text-[11px] font-medium text-lime flex items-center gap-1">Total prestado <InfoTip text="Dinero total que se le ha prestado al cliente en todos sus prÃ©stamos." /></p>
                       <p className="text-sm font-bold text-lime">{moneyFmt.format(montoTotalPrestado)}</p>
                     </div>
                     <div className={`rounded-lg p-3 ${maxDiasAtraso > 0 ? 'bg-red-500/15' : 'bg-emerald-500/20'}`}>
                       <p className={`text-[11px] font-medium ${maxDiasAtraso > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                        {maxDiasAtraso > 0 ? 'Máx. atraso' : 'Estado'}
+                        {maxDiasAtraso > 0 ? 'MÃ¡x. atraso' : 'Estado'}
                       </p>
                       <p className={`text-sm font-bold ${maxDiasAtraso > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                        {maxDiasAtraso > 0 ? `${maxDiasAtraso} días` : 'Al día'}
+                        {maxDiasAtraso > 0 ? `${maxDiasAtraso} dÃ­as` : 'Al dÃ­a'}
                       </p>
                     </div>
                   </div>
                 )
               })()}
 
-              {/* ── Préstamos detallados ── */}
+              {/* â”€â”€ PrÃ©stamos detallados â”€â”€ */}
               <div>
-                <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-bone/60">Préstamos</h4>
+                <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-bone/60">PrÃ©stamos</h4>
                 {(selectedCliente.prestamosCliente || []).length === 0 ? (
-                  <p className="text-sm text-bone/60">Sin préstamos registrados</p>
+                  <p className="text-sm text-bone/60">Sin prÃ©stamos registrados</p>
                 ) : (
                   <div className="space-y-3">
                     {(selectedCliente.prestamosCliente || []).map((p) => {
@@ -878,7 +878,7 @@ function ClientesView({
                           p.diasAtrasados > 0 ? 'border-[#F59E0B] bg-amber-500/15/30' :
                           'border-bone/10 bg-graphite-900'
                         }`}>
-                          {/* Header del préstamo */}
+                          {/* Header del prÃ©stamo */}
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-bold text-bone">{moneyFmt.format(Number(p.montoSolicitado))}</span>
@@ -903,14 +903,14 @@ function ClientesView({
                             </div>
                           </div>
 
-                          {/* Resumen financiero del préstamo */}
+                          {/* Resumen financiero del prÃ©stamo */}
                           <div className="mb-3 rounded-lg bg-emerald-950 p-3 grid grid-cols-2 gap-2 text-xs">
                             <div>
-                              <p className="text-bone/60 flex items-center gap-1">Monto + interés <InfoTip text="El dinero prestado más el interés. Es el total que debe pagar el cliente." /></p>
+                              <p className="text-bone/60 flex items-center gap-1">Monto + interÃ©s <InfoTip text="El dinero prestado mÃ¡s el interÃ©s. Es el total que debe pagar el cliente." /></p>
                               <p className="font-semibold text-bone">{moneyFmt.format(montoConInteres)}</p>
                             </div>
                             <div>
-                              <p className="text-bone/60 flex items-center gap-1">Cuota diaria <InfoTip text="Cuánto debe pagar el cliente cada día." /></p>
+                              <p className="text-bone/60 flex items-center gap-1">Cuota diaria <InfoTip text="CuÃ¡nto debe pagar el cliente cada dÃ­a." /></p>
                               <p className="font-semibold text-bone">{moneyFmt.format(Number(p.cuotaDiaria))}</p>
                             </div>
                             <div>
@@ -918,7 +918,7 @@ function ClientesView({
                               <p className="font-semibold text-amber-400">{moneyFmt.format(Number(p.saldoPendiente))}</p>
                             </div>
                             <div>
-                              <p className="text-bone/60 flex items-center gap-1">Cuotas por pagar <InfoTip text="Días que quedan para terminar de pagar." /></p>
+                              <p className="text-bone/60 flex items-center gap-1">Cuotas por pagar <InfoTip text="DÃ­as que quedan para terminar de pagar." /></p>
                               <p className="font-semibold text-bone">{cuotasRestantes} de {p.diasPlazo}</p>
                             </div>
                           </div>
@@ -926,7 +926,7 @@ function ClientesView({
                           {/* Barra de progreso */}
                           <div className="mb-2">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[11px] text-bone/60 flex items-center gap-1">Progreso <InfoTip text="Porcentaje pagado del préstamo. Al llegar a 100%, el préstamo queda completo." /></span>
+                              <span className="text-[11px] text-bone/60 flex items-center gap-1">Progreso <InfoTip text="Porcentaje pagado del prÃ©stamo. Al llegar a 100%, el prÃ©stamo queda completo." /></span>
                               <span className="text-[11px] font-medium text-lime">{pct}%</span>
                             </div>
                             <div className="h-2 overflow-hidden rounded-full bg-bone/10">
@@ -935,33 +935,33 @@ function ClientesView({
                               }`} style={{ width: `${Math.min(100, pct)}%` }} />
                             </div>
                             <div className="flex items-center justify-between mt-1">
-                              <span className="text-[10px] text-bone/60">{p.diasPagados} días pagados</span>
-                              <span className="text-[10px] text-bone/60">Quedan {cuotasRestantes} días</span>
+                              <span className="text-[10px] text-bone/60">{p.diasPagados} dÃ­as pagados</span>
+                              <span className="text-[10px] text-bone/60">Quedan {cuotasRestantes} dÃ­as</span>
                             </div>
                           </div>
 
-                          {/* Último pago */}
+                          {/* Ãšltimo pago */}
                           {fechaUltimoPago && (
                             <p className="text-[11px] text-bone/60 mb-2">
-                              Último pago: {fechaUltimoPago.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}
+                              Ãšltimo pago: {fechaUltimoPago.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}
                             </p>
                           )}
 
-                          {/* Alerta de atraso en el préstamo */}
+                          {/* Alerta de atraso en el prÃ©stamo */}
                           {p.diasAtrasados > 0 && (
                             <div className="mb-3 rounded-lg bg-red-500/15 border border-red-500/40 p-2.5">
                               <p className="text-[11px] font-medium text-red-400">
-                                Debe {p.diasAtrasados} día{p.diasAtrasados !== 1 ? 's' : ''} = {moneyFmt.format(saldoAtrasado)}
+                                Debe {p.diasAtrasados} dÃ­a{p.diasAtrasados !== 1 ? 's' : ''} = {moneyFmt.format(saldoAtrasado)}
                               </p>
                               <p className="text-[10px] text-bone/60 mt-0.5">
-                                Pague {moneyFmt.format(saldoAtrasado)} para cubrir el atraso y luego continúe con la cuota regular.
+                                Pague {moneyFmt.format(saldoAtrasado)} para cubrir el atraso y luego continÃºe con la cuota regular.
                               </p>
                             </div>
                           )}
 
                           {p.estado === 'pagado' && (
                             <div className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-500/20 px-3 py-2 text-xs font-medium text-emerald-400">
-                              <BadgeCheck size={13} /> Préstamo completado
+                              <BadgeCheck size={13} /> PrÃ©stamo completado
                             </div>
                           )}
                         </div>
@@ -970,7 +970,7 @@ function ClientesView({
                   </div>
                 )}
 
-                {/* ── Botón único de cobro ── */}
+                {/* â”€â”€ BotÃ³n Ãºnico de cobro â”€â”€ */}
                 {(() => {
                   const activos = (selectedCliente.prestamosCliente || []).filter(p => p.estado === 'activo')
                   if (activos.length === 0) return null
@@ -985,23 +985,23 @@ function ClientesView({
                   return (
                     <div className="mt-3">
                       {clienteYaPagoHoy || esPrimerDia ? (
-                        <Tooltip text={esPrimerDia ? 'El préstamo empezó hoy. El primer cobro se hace mañana.' : 'Este cliente ya pagó hoy. Vuelve mañana para cobrar.'}>
+                        <Tooltip text={esPrimerDia ? 'El prÃ©stamo empezÃ³ hoy. El primer cobro se hace maÃ±ana.' : 'Este cliente ya pagÃ³ hoy. Vuelve maÃ±ana para cobrar.'}>
                           <div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-bone/10 px-4 py-3.5 text-sm font-medium tracking-wide text-bone/40 cursor-not-allowed">
-                            <Clock size={14} /> {esPrimerDia ? 'Primer día — cobra mañana' : 'Ya cobró hoy'}
+                            <Clock size={14} /> {esPrimerDia ? 'Primer dÃ­a â€” cobra maÃ±ana' : 'Ya cobrÃ³ hoy'}
                           </div>
                         </Tooltip>
                       ) : totalDiasAtrasados > 0 ? (
-                        <Tooltip text={`Registra el pago para cubrir ${totalDiasAtrasados} día(s) de atraso más la cuota de hoy. Total: ${moneyFmt.format(totalSaldoHoy)}`}>
+                        <Tooltip text={`Registra el pago para cubrir ${totalDiasAtrasados} dÃ­a(s) de atraso mÃ¡s la cuota de hoy. Total: ${moneyFmt.format(totalSaldoHoy)}`}>
                           <button onClick={() => {
                             const primerActivo = activos[0] as unknown as Prestamo
                             handleCobrar(primerActivo, totalSaldoHoy)
                           }}
                             className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-red-500 px-4 py-3.5 text-sm font-medium tracking-wide text-bone hover:bg-red-600 transition-colors">
-                            <AlertTriangle size={14} /> Ponerse al día ({moneyFmt.format(totalSaldoHoy)})
+                            <AlertTriangle size={14} /> Ponerse al dÃ­a ({moneyFmt.format(totalSaldoHoy)})
                           </button>
                         </Tooltip>
                       ) : (
-                        <Tooltip text={`Registra el cobro de la cuota diaria. Se descuenta del saldo pendiente del préstamo.`}>
+                        <Tooltip text={`Registra el cobro de la cuota diaria. Se descuenta del saldo pendiente del prÃ©stamo.`}>
                           <button onClick={() => {
                             const primerActivo = activos[0] as unknown as Prestamo
                             handleCobrar(primerActivo, totalCuotaDiaria)
@@ -1016,7 +1016,7 @@ function ClientesView({
                 })()}
               </div>
 
-              {/* ── Historial de pagos recientes ── */}
+              {/* â”€â”€ Historial de pagos recientes â”€â”€ */}
               {(() => {
                 const todosLosPagos: PagoHistorial[] = []
                 ;(selectedCliente.prestamosCliente || []).forEach(p => {
@@ -1041,7 +1041,7 @@ function ClientesView({
                             </div>
                             <div>
                               <p className="text-xs font-medium text-bone">{moneyFmt.format(Number(pg.monto))}</p>
-                              <p className="text-[10px] text-bone/60">{pg.diasCubiertos} día{pg.diasCubiertos !== 1 ? 's' : ''} cubierto{pg.diasCubiertos !== 1 ? 's' : ''}</p>
+                              <p className="text-[10px] text-bone/60">{pg.diasCubiertos} dÃ­a{pg.diasCubiertos !== 1 ? 's' : ''} cubierto{pg.diasCubiertos !== 1 ? 's' : ''}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
@@ -1066,7 +1066,7 @@ function ClientesView({
         </div>
       </div>
 
-      {/* ── Modal: Nuevo Cliente ── */}
+      {/* â”€â”€ Modal: Nuevo Cliente â”€â”€ */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => { setShowModal(false); setFormMsg(null) }} />
@@ -1078,7 +1078,7 @@ function ClientesView({
             <form onSubmit={handleCreateCliente} className="p-6 space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-bone/60">Cédula *</label>
+                  <label className="mb-1.5 block text-xs font-medium text-bone/60">CÃ©dula *</label>
                   <input placeholder="Ej: 10101010" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={form.cedula} onChange={(e) => setForm({ ...form, cedula: e.target.value })} required />
                 </div>
                 <div>
@@ -1090,19 +1090,19 @@ function ClientesView({
                   <input placeholder="Apellido" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={form.apellido} onChange={(e) => setForm({ ...form, apellido: e.target.value })} />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-bone/60">Teléfono</label>
-                  <input placeholder="Teléfono" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} />
+                  <label className="mb-1.5 block text-xs font-medium text-bone/60">TelÃ©fono</label>
+                  <input placeholder="TelÃ©fono" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-bone/60">Email</label>
                   <input placeholder="Email" type="email" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-bone/60">Dirección</label>
-                  <input placeholder="Dirección" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} />
+                  <label className="mb-1.5 block text-xs font-medium text-bone/60">DirecciÃ³n</label>
+                  <input placeholder="DirecciÃ³n" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} />
                 </div>
               </div>
-              <p className="text-[11px] text-bone/60">La contraseña del cliente será su cédula.</p>
+              <p className="text-[11px] text-bone/60">La contraseÃ±a del cliente serÃ¡ su cÃ©dula.</p>
               {formMsg && (
                 <div className={`rounded-lg p-3 text-sm ${formMsg.ok ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
                   {formMsg.text}
@@ -1121,7 +1121,7 @@ function ClientesView({
         </div>
       )}
 
-      {/* ── Modal: Editar Pago ── */}
+      {/* â”€â”€ Modal: Editar Pago â”€â”€ */}
       {pagoEditando && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => { setPagoEditando(null); setPagoMsg(null) }} />
@@ -1129,7 +1129,7 @@ function ClientesView({
             <div className="flex items-center justify-between border-b border-bone/10 px-6 py-4">
               <div>
                 <h3 className="text-sm font-semibold text-bone">Editar pago</h3>
-                <p className="text-xs text-bone/60 mt-0.5">#{pagoEditando.id} — ${Number(pagoEditando.monto).toLocaleString('es-CO')}</p>
+                <p className="text-xs text-bone/60 mt-0.5">#{pagoEditando.id} â€” ${Number(pagoEditando.monto).toLocaleString('es-CO')}</p>
               </div>
               <button onClick={() => { setPagoEditando(null); setPagoMsg(null) }} className="rounded-lg p-1 text-bone/60 hover:bg-emerald-950 transition-colors"><X size={18} /></button>
             </div>
@@ -1144,7 +1144,7 @@ function ClientesView({
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-bone/60">Motivo del cambio *</label>
-                <textarea rows={2} placeholder="Ej: Me equivoqué al digitar el monto" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20 resize-none" value={pagoMotivo} onChange={(e) => setPagoMotivo(e.target.value)} required />
+                <textarea rows={2} placeholder="Ej: Me equivoquÃ© al digitar el monto" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20 resize-none" value={pagoMotivo} onChange={(e) => setPagoMotivo(e.target.value)} required />
               </div>
               {pagoMsg && (
                 <div className={`rounded-lg p-3 text-sm ${pagoMsg.ok ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
@@ -1164,7 +1164,7 @@ function ClientesView({
         </div>
       )}
 
-      {/* ── Modal: Eliminar Pago ── */}
+      {/* â”€â”€ Modal: Eliminar Pago â”€â”€ */}
       {pagoEliminando && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => { setPagoEliminando(null); setPagoMsg(null) }} />
@@ -1176,17 +1176,17 @@ function ClientesView({
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-bone">Eliminar pago</h3>
-                  <p className="text-xs text-bone/60 mt-0.5">#{pagoEliminando.id} — {moneyFmt.format(Number(pagoEliminando.monto))}</p>
+                  <p className="text-xs text-bone/60 mt-0.5">#{pagoEliminando.id} â€” {moneyFmt.format(Number(pagoEliminando.monto))}</p>
                 </div>
               </div>
               <button onClick={() => { setPagoEliminando(null); setPagoMsg(null) }} className="rounded-lg p-1 text-bone/60 hover:bg-emerald-950 transition-colors"><X size={18} /></button>
             </div>
             <div className="p-6 space-y-4">
               <div className="rounded-lg bg-red-500/15 border border-red-500/30 p-3 text-sm text-red-500">
-                Esta acción eliminará el pago y ajustará el saldo del préstamo. Esta operación queda registrada en la auditoría.
+                Esta acciÃ³n eliminarÃ¡ el pago y ajustarÃ¡ el saldo del prÃ©stamo. Esta operaciÃ³n queda registrada en la auditorÃ­a.
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-bone/60">Motivo de la eliminación *</label>
+                <label className="mb-1.5 block text-xs font-medium text-bone/60">Motivo de la eliminaciÃ³n *</label>
                 <textarea rows={2} placeholder="Ej: Pago duplicado, error al registrar" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20 resize-none" value={pagoMotivo} onChange={(e) => setPagoMotivo(e.target.value)} required />
               </div>
               {pagoMsg && (
@@ -1207,7 +1207,7 @@ function ClientesView({
         </div>
       )}
 
-      {/* ── Modal: Editar Cliente ── */}
+      {/* â”€â”€ Modal: Editar Cliente â”€â”€ */}
       {editandoCliente && selectedCliente && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => { setEditingCliente(false); setEditMsg(null) }} />
@@ -1215,7 +1215,7 @@ function ClientesView({
             <div className="flex items-center justify-between border-b border-bone/10 px-6 py-4">
               <div>
                 <h3 className="text-sm font-semibold text-bone">Editar cliente</h3>
-                <p className="text-xs text-bone/60 mt-0.5 uppercase">{selectedCliente.nombre} {selectedCliente.apellido} — {selectedCliente.cedula}</p>
+                <p className="text-xs text-bone/60 mt-0.5 uppercase">{selectedCliente.nombre} {selectedCliente.apellido} â€” {selectedCliente.cedula}</p>
               </div>
               <button onClick={() => { setEditingCliente(false); setEditMsg(null) }} className="rounded-lg p-1 text-bone/60 hover:bg-emerald-950 hover:text-bone transition-colors"><X size={18} /></button>
             </div>
@@ -1230,16 +1230,16 @@ function ClientesView({
                   <input placeholder="Apellido" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={editForm.apellido} onChange={(e) => setEditForm({ ...editForm, apellido: e.target.value })} />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-bone/60">Teléfono</label>
-                  <input placeholder="Teléfono" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={editForm.telefono} onChange={(e) => setEditForm({ ...editForm, telefono: e.target.value })} />
+                  <label className="mb-1.5 block text-xs font-medium text-bone/60">TelÃ©fono</label>
+                  <input placeholder="TelÃ©fono" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={editForm.telefono} onChange={(e) => setEditForm({ ...editForm, telefono: e.target.value })} />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-bone/60">Email</label>
                   <input placeholder="Email" type="email" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="mb-1.5 block text-xs font-medium text-bone/60">Dirección</label>
-                  <input placeholder="Dirección" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={editForm.direccion} onChange={(e) => setEditForm({ ...editForm, direccion: e.target.value })} />
+                  <label className="mb-1.5 block text-xs font-medium text-bone/60">DirecciÃ³n</label>
+                  <input placeholder="DirecciÃ³n" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={editForm.direccion} onChange={(e) => setEditForm({ ...editForm, direccion: e.target.value })} />
                 </div>
               </div>
               {editMsg && (
@@ -1263,7 +1263,7 @@ function ClientesView({
   )
 }
 
-/* ═══════════════════════════ PRESTAMOS VIEW ═══════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• PRESTAMOS VIEW â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; cargarPrestamos: () => Promise<void> }) {
   const [buscarCliente, setBuscarCliente] = useState('')
@@ -1335,15 +1335,15 @@ function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; car
   return (
     <>
       <div className="mb-8">
-        <h2 className="text-base font-semibold text-bone">Nuevo préstamo</h2>
-        <p className="mt-0.5 text-sm text-bone/60">Selecciona un cliente para otorgar un préstamo</p>
+        <h2 className="text-base font-semibold text-bone">Nuevo prÃ©stamo</h2>
+        <p className="mt-0.5 text-sm text-bone/60">Selecciona un cliente para otorgar un prÃ©stamo</p>
       </div>
 
       <div className="max-w-2xl rounded-xl border border-bone/10 bg-graphite-900 shadow-sm">
         <div className="border-b border-bone/10 px-5 py-4">
           <div className="flex items-center gap-2 rounded-lg border border-bone/10 bg-emerald-950 px-3 py-2">
             <Search size={15} className="text-bone/60 shrink-0" />
-            <input placeholder="Buscar por nombre o cédula..." className="bg-transparent text-sm text-bone placeholder:text-bone/30 outline-none w-full" value={buscarCliente} onChange={(e) => setBuscarCliente(e.target.value)} />
+            <input placeholder="Buscar por nombre o cÃ©dula..." className="bg-transparent text-sm text-bone placeholder:text-bone/30 outline-none w-full" value={buscarCliente} onChange={(e) => setBuscarCliente(e.target.value)} />
           </div>
         </div>
         <div className="divide-y divide-[#E5E7EB] max-h-[400px] overflow-y-auto">
@@ -1358,21 +1358,21 @@ function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; car
                   <p className="text-sm font-medium text-bone uppercase">{c.nombre} {c.apellido}</p>
                   <p className="text-xs text-bone/60">{c.cedula}</p>
                 </div>
-                <span className="rounded-lg bg-lime/10 px-3 py-1.5 text-xs font-medium text-lime">Crear préstamo</span>
+                <span className="rounded-lg bg-lime/10 px-3 py-1.5 text-xs font-medium text-lime">Crear prÃ©stamo</span>
               </button>
             ))
           )}
         </div>
       </div>
 
-      {/* ── Modal: Nuevo Préstamo ── */}
+      {/* â”€â”€ Modal: Nuevo PrÃ©stamo â”€â”€ */}
       {showModal && selectedClientePrestamo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => { setShowModal(false); setFormMsg(null) }} />
           <div className="relative mx-4 w-full max-w-md rounded-2xl bg-graphite-900 shadow-2xl">
             <div className="flex items-center justify-between border-b border-bone/10 px-6 py-4">
               <div>
-                <h3 className="text-sm font-semibold text-bone">Nuevo préstamo</h3>
+                <h3 className="text-sm font-semibold text-bone">Nuevo prÃ©stamo</h3>
                 <p className="text-xs text-bone/60 mt-0.5 uppercase">{selectedClientePrestamo.nombre} {selectedClientePrestamo.apellido}</p>
               </div>
               <button onClick={() => { setShowModal(false); setFormMsg(null) }} className="rounded-lg p-1 text-bone/60 hover:bg-emerald-950 hover:text-bone transition-colors"><X size={18} /></button>
@@ -1391,7 +1391,7 @@ function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; car
                   {tieneActivo && (
                     <div className="rounded-lg bg-amber-500/15 border border-amber-500/30 p-3 mb-3">
                       <p className="text-[11px] font-medium text-amber-600">
-                        Este cliente tiene un préstamo activo. El nuevo monto se anexará al saldo existente.
+                        Este cliente tiene un prÃ©stamo activo. El nuevo monto se anexarÃ¡ al saldo existente.
                       </p>
                       <p className="text-[10px] text-amber-500 mt-1">
                         Saldo actual: {moneyFmt.format(saldoExistente)}
@@ -1403,7 +1403,7 @@ function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; car
                     <span className="font-medium text-bone">{moneyFmt.format(montoNum)}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-bone/60 flex items-center gap-1">Interés ({tasa}%) <InfoTip text="El porcentaje que se cobra por prestar el dinero. Se calcula sobre el monto solicitado." /></span>
+                    <span className="text-bone/60 flex items-center gap-1">InterÃ©s ({tasa}%) <InfoTip text="El porcentaje que se cobra por prestar el dinero. Se calcula sobre el monto solicitado." /></span>
                     <span className="font-medium text-red-400">+ {moneyFmt.format(interesNuevo)}</span>
                   </div>
                   {tieneActivo && (
@@ -1421,17 +1421,17 @@ function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; car
                     </>
                   )}
                   <div className="border-t border-bone/10 pt-3 flex items-center justify-between text-sm">
-                    <span className="font-semibold text-bone flex items-center gap-1">{tieneActivo ? 'Deuda total' : 'Total a pagar'} <InfoTip text={tieneActivo ? 'La suma de lo que ya debe más el nuevo préstamo con interés.' : 'El dinero prestado más el interés. Es lo que el cliente debe devolver en total.'} /></span>
+                    <span className="font-semibold text-bone flex items-center gap-1">{tieneActivo ? 'Deuda total' : 'Total a pagar'} <InfoTip text={tieneActivo ? 'La suma de lo que ya debe mÃ¡s el nuevo prÃ©stamo con interÃ©s.' : 'El dinero prestado mÃ¡s el interÃ©s. Es lo que el cliente debe devolver en total.'} /></span>
                     <span className="font-bold text-lime text-lg">{moneyFmt.format(montoTotalFinal)}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     <div className="rounded-lg bg-graphite-900 p-3 text-center border border-bone/10">
-                      <p className="text-[11px] text-bone/60 flex items-center justify-center gap-1">Cuota diaria <InfoTip text="Cuánto debe pagar el cliente cada día para cubrir el préstamo en el plazo establecido." /></p>
+                      <p className="text-[11px] text-bone/60 flex items-center justify-center gap-1">Cuota diaria <InfoTip text="CuÃ¡nto debe pagar el cliente cada dÃ­a para cubrir el prÃ©stamo en el plazo establecido." /></p>
                       <p className="text-sm font-bold text-bone">{moneyFmt.format(cuotaDiaria)}</p>
                     </div>
                     <div className="rounded-lg bg-graphite-900 p-3 text-center border border-bone/10">
-                      <p className="text-[11px] text-bone/60 flex items-center justify-center gap-1">{tieneActivo ? 'Días totales' : 'Días a pagar'} <InfoTip text={tieneActivo ? 'Días totales que el cliente tendrá para pagar toda su deuda.' : 'Cantidad de días que el cliente tendrá para pagar el préstamo completo.'} /></p>
-                      <p className="text-sm font-bold text-bone">{diasPlazo} días</p>
+                      <p className="text-[11px] text-bone/60 flex items-center justify-center gap-1">{tieneActivo ? 'DÃ­as totales' : 'DÃ­as a pagar'} <InfoTip text={tieneActivo ? 'DÃ­as totales que el cliente tendrÃ¡ para pagar toda su deuda.' : 'Cantidad de dÃ­as que el cliente tendrÃ¡ para pagar el prÃ©stamo completo.'} /></p>
+                      <p className="text-sm font-bold text-bone">{diasPlazo} dÃ­as</p>
                     </div>
                   </div>
                 </div>
@@ -1448,7 +1448,7 @@ function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; car
                   Cancelar
                 </button>
                 <button type="submit" disabled={saving || montoNum <= 0} className="flex-1 rounded-lg bg-lime px-4 py-2.5 text-sm font-medium text-emerald-950 font-display hover:bg-bone transition-colors disabled:opacity-50">
-                  {saving ? 'Registrando...' : 'Registrar Préstamo'}
+                  {saving ? 'Registrando...' : 'Registrar PrÃ©stamo'}
                 </button>
               </div>
             </form>
@@ -1459,7 +1459,7 @@ function PrestamosView({ clientes, cargarPrestamos }: { clientes: Cliente[]; car
   )
 }
 
-/* ═══════════════════════════ PAGOS VIEW ═══════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• PAGOS VIEW â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 type PagoConCliente = {
   id: number; monto: string; fechaPago: string; diasCubiertos: number
@@ -1629,7 +1629,7 @@ function PagosView() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-bone">{moneyFmt.format(Number(p.monto))}</p>
-                        <p className="text-[11px] text-bone/60">{p.diasCubiertos} día{p.diasCubiertos !== 1 ? 's' : ''} cubierto{p.diasCubiertos !== 1 ? 's' : ''}</p>
+                        <p className="text-[11px] text-bone/60">{p.diasCubiertos} dÃ­a{p.diasCubiertos !== 1 ? 's' : ''} cubierto{p.diasCubiertos !== 1 ? 's' : ''}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -1657,7 +1657,7 @@ function PagosView() {
               </div>
               {cp.pagos.length > 5 && (
                 <div className="border-t border-bone/10 px-5 py-2.5 text-center">
-                  <p className="text-xs text-bone/60">+ {cp.pagos.length - 5} pago{cp.pagos.length - 5 !== 1 ? 's' : ''} más</p>
+                  <p className="text-xs text-bone/60">+ {cp.pagos.length - 5} pago{cp.pagos.length - 5 !== 1 ? 's' : ''} mÃ¡s</p>
                 </div>
               )}
             </div>
@@ -1665,7 +1665,7 @@ function PagosView() {
         </div>
       )}
 
-      {/* ── Modal: Editar Pago ── */}
+      {/* â”€â”€ Modal: Editar Pago â”€â”€ */}
       {pagoEditando && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => { setPagoEditando(null); setPagoMsg(null) }} />
@@ -1673,7 +1673,7 @@ function PagosView() {
             <div className="flex items-center justify-between border-b border-bone/10 px-6 py-4">
               <div>
                 <h3 className="text-sm font-semibold text-bone">Editar pago</h3>
-                <p className="text-xs text-bone/60 mt-0.5">#{pagoEditando.id} — ${Number(pagoEditando.monto).toLocaleString('es-CO')}</p>
+                <p className="text-xs text-bone/60 mt-0.5">#{pagoEditando.id} â€” ${Number(pagoEditando.monto).toLocaleString('es-CO')}</p>
               </div>
               <button onClick={() => { setPagoEditando(null); setPagoMsg(null) }} className="rounded-lg p-1 text-bone/60 hover:bg-emerald-950 transition-colors"><X size={18} /></button>
             </div>
@@ -1688,7 +1688,7 @@ function PagosView() {
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-bone/60">Motivo del cambio *</label>
-                <textarea rows={2} placeholder="Ej: Me equivoqué al digitar el monto" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20 resize-none" value={pagoMotivo} onChange={(e) => setPagoMotivo(e.target.value)} required />
+                <textarea rows={2} placeholder="Ej: Me equivoquÃ© al digitar el monto" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20 resize-none" value={pagoMotivo} onChange={(e) => setPagoMotivo(e.target.value)} required />
               </div>
               {pagoMsg && (
                 <div className={`rounded-lg p-3 text-sm ${pagoMsg.ok ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
@@ -1708,7 +1708,7 @@ function PagosView() {
         </div>
       )}
 
-      {/* ── Modal: Eliminar Pago ── */}
+      {/* â”€â”€ Modal: Eliminar Pago â”€â”€ */}
       {pagoEliminando && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => { setPagoEliminando(null); setPagoMsg(null) }} />
@@ -1720,17 +1720,17 @@ function PagosView() {
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-bone">Eliminar pago</h3>
-                  <p className="text-xs text-bone/60 mt-0.5">#{pagoEliminando.id} — {moneyFmt.format(Number(pagoEliminando.monto))}</p>
+                  <p className="text-xs text-bone/60 mt-0.5">#{pagoEliminando.id} â€” {moneyFmt.format(Number(pagoEliminando.monto))}</p>
                 </div>
               </div>
               <button onClick={() => { setPagoEliminando(null); setPagoMsg(null) }} className="rounded-lg p-1 text-bone/60 hover:bg-emerald-950 transition-colors"><X size={18} /></button>
             </div>
             <div className="p-6 space-y-4">
               <div className="rounded-lg bg-red-500/15 border border-red-500/30 p-3 text-sm text-red-500">
-                Esta acción eliminará el pago y ajustará el saldo del préstamo. Esta operación queda registrada en la auditoría.
+                Esta acciÃ³n eliminarÃ¡ el pago y ajustarÃ¡ el saldo del prÃ©stamo. Esta operaciÃ³n queda registrada en la auditorÃ­a.
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-bone/60">Motivo de la eliminación *</label>
+                <label className="mb-1.5 block text-xs font-medium text-bone/60">Motivo de la eliminaciÃ³n *</label>
                 <textarea rows={2} placeholder="Ej: Pago duplicado, error al registrar" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20 resize-none" value={pagoMotivo} onChange={(e) => setPagoMotivo(e.target.value)} required />
               </div>
               {pagoMsg && (
@@ -1754,7 +1754,7 @@ function PagosView() {
   )
 }
 
-/* ═══════════════════════════ SUBCOMPONENTS ═══════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SUBCOMPONENTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 function SidebarBtn({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active: boolean; onClick: () => void }) {
   return (

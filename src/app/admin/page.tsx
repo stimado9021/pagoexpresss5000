@@ -86,9 +86,9 @@ export default function AdminTenantPage() {
         </div>
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.png" alt="PagoExpress" className="h-7 w-7 object-contain" /></span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.webp" alt="PagoExpress" className="h-7 w-7 object-contain" /></span>
             <div>
-              <h1 className="font-display font-bold text-2xl text-bone">Panel de Administraci�n</h1>
+              <h1 className="font-display font-bold text-2xl text-bone">Panel de Administraciï¿½n</h1>
               <p className="text-bone/60 text-sm mt-1">Gestiona todas las empresas en la plataforma</p>
             </div>
           </div>
@@ -97,7 +97,7 @@ export default function AdminTenantPage() {
               <LayoutDashboard size={16} /> Ver Dashboard
             </button>
             <button onClick={async () => { await fetch('/api/auth/logout', { method: 'POST' }); localStorage.removeItem('session'); router.push('/login') }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors">
-              <LogOut size={16} /> Cerrar sesi�n
+              <LogOut size={16} /> Cerrar sesiï¿½n
             </button>
           </div>
         </div>
@@ -162,7 +162,7 @@ export default function AdminTenantPage() {
                     </td>
                     <td className="px-5 py-3.5 text-sm text-bone/80 font-mono">{tenant.subdominio}</td>
                     <td className="px-5 py-3.5"><span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${statusColors[tenant.status] || ''}`}>{tenant.status}</span></td>
-                    <td className="px-5 py-3.5 text-sm text-bone/60">{tenant.trialEndsAt ? new Date(tenant.trialEndsAt).toLocaleDateString('es-CO') : '—'}</td>
+                    <td className="px-5 py-3.5 text-sm text-bone/60">{tenant.trialEndsAt ? new Date(tenant.trialEndsAt).toLocaleDateString('es-CO') : 'â€”'}</td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
                         <button onClick={() => router.push(`/admin/tenants/${tenant.id}`)} className="p-1.5 rounded-lg text-bone/60 hover:text-lime hover:bg-emerald-950 transition-colors" title="Ver detalle"><Eye size={14} /></button>

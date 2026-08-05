@@ -206,7 +206,7 @@ export default function LandingPage() {
 
             <a href="#top" className="flex items-center gap-2.5">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
-                <img src="/logo.png" alt="PagoExpress" className="h-8 w-8 object-contain" />
+                  <img src="/logo.webp" alt="PagoExpress" className="h-8 w-8 object-contain" />
               </span>
               <span className="font-display font-bold text-lg tracking-tight text-bone">Pago<span className="text-lime">Express</span></span>
             </a>
@@ -260,7 +260,7 @@ export default function LandingPage() {
       <section id="top" className="relative overflow-hidden pt-36 pb-0 lg:pt-44">
         <div className="absolute inset-0 grid-lines" />
         <div className="absolute inset-0 noise-overlay" />
-        <img src="/smiling-young-asian-woman-holding-money-showing-thumbs-up.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none" />
+        <img src="/smiling-young-asian-woman-holding-money-showing-thumbs-up.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none" loading="eager" decoding="async" />
         <div className="pointer-events-none absolute -top-40 right-[-10%] h-[520px] w-[520px] rounded-full bg-emerald-600/25 blur-[120px]" />
         <div className="pointer-events-none absolute top-40 left-[-15%] h-[420px] w-[420px] rounded-full bg-lime/10 blur-[110px]" />
 
@@ -443,7 +443,7 @@ export default function LandingPage() {
 
       {/* ════════════════════════ BENEFICIOS ══════════════════════════ */}
       <section id="beneficios" className="relative py-24 lg:py-32 bg-emerald-950 overflow-hidden">
-        <img src="/la-mano-de-los-hombres-que-lleva-cabo-billetes-de-d%C3%B3lar-del-americano-ciento-del-dinero-mano-del-dinero-de-ofrecimiento-del-45658769.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none" />
+        <img src="/la-mano-de-los-hombres-que-lleva-cabo-billetes-de-d%C3%B3lar-del-americano-ciento-del-dinero-mano-del-dinero-de-ofrecimiento-del-45658769.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none" loading="lazy" decoding="async" />
         <div className="mx-auto max-w-7xl px-6 lg:px-10 relative z-10">
           <div className="max-w-2xl fade-up">
             <p className="font-mono text-xs uppercase text-lime sub-eyebrow">Todo en un solo lugar</p>
@@ -612,7 +612,7 @@ export default function LandingPage() {
 
       {/* ════════════════════════ OFERTA ESPECIAL ═════════════════════ */}
       <section id="oferta" className="relative py-16 lg:py-20 bg-emerald-950 overflow-hidden">
-        <img src="/png-transparent-money-wallet-woman-united-states-dollar-banknote-money-bag-saving-service-public-relations-thumbnail.png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none" />
+        <img src="/png-transparent-money-wallet-woman-united-states-dollar-banknote-money-bag-saving-service-public-relations-thumbnail.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none" loading="lazy" decoding="async" />
         <div className="mx-auto max-w-7xl px-6 lg:px-10 relative z-10">
           <div className="fade-up relative overflow-hidden rounded-3xl border border-lime/25 bg-gradient-to-br from-emerald-800 via-emerald-900 to-graphite-900 px-8 py-12 lg:px-14 lg:py-14">
             <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-lime/10 blur-[100px]" />
@@ -787,6 +787,70 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ═══════════════════════════ FAQ ════════════════════════════ */}
+      <section id="faq" className="relative py-24 lg:py-32 bg-emerald-900 overflow-hidden">
+        <div className="absolute inset-0 grid-lines opacity-40" />
+        <div className="relative mx-auto max-w-4xl px-6 lg:px-10">
+          <div className="max-w-2xl mx-auto text-center fade-up">
+            <p className="font-mono text-xs uppercase text-lime sub-eyebrow">Preguntas frecuentes</p>
+            <h2 className="font-display font-bold text-3xl sm:text-4xl mt-3 text-bone leading-tight">
+              Resolvemos tus dudas
+            </h2>
+            <p className="mt-4 font-body text-bone/65 leading-relaxed">
+              Todo lo que necesitas saber antes de digitalizar la gestión de tus préstamos.
+            </p>
+          </div>
+
+          <div className="mt-12 space-y-4 fade-up">
+            {[
+              {
+                q: '¿Para quién es PagoExpress?',
+                a: 'PagoExpress está diseñado para prestamistas, empresas de crédito, cooperativas y negocios de cobranza que quieren dejar las libretas y las hojas de cálculo. Sirve tanto al prestamista independiente como a la empresa con varios cobradores en campo.',
+              },
+              {
+                q: '¿Puedo manejar préstamos con pago diario?',
+                a: 'Sí. Configura préstamos con pago diario, semanal o mensual, y el sistema calcula automáticamente la cuota, los intereses y el saldo. Cada cliente ve sus cuotas pendientes y su avance de pago desde su propio panel.',
+              },
+              {
+                q: '¿Cómo controlo la mora de mis clientes?',
+                a: 'PagoExpress marca automáticamente los días de atraso de cada préstamo y te muestra en el dashboard quién debe, cuánto y desde cuándo. Puedes enviar recordatorios y saber exactamente qué clientes están en mora para actuar a tiempo.',
+              },
+              {
+                q: '¿Puedo asignar carteras a vendedores o agentes?',
+                a: 'Sí. Cada vendedor tiene su propio usuario con acceso solo a los clientes y préstamos que le asignes. Desde tu panel ves en tiempo real lo que cada agente ha cobrado, sin que nadie pierda el control de la cartera.',
+              },
+              {
+                q: '¿Necesito instalar algún programa?',
+                a: 'No. PagoExpress funciona 100% en el navegador desde tu celular, tablet o computador. Cada empresa obtiene su propio subdominio y panel independiente, listo para usar en minutos.',
+              },
+              {
+                q: '¿Mis datos están seguros?',
+                a: 'Sí. La información viaja con cifrado de extremo a extremo, se respalda automáticamente y el acceso está controlado por rol: cada usuario solo ve lo que le corresponde. Cada empresa tiene sus datos completamente aislados de las demás.',
+              },
+              {
+                q: '¿Cuánto cuesta y hay prueba gratis?',
+                a: 'Puedes probar PagoExpress 14 días gratis sin tarjeta de crédito. Los planes comienzan desde $39.000/mes para prestamistas independientes y crecen según el tamaño de tu cartera. Cambia o cancela cuando quieras.',
+              },
+            ].map(({ q, a }) => (
+              <details key={q} className="group rounded-2xl border border-bone/10 bg-graphite-900 overflow-hidden">
+                <summary className="flex cursor-pointer items-center justify-between gap-4 px-6 py-5 font-display font-semibold text-bone hover:bg-graphite-800 transition-colors list-none [&::-webkit-details-marker]:hidden">
+                  <span className="text-sm sm:text-base">{q}</span>
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-bone/20 text-bone/60 transition-transform duration-200 group-open:rotate-45">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+                  </span>
+                </summary>
+                <p className="px-6 pb-6 font-body text-sm text-bone/65 leading-relaxed">{a}</p>
+              </details>
+            ))}
+          </div>
+
+          <p className="mt-10 text-center font-body text-sm text-bone/45 fade-up">
+            ¿Tienes otra pregunta?{' '}
+            <a href="#registro" className="text-lime hover:underline">Habla con nuestro equipo comercial</a>.
+          </p>
+        </div>
+      </section>
+
       {/* ══════════════════════════ FOOTER ════════════════════════════ */}
       <footer className="relative bg-emerald-950 border-t border-bone/10 pt-16 pb-8">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
@@ -795,7 +859,7 @@ export default function LandingPage() {
             <div className="col-span-2 lg:col-span-4">
               <a href="#top" className="flex items-center gap-2.5 mb-4">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
-                  <img src="/logo.png" alt="PagoExpress" className="h-8 w-8 object-contain" />
+                <img src="/logo.webp" alt="PagoExpress" className="h-8 w-8 object-contain" />
                 </span>
                 <span className="font-display font-bold text-lg text-bone">Pago<span className="text-lime">Express</span></span>
               </a>
@@ -805,7 +869,7 @@ export default function LandingPage() {
             <div className="lg:col-span-2">
               <h4 className="font-display font-semibold text-sm text-bone mb-4">Producto</h4>
               <ul className="space-y-3 font-body text-sm text-bone/50">
-                {[['#beneficios','Beneficios'],['#planes','Planes y precios'],['#oferta','Oferta de lanzamiento'],['#registro','Crear espacio']].map(([href, label]) => (
+                {[['#beneficios','Beneficios'],['#planes','Planes y precios'],['#faq','Preguntas frecuentes'],['#oferta','Oferta de lanzamiento'],['#registro','Crear espacio']].map(([href, label]) => (
                   <li key={href}><a href={href} className="hover:text-lime transition-colors">{label}</a></li>
                 ))}
               </ul>
