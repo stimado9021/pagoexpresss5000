@@ -452,35 +452,35 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                       return (
                         <div className="px-3 py-2.5 space-y-1.5 sm:px-4 sm:py-3 sm:space-y-2">
                           {maxDiasAtrasoLocal > 0 && (
-                            <>
-                              <p className="text-[10px] text-red-400/80 font-medium sm:text-[11px]">
-                                {maxDiasAtrasoLocal} día{maxDiasAtrasoLocal !== 1 ? 's' : ''} atraso — abonar $5.000 c/u
-                              </p>
-                              <div className="flex flex-wrap gap-1 sm:gap-1.5">
-                                {Array.from({ length: maxDiasAtrasoLocal }, (_, i) => {
-                                  const fecha = new Date()
-                                  fecha.setDate(fecha.getDate() - (maxDiasAtrasoLocal - 1 - i))
-                                  const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
-                                  return (
-                                    <button key={`atraso-${i}`} onClick={() => handleCobrar(activos[0], 5000)}
-                                      className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
-                                      <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
-                                      <span>{fechaStr}</span>
-                                      <span className="font-semibold">$5k</span>
-                                    </button>
-                                  )
-                                })}
-                              </div>
-                            </>
+                            <p className="text-[10px] text-red-400/80 font-medium sm:text-[11px]">
+                              {maxDiasAtrasoLocal} día{maxDiasAtrasoLocal !== 1 ? 's' : ''} atraso — abonar $5.000 c/u
+                            </p>
                           )}
-                          {!todosHoyPagado && (
-                            <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria)}
-                              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2.5 py-2 text-[11px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-[0.98] sm:gap-2 sm:px-3 sm:py-2.5 sm:text-xs">
-                              <Calendar size={11} className="sm:hidden" /><Calendar size={12} className="hidden sm:block" />
-                              <span>Hoy · {new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
-                              <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
-                            </button>
-                          )}
+                          <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                            {maxDiasAtrasoLocal > 0 && (
+                              Array.from({ length: maxDiasAtrasoLocal }, (_, i) => {
+                                const fecha = new Date()
+                                fecha.setDate(fecha.getDate() - (maxDiasAtrasoLocal - 1 - i))
+                                const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
+                                return (
+                                  <button key={`atraso-${i}`} onClick={() => handleCobrar(activos[0], 5000)}
+                                    className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
+                                    <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                                    <span>{fechaStr}</span>
+                                    <span className="font-semibold">$5k</span>
+                                  </button>
+                                )
+                              })
+                            )}
+                            {!todosHoyPagado && (
+                              <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria)}
+                                className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
+                                <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                                <span>Hoy · {new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
+                                <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       )
                     })()}
