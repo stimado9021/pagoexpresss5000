@@ -165,7 +165,7 @@ model ConfiguracionTenant {
   tasaInteres      Decimal  @default(20.00) @map("tasa_interes")
   cuotaDiariaMin   Decimal  @default(0) @map("cuota_diaria_minima")
   nombreEmpresa    String?  @db.VarChar(200) @map("nombre_empresa")
-  logoUrl          String?  @db.VarChar(500)
+  logoUrl          String?  @db.LongText
   notificaciones   String?  @db.Text
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")

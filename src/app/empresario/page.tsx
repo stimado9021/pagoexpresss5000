@@ -90,7 +90,11 @@ function Avatar({ nombre, apellido, size = 'md' }: { nombre: string; apellido: s
 
 export default function AdminPage() {
   const router = useRouter()
-  const [view, setView] = useState<View>('dashboard')
+  const [view, setView] = useState<View>(() => {
+    if (typeof window === 'undefined') return 'dashboard'
+    const saved = sessionStorage.getItem('empresario.view')
+    return saved && ['dashboard', 'vendedores', 'configuracion', 'auditoria'].includes(saved) ? (saved as View) : 'dashboard'
+  })
   const [showSidebar, setShowSidebar] = useState(false)
   const [vendedores, setVendedores] = useState<Vendedor[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
@@ -104,6 +108,7 @@ export default function AdminPage() {
   const [planInfo, setPlanInfo] = useState<{ status: string; trialEndsAt?: string } | null>(null)
   const [userInfo, setUserInfo] = useState<{ nombre: string; apellido: string } | null>(null)
   const [tenantName, setTenantName] = useState<string | null>(null)
+  const [tenantLogo, setTenantLogo] = useState<string | null>(null)
 
   const cargarDatos = async () => {
     const r = await fetch('/api/dashboard')
@@ -113,6 +118,7 @@ export default function AdminPage() {
     setStats(d.data.stats)
     if (d.data.user) setUserInfo(d.data.user)
     if (d.data.tenantName) setTenantName(d.data.tenantName)
+    if (d.data.tenantLogo) setTenantLogo(d.data.tenantLogo)
   }
 
   useEffect(() => {
@@ -126,10 +132,15 @@ export default function AdminPage() {
         setStats(d.data.stats)
         if (d.data.user) setUserInfo(d.data.user)
         if (d.data.tenantName) setTenantName(d.data.tenantName)
+        if (d.data.tenantLogo) setTenantLogo(d.data.tenantLogo)
       })
       .catch(() => {})
     return () => { cancelled = true }
   }, [router])
+
+  useEffect(() => {
+    sessionStorage.setItem('empresario.view', view)
+  }, [view])
 
   useEffect(() => {
     fetch('/api/subscriptions/me')
@@ -200,8 +211,8 @@ export default function AdminPage() {
       <aside className={`fixed left-0 top-0 z-50 flex h-screen w-[220px] flex-col border-r border-zinc-800 bg-zinc-900 transition-transform duration-300 ease-in-out lg:translate-x-0 ${showSidebar ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between border-b border-zinc-800 px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.webp" alt="PagoExpress" className="h-6 w-6 object-contain" /></span>
-            <span className="text-base font-bold text-zinc-100">PagoExpress</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white shrink-0"><img src={tenantLogo || '/logo.webp'} alt={tenantName || 'PagoExpress'} className="h-6 w-6 object-contain" /></span>
+            <span className="text-base font-bold text-zinc-100">{tenantName || 'PagoExpress'}</span>
           </div>
           <button onClick={() => setShowSidebar(false)} className="lg:hidden text-zinc-400 hover:text-zinc-100" aria-label="Cerrar menú">
             <X size={18} />
@@ -809,16 +820,22 @@ function DetailChip({ label, value, tip }: { label: string; value: string; tip?:
 function ConfigView() {
   const [tasaInteres, setTasaInteres] = useState('20')
   const [cuotaDiaria, setCuotaDiaria] = useState('5000')
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const [logoError, setLogoError] = useState<string | null>(null)
+  const [logoLoading, setLogoLoading] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    fetch('/api/configuracion')
+    fetch('/api/empresa/configuracion')
       .then(r => r.json())
       .then(d => {
         if (d.success) {
           setTasaInteres(String(Number(d.data.tasaInteres)))
-          setCuotaDiaria(String(Number(d.data.cuotaDiariaMinima)))
+          setCuotaDiaria(String(Number(d.data.cuotaDiariaMin)))
+          if (d.data.logoUrl) setLogoUrl(d.data.logoUrl)
         }
       })
   }, [])
@@ -827,21 +844,118 @@ function ConfigView() {
     e.preventDefault()
     setSaving(true)
     setMsg(null)
-    const res = await fetch('/api/configuracion', {
+    const res = await fetch('/api/empresa/configuracion', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tasaInteres, cuotaDiariaMinima: cuotaDiaria }),
+      body: JSON.stringify({ tasaInteres, cuotaDiariaMin: cuotaDiaria }),
     })
     const d = await res.json()
     setMsg(d.success ? { ok: true, text: 'Configuración guardada' } : { ok: false, text: d.message })
     setSaving(false)
   }
 
+  function handleLogoFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    setLogoError(null)
+    setLogoPreview(null)
+    setLogoFile(null)
+    if (!file) return
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+      setLogoError('Formato no permitido (usa PNG, JPG o WebP)')
+      return
+    }
+    if (file.size > 200 * 1024) {
+      setLogoError('La imagen supera los 200 KB')
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = () => setLogoPreview(String(reader.result || ''))
+    reader.onerror = () => setLogoError('No se pudo leer el archivo')
+    reader.readAsDataURL(file)
+    setLogoFile(file)
+  }
+
+  async function handleLogoUpload() {
+    if (!logoFile) return
+    setLogoLoading(true)
+    setMsg(null)
+    setLogoError(null)
+    const fd = new FormData()
+    fd.append('file', logoFile)
+    const res = await fetch('/api/empresa/logo', { method: 'POST', body: fd })
+    const d = await res.json()
+    setLogoLoading(false)
+    if (d.success) {
+      setLogoUrl(d.logoUrl)
+      setLogoPreview(null)
+      setLogoFile(null)
+      setMsg({ ok: true, text: 'Logo guardado' })
+    } else {
+      setLogoError(d.message || 'Error al subir el logo')
+    }
+  }
+
+  async function handleLogoRemove() {
+    setLogoLoading(true)
+    setMsg(null)
+    setLogoError(null)
+    const fd = new FormData()
+    fd.append('action', 'remove')
+    const res = await fetch('/api/empresa/logo', { method: 'POST', body: fd })
+    const d = await res.json()
+    setLogoLoading(false)
+    if (d.success) {
+      setLogoUrl(null)
+      setLogoPreview(null)
+      setLogoFile(null)
+      setMsg({ ok: true, text: 'Logo eliminado' })
+    } else {
+      setLogoError(d.message || 'Error al eliminar el logo')
+    }
+  }
+
   return (
     <>
       <div className="mb-8">
         <h2 className="text-base font-semibold text-zinc-100">Configuración del sistema</h2>
-        <p className="mt-0.5 text-sm text-zinc-400">Tasa de interés y cuota diaria mínima</p>
+        <p className="mt-0.5 text-sm text-zinc-400">Tasa de interés, cuota diaria mínima y logo de tu empresa</p>
+      </div>
+
+      <div className="max-w-lg rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm">
+        <div className="border-b border-zinc-800 px-5 py-4">
+          <h3 className="text-sm font-semibold text-zinc-100">Logo de la empresa</h3>
+        </div>
+        <div className="p-5 space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-800 overflow-hidden shrink-0">
+              <img src={logoPreview || logoUrl || '/logo.webp'} alt="Logo de la empresa" className="h-full w-full object-contain" />
+            </div>
+            <div className="flex-1 space-y-2">
+              <label htmlFor="empresa-logo" className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-zinc-700 px-4 py-2 text-xs font-medium text-zinc-200 hover:bg-zinc-800 transition-colors">
+                {logoPreview ? 'Elegir otro archivo' : 'Subir logo'}
+                <input id="empresa-logo" type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleLogoFile} />
+              </label>
+              <p className="text-[11px] text-zinc-400">PNG, JPG o WebP · máximo 200 KB</p>
+            </div>
+          </div>
+          {logoPreview && (
+            <button type="button" onClick={handleLogoUpload} disabled={logoLoading}
+              className="w-full rounded-lg bg-lime px-4 py-2.5 text-sm font-medium text-emerald-950 font-display hover:bg-zinc-100 transition-colors disabled:opacity-50">
+              {logoLoading ? 'Guardando...' : 'Confirmar nuevo logo'}
+            </button>
+          )}
+          {logoUrl && !logoPreview && (
+            <button type="button" onClick={handleLogoRemove} disabled={logoLoading}
+              className="w-full rounded-lg border border-zinc-700 px-4 py-2.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800 transition-colors disabled:opacity-50">
+              Quitar logo
+            </button>
+          )}
+          {logoError && (
+            <div className="rounded-lg bg-red-500/15 p-3 text-sm text-red-400">
+              <X size={14} className="inline mr-1" />{logoError}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="max-w-lg rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm">

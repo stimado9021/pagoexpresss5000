@@ -33,6 +33,7 @@ export default function ClientePage() {
   const [cliente, setCliente] = useState<ClienteData | null>(null)
   const [loading, setLoading] = useState(true)
   const [tenantName, setTenantName] = useState<string | null>(null)
+  const [tenantLogo, setTenantLogo] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/dashboard')
@@ -42,6 +43,7 @@ export default function ClientePage() {
         setPrestamos(res.data.prestamos || [])
         if (res.data.cliente) setCliente(res.data.cliente)
         if (res.data.tenantName) setTenantName(res.data.tenantName)
+        if (res.data.tenantLogo) setTenantLogo(res.data.tenantLogo)
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -68,8 +70,8 @@ export default function ClientePage() {
     <div className="min-h-screen bg-emerald-950">
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-bone/10 bg-graphite-900 px-4 py-3 sm:px-6 sm:py-3.5 lg:px-8">
         <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shrink-0 sm:h-7 sm:w-7"><img src="/logo.webp" alt="PagoExpress" className="h-4 w-4 object-contain sm:h-5 sm:w-5" /></span>
-          <span className="text-xs font-semibold text-bone sm:text-sm">PagoExpress</span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shrink-0 sm:h-7 sm:w-7"><img src={tenantLogo || '/logo.webp'} alt={tenantName || 'PagoExpress'} className="h-4 w-4 object-contain sm:h-5 sm:w-5" /></span>
+          <span className="text-xs font-semibold text-bone sm:text-sm">{tenantName || 'PagoExpress'}</span>
           <span className="mx-1 text-bone/20 sm:mx-2">|</span>
           <span className="text-xs text-bone/60 sm:text-sm">Cliente</span>
         </div>

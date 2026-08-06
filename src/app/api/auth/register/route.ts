@@ -4,6 +4,7 @@ import { hashPassword } from '@/lib/auth'
 import { createSession } from '@/lib/session'
 import { rateLimit, getClientIp } from '@/lib/rate-limit'
 import { sendEmail, layoutHtml, appUrl } from '@/lib/mail'
+import { isValidLogoDataUrl } from '@/lib/logo'
 
 export async function POST(request: Request) {
   try {
@@ -22,6 +23,7 @@ export async function POST(request: Request) {
       subdominio,
       password,
       confirmPassword,
+      logo,
     } = body
 
     if (!empresa || !adminNombre || !correo || !subdominio || !password) {
@@ -42,6 +44,13 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: false,
         message: 'La contraseña debe tener al menos 8 caracteres',
+      }, { status: 400 })
+    }
+
+    if (logo && !isValidLogoDataUrl(logo)) {
+      return NextResponse.json({
+        success: false,
+        message: 'Logo inválido (usa PNG, JPG o WebP de máximo 200 KB)',
       }, { status: 400 })
     }
 
@@ -105,6 +114,7 @@ export async function POST(request: Request) {
       data: {
         tenantId: tenant.id,
         nombreEmpresa: empresa,
+        ...(isValidLogoDataUrl(logo) ? { logoUrl: logo } : {}),
       },
     })
 

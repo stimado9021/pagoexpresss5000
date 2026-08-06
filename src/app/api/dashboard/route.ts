@@ -8,7 +8,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
 
   try {
-    const [userInfo, tenantRecord] = await Promise.all([
+    const [userInfo, tenantRecord, tenantConfig] = await Promise.all([
       prisma.usuario.findUnique({
         where: { id: session.userId },
         select: { nombre: true, apellido: true },
@@ -16,8 +16,12 @@ export async function GET() {
       session.tenantId
         ? prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { nombre: true } })
         : null,
+      session.tenantId
+        ? prisma.configuracionTenant.findUnique({ where: { tenantId: session.tenantId }, select: { logoUrl: true } })
+        : null,
     ])
     const tenantName = tenantRecord?.nombre ?? null
+    const tenantLogo = tenantConfig?.logoUrl ?? null
 
     if (session.rol === 'superadmin') {
       const [vendedores, rawClientes] = await Promise.all([
@@ -71,7 +75,7 @@ export async function GET() {
 
       return NextResponse.json({
         success: true,
-        data: { vendedores: mappedVendedores, clientes, stats, user: userInfo, tenantName },
+        data: { vendedores: mappedVendedores, clientes, stats, user: userInfo, tenantName, tenantLogo },
       })
     }
 
@@ -132,7 +136,7 @@ export async function GET() {
 
       return NextResponse.json({
         success: true,
-        data: { vendedores: mappedVendedores, clientes, stats, user: userInfo, tenantName },
+        data: { vendedores: mappedVendedores, clientes, stats, user: userInfo, tenantName, tenantLogo },
       })
     }
 
@@ -164,7 +168,7 @@ export async function GET() {
         total_clientes: totalClientes,
       }
 
-      return NextResponse.json({ success: true, data: { prestamos, stats, user: userInfo, tenantName } })
+      return NextResponse.json({ success: true, data: { prestamos, stats, user: userInfo, tenantName, tenantLogo } })
     }
 
     if (session.rol === 'cliente') {
@@ -184,7 +188,7 @@ export async function GET() {
         diasAtrasados: calcularDiasAtrasados(p),
       }))
 
-      return NextResponse.json({ success: true, data: { cliente: usuario, prestamos, user: userInfo, tenantName } })
+      return NextResponse.json({ success: true, data: { cliente: usuario, prestamos, user: userInfo, tenantName, tenantLogo } })
     }
 
     return NextResponse.json({ success: false, message: 'Rol no válido' }, { status: 400 })

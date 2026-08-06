@@ -88,6 +88,7 @@ export default function VendedorPage() {
   const [loading, setLoading] = useState(true)
   const [userInfo, setUserInfo] = useState<{ nombre: string; apellido: string } | null>(null)
   const [tenantName, setTenantName] = useState<string | null>(null)
+  const [tenantLogo, setTenantLogo] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const cargarClientes = async () => {
@@ -115,6 +116,7 @@ export default function VendedorPage() {
           setClientes(d.data.clientes || [])
           if (d.data.user) setUserInfo(d.data.user)
           if (d.data.tenantName) setTenantName(d.data.tenantName)
+          if (d.data.tenantLogo) setTenantLogo(d.data.tenantLogo)
         } else if (view === 'clientes' || view === 'prestamos') {
           const r = await fetch('/api/clientes?resumen=true')
           const d = await r.json()
@@ -146,8 +148,8 @@ export default function VendedorPage() {
       <aside className={`fixed left-0 top-0 z-50 flex h-screen w-[220px] flex-col border-r border-bone/10 bg-graphite-900 transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between border-b border-bone/10 px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.webp" alt="PagoExpress" className="h-6 w-6 object-contain" /></span>
-            <span className="text-base font-bold text-bone">PagoExpress</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white shrink-0"><img src={tenantLogo || '/logo.webp'} alt={tenantName || 'PagoExpress'} className="h-6 w-6 object-contain" /></span>
+            <span className="text-base font-bold text-bone">{tenantName || 'PagoExpress'}</span>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-bone/60 hover:text-bone">
             <X size={18} />

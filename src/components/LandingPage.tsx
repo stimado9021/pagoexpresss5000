@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import WhatsAppWidget from './WhatsAppWidget';
+import { ALLOWED_LOGO_TYPES, MAX_LOGO_BYTES } from '@/lib/logo';
 
 /* ─── Helpers ──────────────────────────────────────────────────────────────── */
 function animateCount(
@@ -49,6 +50,8 @@ export default function LandingPage() {
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
   const [subdisponible, setSubdisponible] = useState<boolean | null>(null);
+  const [logoPreview, setLogoPreview] = useState('');
+  const [logoError, setLogoError] = useState('');
   const [form, setForm] = useState({
     empresa: '',
     adminNombre: '',
@@ -58,6 +61,7 @@ export default function LandingPage() {
     subdominio: '',
     password: '',
     confirmPassword: '',
+    logo: '',
   });
 
   const setField = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,6 +79,36 @@ export default function LandingPage() {
         setSubdisponible(null);
       }
     }
+  };
+
+  const handleLogoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLogoError('');
+    const file = e.target.files?.[0];
+    if (!file) {
+      setForm((f) => ({ ...f, logo: '' }));
+      setLogoPreview('');
+      return;
+    }
+    if (!ALLOWED_LOGO_TYPES.includes(file.type as (typeof ALLOWED_LOGO_TYPES)[number])) {
+      setLogoError('Formato no permitido. Usa PNG, JPG o WebP.');
+      setForm((f) => ({ ...f, logo: '' }));
+      setLogoPreview('');
+      return;
+    }
+    if (file.size > MAX_LOGO_BYTES) {
+      setLogoError('La imagen supera los 200 KB.');
+      setForm((f) => ({ ...f, logo: '' }));
+      setLogoPreview('');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result || '');
+      setForm((f) => ({ ...f, logo: dataUrl }));
+      setLogoPreview(dataUrl);
+    };
+    reader.onerror = () => setLogoError('No se pudo leer el archivo.');
+    reader.readAsDataURL(file);
   };
 
   const handleRegistro = async (e: React.FormEvent) => {
@@ -110,6 +144,7 @@ export default function LandingPage() {
           subdominio: form.subdominio,
           password: form.password,
           confirmPassword: form.confirmPassword,
+          logo: form.logo || undefined,
         }),
       });
       const data = await res.json();
@@ -778,6 +813,31 @@ export default function LandingPage() {
                             className="w-full rounded-xl border border-bone/15 bg-graphite-800 px-4 py-3.5 font-body text-sm text-bone placeholder:text-bone/30 focus:border-lime focus:outline-none transition-colors" />
                         </div>
                       ))}
+                    </div>
+                    <div className="mt-5">
+                      <label htmlFor="logo" className="block font-body text-xs font-semibold uppercase tracking-wide text-bone/50 mb-2">Logo de la empresa <span className="normal-case font-normal text-bone/30">(opcional · PNG, JPG o WebP · máx. 200 KB)</span></label>
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-bone/15 bg-graphite-800 overflow-hidden shrink-0">
+                          {logoPreview ? (
+                            <img src={logoPreview} alt="Vista previa del logo" className="h-full w-full object-contain" />
+                          ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-bone/25">
+                              <path d="M12 16V4m0 0l-4 4m4-4l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <label htmlFor="logo" className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-bone/20 px-5 py-2.5 font-body text-xs font-semibold text-bone hover:bg-bone/10 transition-colors">
+                            {logoPreview ? 'Cambiar logo' : 'Subir logo'}
+                            <input id="logo" name="logo" type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleLogoFile} />
+                          </label>
+                          {logoPreview && (
+                            <button type="button" onClick={() => { setForm((f) => ({ ...f, logo: '' })); setLogoPreview(''); }} className="ml-2 font-body text-xs text-bone/50 hover:text-red-400 transition-colors">Quitar</button>
+                          )}
+                          {logoError && <p className="mt-1 font-body text-xs text-red-400">{logoError}</p>}
+                        </div>
+                      </div>
                     </div>
                     <label className="mt-5 flex items-start gap-3 cursor-pointer">
                       <input required type="checkbox" className="mt-1 h-4 w-4 rounded border-bone/30 bg-graphite-800 accent-lime" />
