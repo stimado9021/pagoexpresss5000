@@ -95,10 +95,9 @@ describe('POST /api/auth/login', () => {
   })
 
   it('una cédula ya no funciona como identificador', async () => {
-    vi.mocked(prisma.usuario.findFirst).mockResolvedValue(null)
     const res = await callPost({ identificacion: '52004483', password: 'clave-segura-123' }, '192.0.2.106')
-    expect(res.status).toBe(401)
-    const where = vi.mocked(prisma.usuario.findFirst).mock.calls[0][0] as { where: { email?: string } }
-    expect(where.where.email).toBe('52004483')
+    expect(res.status).toBe(400)
+    expect((await res.json()).message).toBe('Correo y contraseña requeridos')
+    expect(prisma.usuario.findFirst).not.toHaveBeenCalled()
   })
 })

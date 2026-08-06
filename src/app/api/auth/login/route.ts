@@ -11,8 +11,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Demasiados intentos. Espera un minuto.' }, { status: 429 })
     }
 
-    const { email, password, identificacion } = await request.json()
-    const query = String(email ?? identificacion ?? '').trim().toLowerCase()
+    const { email, password } = await request.json()
+    const query = String(email ?? '').trim().toLowerCase()
 
     if (!query || !password) {
       return NextResponse.json({ success: false, message: 'Correo y contraseña requeridos' }, { status: 400 })
