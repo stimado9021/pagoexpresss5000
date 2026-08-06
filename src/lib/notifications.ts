@@ -1,6 +1,5 @@
 import 'server-only'
 import { prisma } from './prisma'
-import { getSession } from './session'
 
 export type NotificationEvent =
   | 'trial_welcome'
@@ -33,7 +32,6 @@ export async function createNotification(
 export async function sendTrialReminders() {
   const now = new Date()
   const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
-  const today = new Date(now.setHours(0, 0, 0, 0))
 
   const expiringTenants = await prisma.tenant.findMany({
     where: {

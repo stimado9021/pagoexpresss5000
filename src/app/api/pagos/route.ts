@@ -1,81 +1,36 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { getSession } from '@/lib/session'
-import { sendWhatsAppText, formatReceipt } from '@/lib/evolution-api'
+import { requireRole, requireSession, isErrorResponse, apiResponse, ROLES } from '@/lib/api-helpers'
+import { registrarPago, editarPago, eliminarPago, listarPagos } from '@/lib/services/pago-service'
+
+async function checkTenantActivo(tenantId?: number): Promise<NextResponse | null> {
+  if (!tenantId) return null
+  const { checkTenantActive } = await import('@/lib/tenant')
+  const active = await checkTenantActive(tenantId)
+  if (!active.ok) {
+    return NextResponse.json({ success: false, message: active.message }, { status: 403 })
+  }
+  return null
+}
 
 export async function POST(request: Request) {
-  const session = await getSession()
-  if (!session || session.rol === 'cliente') {
-    return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
-  }
+  const session = await requireRole(ROLES.SUPERADMIN, ROLES.EMPRESARIO, ROLES.VENDEDOR)
+  if (isErrorResponse(session)) return session
 
-  if (session.tenantId) {
-    const { checkTenantActive } = await import('@/lib/tenant')
-    const active = await checkTenantActive(session.tenantId)
-    if (!active.ok) {
-      return NextResponse.json({ success: false, message: active.message }, { status: 403 })
-    }
-  }
+  const tenantError = await checkTenantActivo(session.tenantId)
+  if (tenantError) return tenantError
 
   try {
     const data = await request.json()
-    const prestamoId = parseInt(data.prestamo_id)
-    const monto = Number(data.monto)
-    const enviarWhatsApp = data.enviarWhatsApp !== false
-
-    const prestamo = await prisma.prestamo.findUnique({
-      where: { id: prestamoId },
-      include: { cliente: { select: { nombre: true, apellido: true, telefono: true } } },
-    })
-    if (!prestamo) {
-      return NextResponse.json({ success: false, message: 'Préstamo no encontrado' }, { status: 404 })
-    }
-
-    const nuevoPagado = Number(prestamo.montoPagado) + monto
-    const nuevoSaldo = Math.max(0, Number(prestamo.saldoPendiente) - monto)
-    const diasCubiertos = Math.ceil(monto / Number(prestamo.cuotaDiaria))
-    const nuevosDiasAtrasados = Math.max(0, Number(prestamo.diasAtrasados) - diasCubiertos + (nuevoSaldo > 0 ? 0 : 0))
-
-    const [pago] = await prisma.$transaction([
-      prisma.pago.create({
-        data: {
-          prestamoId,
-          vendedorId: session.userId,
-          tenantId: session.tenantId!,
-          fechaPago: new Date(),
-          fechaEsperada: prestamo.fechaUltimoPago || prestamo.fechaInicio,
-          monto,
-          diasCubiertos,
-          esPagoAtrasado: Number(prestamo.diasAtrasados) > 0 ? 1 : 0,
-          diasAtraso: Number(prestamo.diasAtrasados),
-          observaciones: data.observaciones || null,
-        },
-      }),
-      prisma.prestamo.update({
-        where: { id: prestamoId },
-        data: {
-          montoPagado: nuevoPagado,
-          saldoPendiente: nuevoSaldo,
-          diasPagados: { increment: diasCubiertos },
-          fechaUltimoPago: new Date(),
-          estado: nuevoSaldo <= 0 ? 'pagado' : 'activo',
-          diasAtrasados: nuevosDiasAtrasados,
-        },
-      }),
-    ])
-
-    if (enviarWhatsApp && prestamo.cliente.telefono) {
-      const receipt = formatReceipt({
-        cliente: `${prestamo.cliente.nombre} ${prestamo.cliente.apellido}`,
-        monto,
-        fecha: new Date(),
-        cuotaDiaria: Number(prestamo.cuotaDiaria),
-        saldoPendiente: nuevoSaldo,
+    return apiResponse(
+      await registrarPago({
+        prestamoId: parseInt(data.prestamo_id),
+        monto: Number(data.monto),
+        vendedorId: session.userId,
+        tenantId: session.tenantId,
+        observaciones: data.observaciones ?? null,
+        enviarWhatsApp: data.enviarWhatsApp !== false,
       })
-      sendWhatsAppText(prestamo.cliente.telefono, receipt)
-    }
-
-    return NextResponse.json({ success: true, message: 'Pago registrado', data: pago })
+    )
   } catch (error) {
     console.error('[PAGOS POST ERROR]', error)
     return NextResponse.json({ success: false, message: 'Error al registrar pago' }, { status: 500 })
@@ -83,77 +38,27 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const session = await getSession()
-  if (!session || session.rol === 'cliente') {
-    return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
-  }
+  const session = await requireRole(ROLES.SUPERADMIN, ROLES.EMPRESARIO, ROLES.VENDEDOR)
+  if (isErrorResponse(session)) return session
 
   try {
     const data = await request.json()
-    const pagoId = parseInt(data.pago_id)
     const motivo = (data.motivo || '').trim()
     if (!motivo) {
       return NextResponse.json({ success: false, message: 'El motivo es obligatorio' }, { status: 400 })
     }
 
-    const pagoOrig = await prisma.pago.findUnique({
-      where: { id: pagoId },
-      include: { prestamo: true },
-    })
-    if (!pagoOrig) {
-      return NextResponse.json({ success: false, message: 'Pago no encontrado' }, { status: 404 })
-    }
-
-    if (session.rol === 'vendedor' && pagoOrig.vendedorId !== session.userId) {
-      return NextResponse.json({ success: false, message: 'No puedes editar pagos de otro vendedor' }, { status: 403 })
-    }
-
-    const prestamo = pagoOrig.prestamo
-    const montoOrig = Number(pagoOrig.monto)
-    const montoNuevo = data.monto !== undefined ? Number(data.monto) : montoOrig
-    const fechaNueva = data.fechaPago ? new Date(data.fechaPago) : pagoOrig.fechaPago
-    const diferencia = montoNuevo - montoOrig
-
-    const nuevoMontoPagado = Number(prestamo.montoPagado) + diferencia
-    const nuevoSaldo = Math.max(0, Number(prestamo.saldoPendiente) - diferencia)
-    const nuevosDiasPagados = Math.max(0, Math.floor(nuevoMontoPagado / Number(prestamo.cuotaDiaria)))
-
-    await prisma.$transaction([
-      prisma.pago.update({
-        where: { id: pagoId },
-        data: {
-          monto: montoNuevo,
-          fechaPago: fechaNueva,
-          diasCubiertos: Math.ceil(montoNuevo / Number(prestamo.cuotaDiaria)),
-          observaciones: `${pagoOrig.observaciones || ''} | Editado: ${motivo}`.trim().replace(/^\| /, ''),
-        },
-      }),
-      prisma.prestamo.update({
-        where: { id: prestamo.id },
-        data: {
-          montoPagado: nuevoMontoPagado,
-          saldoPendiente: nuevoSaldo,
-          diasPagados: nuevosDiasPagados,
-          estado: nuevoSaldo <= 0 ? 'pagado' : 'activo',
-        },
-      }),
-      prisma.historial.create({
-        data: {
-          usuarioId: session.userId,
-          tenantId: session.tenantId || 1,
-          accion: 'editar_pago',
-          tablaAfectada: 'pagos',
-          registroId: pagoId,
-          detalles: JSON.stringify({
-            anterior: { monto: montoOrig, fecha: pagoOrig.fechaPago.toISOString() },
-            nuevo: { monto: montoNuevo, fecha: fechaNueva.toISOString() },
-            motivo,
-          }),
-        },
-      }),
-    ])
-
-    return NextResponse.json({ success: true, message: 'Pago actualizado' })
+    return apiResponse(
+      await editarPago({
+        pagoId: parseInt(data.pago_id),
+        usuarioId: session.userId,
+        rol: session.rol,
+        tenantId: session.tenantId,
+        monto: data.monto !== undefined ? Number(data.monto) : undefined,
+        fechaPago: data.fechaPago ? new Date(data.fechaPago) : undefined,
+        motivo,
+      })
+    )
   } catch (error) {
     console.error('[PAGOS PUT ERROR]', error)
     return NextResponse.json({ success: false, message: 'Error al editar pago' }, { status: 500 })
@@ -161,64 +66,25 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const session = await getSession()
-  if (!session || session.rol === 'cliente') {
-    return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
-  }
+  const session = await requireRole(ROLES.SUPERADMIN, ROLES.EMPRESARIO, ROLES.VENDEDOR)
+  if (isErrorResponse(session)) return session
 
   try {
     const data = await request.json()
-    const pagoId = parseInt(data.pago_id)
     const motivo = (data.motivo || '').trim()
     if (!motivo) {
       return NextResponse.json({ success: false, message: 'El motivo es obligatorio' }, { status: 400 })
     }
 
-    const pagoOrig = await prisma.pago.findUnique({
-      where: { id: pagoId },
-      include: { prestamo: true },
-    })
-    if (!pagoOrig) {
-      return NextResponse.json({ success: false, message: 'Pago no encontrado' }, { status: 404 })
-    }
-
-    if (session.rol === 'vendedor' && pagoOrig.vendedorId !== session.userId) {
-      return NextResponse.json({ success: false, message: 'No puedes eliminar pagos de otro vendedor' }, { status: 403 })
-    }
-
-    const prestamo = pagoOrig.prestamo
-    const montoEliminado = Number(pagoOrig.monto)
-    const nuevoMontoPagado = Math.max(0, Number(prestamo.montoPagado) - montoEliminado)
-    const nuevoSaldo = Number(prestamo.saldoPendiente) + montoEliminado
-    const nuevosDiasPagados = Math.max(0, Math.floor(nuevoMontoPagado / Number(prestamo.cuotaDiaria)))
-
-    await prisma.$transaction([
-      prisma.pago.delete({ where: { id: pagoId } }),
-      prisma.prestamo.update({
-        where: { id: prestamo.id },
-        data: {
-          montoPagado: nuevoMontoPagado,
-          saldoPendiente: nuevoSaldo,
-          diasPagados: nuevosDiasPagados,
-          estado: 'activo',
-        },
-      }),
-      prisma.historial.create({
-        data: {
-          usuarioId: session.userId,
-          tenantId: session.tenantId || 1,
-          accion: 'eliminar_pago',
-          tablaAfectada: 'pagos',
-          registroId: pagoId,
-          detalles: JSON.stringify({
-            anterior: { monto: montoEliminado, fecha: pagoOrig.fechaPago.toISOString() },
-            motivo,
-          }),
-        },
-      }),
-    ])
-
-    return NextResponse.json({ success: true, message: 'Pago eliminado' })
+    return apiResponse(
+      await eliminarPago({
+        pagoId: parseInt(data.pago_id),
+        usuarioId: session.userId,
+        rol: session.rol,
+        tenantId: session.tenantId,
+        motivo,
+      })
+    )
   } catch (error) {
     console.error('[PAGOS DELETE ERROR]', error)
     return NextResponse.json({ success: false, message: 'Error al eliminar pago' }, { status: 500 })
@@ -226,38 +92,23 @@ export async function DELETE(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const session = await getSession()
-  if (!session) return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
+  const session = await requireSession()
+  if (isErrorResponse(session)) return session
 
   const { searchParams } = new URL(request.url)
   const prestamoId = searchParams.get('prestamo_id')
-  const limit = parseInt(searchParams.get('limit') || '50')
+  const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50'), 1), 200)
 
   try {
-    const where: { prestamoId?: number | { in: number[] }; vendedorId?: number } = {}
-    if (prestamoId) where.prestamoId = parseInt(prestamoId)
-    if (session.rol === 'vendedor') where.vendedorId = session.userId
-    if (session.rol === 'cliente') {
-      const prestamos = await prisma.prestamo.findMany({ where: { clienteId: session.userId }, select: { id: true } })
-      where.prestamoId = { in: prestamos.map((p) => p.id) }
-    }
-
-    const pagos = await prisma.pago.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      include: {
-        prestamo: {
-          select: {
-            clienteId: true, montoTotal: true,
-            cliente: { select: { nombre: true, apellido: true, cedula: true } },
-          },
-        },
-        vendedor: { select: { nombre: true, apellido: true } },
-      },
-    })
-
-    return NextResponse.json({ success: true, data: pagos })
+    return apiResponse(
+      await listarPagos({
+        rol: session.rol,
+        userId: session.userId,
+        tenantId: session.tenantId,
+        prestamoId: prestamoId ? parseInt(prestamoId) : undefined,
+        limit,
+      })
+    )
   } catch (error) {
     console.error('[PAGOS GET ERROR]', error)
     return NextResponse.json({ success: false, message: 'Error del servidor' }, { status: 500 })

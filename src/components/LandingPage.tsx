@@ -59,8 +59,6 @@ export default function LandingPage() {
     correo: '',
     telefono: '',
     subdominio: '',
-    password: '',
-    confirmPassword: '',
     logo: '',
   });
 
@@ -122,14 +120,6 @@ export default function LandingPage() {
       setFormError('Ese subdominio ya está en uso. Prueba con otro.');
       return;
     }
-    if (form.password.length < 8) {
-      setFormError('La contraseña debe tener al menos 8 caracteres.');
-      return;
-    }
-    if (form.password !== form.confirmPassword) {
-      setFormError('Las contraseñas no coinciden.');
-      return;
-    }
     setFormLoading(true);
     try {
       const res = await fetch('/api/auth/register', {
@@ -142,8 +132,6 @@ export default function LandingPage() {
           correo: form.correo,
           telefono: form.telefono,
           subdominio: form.subdominio,
-          password: form.password,
-          confirmPassword: form.confirmPassword,
           logo: form.logo || undefined,
         }),
       });
@@ -440,7 +428,7 @@ export default function LandingPage() {
                             <p className="font-mono text-[10px] text-emerald-400">${stats.cobrosSemana.toLocaleString('es-CO')}</p>
                           </div>
                           <div className="flex items-end gap-2 h-24">
-                            {(stats.cobrosPorDia.length > 0 ? stats.cobrosPorDia : Array.from({ length: 7 }, (_, i) => ({
+                            {(stats.cobrosPorDia.length > 0 ? stats.cobrosPorDia : Array.from({ length: 7 }, () => ({
                               etiqueta: '', monto: 0, height: 4, fecha: '',
                             }))).map((c, i) => (
                               <div key={i} className="flex-1 flex flex-col items-center gap-1 group" title={`${c.etiqueta}: $${c.monto.toLocaleString('es-CO')}`}>
@@ -802,17 +790,10 @@ export default function LandingPage() {
                         </p>
                       )}
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
-                      {[
-                        { id: 'password', label: 'Contraseña', placeholder: 'Mínimo 8 caracteres', type: 'password', value: form.password, onChange: setField('password') },
-                        { id: 'confirmPassword', label: 'Confirmar contraseña', placeholder: 'Repite la contraseña', type: 'password', value: form.confirmPassword, onChange: setField('confirmPassword') },
-                      ].map(({ id, label, placeholder, type, value, onChange }) => (
-                        <div key={id}>
-                          <label htmlFor={id} className="block font-body text-xs font-semibold uppercase tracking-wide text-bone/50 mb-2">{label}</label>
-                          <input required type={type} id={id} name={id} placeholder={placeholder} value={value} onChange={onChange}
-                            className="w-full rounded-xl border border-bone/15 bg-graphite-800 px-4 py-3.5 font-body text-sm text-bone placeholder:text-bone/30 focus:border-lime focus:outline-none transition-colors" />
-                        </div>
-                      ))}
+                    <div className="mt-5">
+                      <div className="rounded-xl border border-lime/20 bg-lime/5 px-4 py-3 text-bone/80 font-body text-sm">
+                        Enviaremos una contraseña temporal al correo registrado para tu primer acceso.
+                      </div>
                     </div>
                     <div className="mt-5">
                       <label htmlFor="logo" className="block font-body text-xs font-semibold uppercase tracking-wide text-bone/50 mb-2">Logo de la empresa <span className="normal-case font-normal text-bone/30">(opcional · PNG, JPG o WebP · máx. 200 KB)</span></label>

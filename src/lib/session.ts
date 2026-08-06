@@ -2,7 +2,10 @@ import 'server-only'
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 
-const secretKey = process.env.SESSION_SECRET || 'fallback-secret-key'
+const secretKey = process.env.SESSION_SECRET
+if (!secretKey) {
+  throw new Error('SESSION_SECRET no está configurada. Revisa el archivo .env')
+}
 const encodedKey = new TextEncoder().encode(secretKey)
 
 export type SessionPayload = {
@@ -41,7 +44,7 @@ export async function createSession(user: { id: number; cedula: string; rol: str
 
   cookieStore.set('session', session, {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     expires: expiresAt,
     sameSite: 'lax',
     path: '/',

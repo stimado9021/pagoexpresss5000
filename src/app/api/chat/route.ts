@@ -22,6 +22,13 @@ async function getMensajes(sesionId: number): Promise<ChatMessage[]> {
 }
 
 export async function GET(request: NextRequest) {
+  if (!rateLimit(`chat-get:${getClientIp(request)}`, 30, 60_000)) {
+    return NextResponse.json(
+      { success: false, message: 'Demasiadas solicitudes. Intenta de nuevo en un momento.' },
+      { status: 429 }
+    )
+  }
+
   const telefono = normalizePhone(request.nextUrl.searchParams.get('telefono') || '')
   if (!telefono) {
     return NextResponse.json({ success: false, message: 'Falta el teléfono' }, { status: 400 })

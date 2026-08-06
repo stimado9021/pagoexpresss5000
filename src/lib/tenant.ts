@@ -26,7 +26,7 @@ export async function getTenantLimits(tenantId: number) {
 }
 
 export async function checkTenantLimit(tenantId: number, recurso: string): Promise<{ ok: boolean; used: number; limit: number; message?: string }> {
-  const { limits, tenant } = await getTenantLimits(tenantId) || { limits: {}, tenant: null }
+  const { limits } = await getTenantLimits(tenantId) || { limits: {}, tenant: null }
   const safeLimits = (limits ?? {}) as Record<string, number>
   const limit = safeLimits[recurso] ?? -1
 
@@ -60,7 +60,7 @@ export async function checkTenantLimit(tenantId: number, recurso: string): Promi
       ok: false,
       used,
       limit,
-      message: `L�mite alcanzado para ${recurso}.${limit > 0 ? ` Usa ${limit}/${used}.` : ''} Actualiza tu plan para m�s capacidad.`,
+      message: `Límite alcanzado para ${recurso}.${limit > 0 ? ` Usa ${limit}/${used}.` : ''} Actualiza tu plan para más capacidad.`,
     }
   }
 

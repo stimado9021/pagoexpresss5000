@@ -88,7 +88,7 @@ export default function AdminTenantPage() {
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.webp" alt="PagoExpress" className="h-7 w-7 object-contain" /></span>
             <div>
-              <h1 className="font-display font-bold text-2xl text-bone">Panel de Administraci�n</h1>
+              <h1 className="font-display font-bold text-2xl text-bone">Panel de Administración</h1>
               <p className="text-bone/60 text-sm mt-1">Gestiona todas las empresas en la plataforma</p>
             </div>
           </div>
@@ -97,7 +97,7 @@ export default function AdminTenantPage() {
               <LayoutDashboard size={16} /> Ver Dashboard
             </button>
             <button onClick={async () => { await fetch('/api/auth/logout', { method: 'POST' }); localStorage.removeItem('session'); router.push('/login') }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors">
-              <LogOut size={16} /> Cerrar sesi�n
+              <LogOut size={16} /> Cerrar sesión
             </button>
           </div>
         </div>

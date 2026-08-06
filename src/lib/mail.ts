@@ -39,8 +39,42 @@ export async function sendEmail({
   return { success: true as const, id: data?.id }
 }
 
-export function layoutHtml(body: string): string {
-  return `
+export async function sendCredenciales({
+  to,
+  nombre,
+  correo,
+  password,
+  rol,
+}: {
+  to: string
+  nombre: string
+  correo: string
+  password: string
+  rol?: string
+}) {
+  return sendEmail({
+    to,
+    subject: `Tus credenciales de acceso a PagoExpress${rol ? ` (${rol})` : ''}`,
+    html: layoutHtml(`
+      <h1 style="font-size:20px;margin:0 0 12px;">¡Hola, ${nombre}!</h1>
+      <p style="margin:0 0 16px;">Tu usuario en PagoExpress quedó listo. Estas son tus credenciales de acceso:</p>
+      <table style="width:100%;border-collapse:collapse;margin:0 0 20px;background:#1e293b;border-radius:10px;overflow:hidden;">
+        <tr>
+          <td style="padding:12px 16px;color:#a8a29e;width:40%;">Correo de acceso</td>
+          <td style="padding:12px 16px;text-align:right;font-family:monospace;color:#f5f5f4;">${correo}</td>
+        </tr>
+        <tr>
+          <td style="padding:12px 16px;color:#a8a29e;">Contraseña</td>
+          <td style="padding:12px 16px;text-align:right;font-family:monospace;font-weight:700;color:#c9f24c;">${password}</td>
+        </tr>
+      </table>
+      <a href="${appUrl}/login" style="display:inline-block;background:#c9f24c;color:#022c22;text-decoration:none;font-weight:700;padding:12px 24px;border-radius:999px;">Ir al login</a>
+      <p style="margin:20px 0 0;color:#a8a29e;font-size:12px;">Guarda esta contraseña en un lugar seguro. Si la pierdes, solicita que te la restablezcan.</p>
+    `),
+  })
+}
+
+export function layoutHtml(body: string): string {  return `
   <div style="font-family:Arial,Helvetica,sans-serif;background:#022c22;padding:32px 16px;">
     <div style="max-width:520px;margin:0 auto;background:#0f172a;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
       <div style="background:#14532d;padding:24px 32px;">

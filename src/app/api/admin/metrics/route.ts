@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/session'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const session = await getSession()
   if (!session || session.rol !== 'superadmin') {
     return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 403 })

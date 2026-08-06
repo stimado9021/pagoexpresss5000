@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { HelpCircle } from 'lucide-react'
 
 export function Tooltip({ children, text }: { children: React.ReactNode; text: string }) {

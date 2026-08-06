@@ -5,6 +5,7 @@ import { createSession } from '@/lib/session'
 import { rateLimit, getClientIp } from '@/lib/rate-limit'
 import { sendEmail, layoutHtml, appUrl } from '@/lib/mail'
 import { isValidLogoDataUrl } from '@/lib/logo'
+import { generarPasswordAleatoria } from '@/lib/password'
 
 export async function POST(request: Request) {
   try {
@@ -21,29 +22,13 @@ export async function POST(request: Request) {
       correo,
       telefono,
       subdominio,
-      password,
-      confirmPassword,
       logo,
     } = body
 
-    if (!empresa || !adminNombre || !correo || !subdominio || !password) {
+    if (!empresa || !adminNombre || !correo || !subdominio) {
       return NextResponse.json({
         success: false,
         message: 'Todos los campos son obligatorios',
-      }, { status: 400 })
-    }
-
-    if (password !== confirmPassword) {
-      return NextResponse.json({
-        success: false,
-        message: 'Las contraseñas no coinciden',
-      }, { status: 400 })
-    }
-
-    if (password.length < 8) {
-      return NextResponse.json({
-        success: false,
-        message: 'La contraseña debe tener al menos 8 caracteres',
       }, { status: 400 })
     }
 
@@ -127,6 +112,7 @@ export async function POST(request: Request) {
       },
     })
 
+    const password = generarPasswordAleatoria()
     const hashedPassword = await hashPassword(password)
 
     const usuario = await prisma.usuario.create({
@@ -165,7 +151,11 @@ export async function POST(request: Request) {
           </tr>
           <tr>
             <td style="padding:8px 0;color:#a8a29e;">Correo de acceso</td>
-            <td style="padding:8px 0;text-align:right;">${correo}</td>
+            <td style="padding:8px 0;text-align:right;font-family:monospace;">${correo}</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 0;color:#a8a29e;">Contraseña de acceso</td>
+            <td style="padding:8px 0;text-align:right;font-family:monospace;font-weight:700;color:#c9f24c;">${password}</td>
           </tr>
         </table>
         <a href="${appUrl}/login" style="display:inline-block;background:#c9f24c;color:#022c22;text-decoration:none;font-weight:700;padding:12px 24px;border-radius:999px;">

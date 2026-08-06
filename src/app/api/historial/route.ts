@@ -1,38 +1,21 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { getSession } from '@/lib/session'
+import { requireRole, isErrorResponse, apiResponse, ROLES } from '@/lib/api-helpers'
+import { listarHistorial } from '@/lib/services/historial-service'
 
 export async function GET(request: Request) {
-  const session = await getSession()
-  if (!session || session.rol !== 'admin') {
-    return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
-  }
+  const session = await requireRole(ROLES.SUPERADMIN, ROLES.EMPRESARIO)
+  if (isErrorResponse(session)) return session
 
   const { searchParams } = new URL(request.url)
-  const tabla = searchParams.get('tabla') || 'pagos'
-  const limit = parseInt(searchParams.get('limit') || '100')
-  const offset = parseInt(searchParams.get('offset') || '0')
 
   try {
-    const where: { accion: { in: string[] }; tablaAfectada?: string } = {
-      accion: { in: ['editar_pago', 'eliminar_pago'] },
-    }
-    if (tabla) where.tablaAfectada = tabla
-
-    const [total, registros] = await Promise.all([
-      prisma.historial.count({ where }),
-      prisma.historial.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-        skip: offset,
-        include: {
-          usuario: { select: { nombre: true, apellido: true, cedula: true, rol: true } },
-        },
-      }),
-    ])
-
-    return NextResponse.json({ success: true, data: registros, total })
+    return apiResponse(
+      await listarHistorial(session, {
+        tabla: searchParams.get('tabla') || undefined,
+        limit: parseInt(searchParams.get('limit') || '100'),
+        offset: parseInt(searchParams.get('offset') || '0'),
+      })
+    )
   } catch (error) {
     console.error('[HISTORIAL GET ERROR]', error)
     return NextResponse.json({ success: false, message: 'Error del servidor' }, { status: 500 })

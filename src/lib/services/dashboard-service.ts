@@ -1,0 +1,164 @@
+import { prisma } from '@/lib/prisma'
+import { calcularDiasAtrasados } from '@/lib/prestamo-utils'
+import type { ApiSession } from '@/lib/api-helpers'
+import type { Resultado } from './types'
+
+type DbClient = typeof prisma
+
+type RoleStrategy = (session: ApiSession, db: DbClient) => Promise<Resultado<Record<string, unknown>>>
+
+async function header(session: ApiSession, db: DbClient) {
+  const [userInfo, tenantRecord, tenantConfig] = await Promise.all([
+    db.usuario.findUnique({
+      where: { id: session.userId },
+      select: { nombre: true, apellido: true },
+    }),
+    session.tenantId
+      ? db.tenant.findUnique({ where: { id: session.tenantId }, select: { nombre: true } })
+      : null,
+    session.tenantId
+      ? db.configuracionTenant.findUnique({ where: { tenantId: session.tenantId }, select: { logoUrl: true } })
+      : null,
+  ])
+  return { user: userInfo, tenantName: tenantRecord?.nombre ?? null, tenantLogo: tenantConfig?.logoUrl ?? null }
+}
+
+async function portfolioDashboard(
+  db: DbClient,
+  tenantId: number | undefined
+): Promise<Record<string, unknown>> {
+  const [vendedores, rawClientes] = await Promise.all([
+    db.usuario.findMany({
+      where: { ...(tenantId ? { tenantId } : {}), rol: 'vendedor', activo: 1 },
+      select: {
+        id: true, cedula: true, nombre: true, apellido: true, telefono: true, email: true,
+        _count: { select: { clientes: true } },
+        prestamosCreados: { select: { montoSolicitado: true, estado: true } },
+      },
+    }),
+    db.prestamo.findMany({
+      where: { ...(tenantId ? { tenantId } : {}), estado: 'activo' },
+      select: {
+        cliente: { select: { nombre: true, apellido: true } },
+        cuotaDiaria: true,
+        saldoPendiente: true,
+        diasAtrasados: true,
+        fechaInicio: true,
+        fechaUltimoPago: true,
+        estado: true,
+        vendedor: { select: { nombre: true, apellido: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    }),
+  ])
+
+  const clientes = rawClientes.map((c) => ({ ...c, diasAtrasados: calcularDiasAtrasados(c) }))
+  const totalPorVendedor = (v: (typeof vendedores)[number]) =>
+    v.prestamosCreados.reduce((s, p) => s + Number(p.montoSolicitado), 0)
+
+  return {
+    vendedores: vendedores.map((v) => ({
+      id: v.id,
+      cedula: v.cedula,
+      nombre: v.nombre,
+      apellido: v.apellido,
+      telefono: v.telefono,
+      email: v.email,
+      total_clientes: v._count.clientes,
+      total_prestado: totalPorVendedor(v),
+    })),
+    clientes,
+    stats: {
+      total_vendedores: vendedores.length,
+      colocacion_total: vendedores.reduce((sum, v) => sum + totalPorVendedor(v), 0),
+      atrasados: clientes.filter((c) => c.diasAtrasados > 0).length,
+    },
+  }
+}
+
+async function vendedorDashboard(session: ApiSession, db: DbClient): Promise<Record<string, unknown>> {
+  const [rawPrestamos, totalClientes] = await Promise.all([
+    db.prestamo.findMany({
+      where: { vendedorId: session.userId },
+      include: {
+        cliente: { select: { nombre: true, apellido: true, cedula: true } },
+        pagos: { orderBy: { fechaPago: 'desc' }, take: 5 },
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+    db.usuario.count({ where: { rol: 'cliente', vendedorId: session.userId } }),
+  ])
+
+  const prestamos = rawPrestamos.map((p) => ({
+    ...p,
+    diasAtrasados: Number(p.diasAtrasados) > 0 ? Number(p.diasAtrasados) : calcularDiasAtrasados(p),
+  }))
+
+  return {
+    prestamos,
+    stats: {
+      total_prestamos: prestamos.length,
+      activos: prestamos.filter((p) => p.estado === 'activo').length,
+      pagados: prestamos.filter((p) => p.estado === 'pagado').length,
+      monto_prestado: prestamos.reduce((s, p) => s + Number(p.montoSolicitado), 0),
+      monto_recuperado: prestamos.reduce((s, p) => s + Number(p.montoPagado), 0),
+      saldo_pendiente: prestamos.reduce((s, p) => s + Number(p.saldoPendiente), 0),
+      total_clientes: totalClientes,
+    },
+  }
+}
+
+async function clienteDashboard(session: ApiSession, db: DbClient): Promise<Record<string, unknown>> {
+  const [usuario, rawPrestamos] = await Promise.all([
+    db.usuario.findUnique({
+      where: { id: session.userId },
+      select: { cedula: true, nombre: true, apellido: true, telefono: true, email: true, direccion: true },
+    }),
+    db.prestamo.findMany({
+      where: { clienteId: session.userId },
+      orderBy: { createdAt: 'desc' },
+      include: { pagos: { orderBy: { fechaPago: 'desc' }, take: 5 } },
+    }),
+  ])
+  const prestamos = rawPrestamos.map((p) => ({ ...p, diasAtrasados: calcularDiasAtrasados(p) }))
+  return { cliente: usuario, prestamos }
+}
+
+const strategies: Record<string, RoleStrategy> = {
+  superadmin: async (_session, db) => {
+    const [head, data] = await Promise.all([header(_session, db), portfolioDashboard(db, undefined)])
+    return { ok: true, data: { ...data, ...head } }
+  },
+  empresario: async (session, db) => {
+    if (!session.tenantId) {
+      return { ok: false, status: 400, message: 'Tenant no asignado' }
+    }
+    const [head, data] = await Promise.all([header(session, db), portfolioDashboard(db, session.tenantId)])
+    return { ok: true, data: { ...data, ...head } }
+  },
+  vendedor: async (session, db) => {
+    const [head, data] = await Promise.all([header(session, db), vendedorDashboard(session, db)])
+    return { ok: true, data: { ...data, ...head } }
+  },
+  cliente: async (session, db) => {
+    const [head, data] = await Promise.all([header(session, db), clienteDashboard(session, db)])
+    return { ok: true, data: { ...data, ...head } }
+  },
+}
+
+export async function getDashboard(
+  session: ApiSession,
+  db: DbClient = prisma
+): Promise<Resultado<Record<string, unknown>>> {
+  const strategy = strategies[session.rol]
+  if (!strategy) {
+    return { ok: false, status: 400, message: 'Rol no válido' }
+  }
+  try {
+    return await strategy(session, db)
+  } catch (error) {
+    console.error('[DASHBOARD ERROR]', error)
+    return { ok: false, status: 500, message: 'Error del servidor' }
+  }
+}

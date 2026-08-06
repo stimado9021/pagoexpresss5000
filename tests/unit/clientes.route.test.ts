@@ -41,6 +41,10 @@ function callGet(params: Record<string, string>, session: unknown) {
   const url = new URL('http://localhost/api/clientes')
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v)
   vi.mocked(getSession).mockResolvedValue(session as never)
+  if (session) {
+    const rol = (session as { rol: string }).rol
+    vi.mocked(prisma.usuario.findUnique).mockResolvedValue({ activo: 1, rol } as never)
+  }
   return GET(new Request(url))
 }
 
@@ -48,6 +52,7 @@ describe('GET /api/clientes?vendedor_id= (empresario viendo clientes de su vende
   beforeEach(() => {
     vi.mocked(prisma.usuario.findMany).mockReset()
     vi.mocked(prisma.usuario.findMany).mockResolvedValue(clientesMock as never)
+    vi.mocked(prisma.usuario.findUnique).mockReset()
   })
 
   it('regresión: el empresario SÍ puede listar clientes de un vendedor (bug spinner infinito)', async () => {

@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const secretKey = process.env.SESSION_SECRET || 'fallback-secret-key'
+const secretKey = process.env.SESSION_SECRET || (process.env.NODE_ENV === 'production' ? '' : 'fallback-secret-key')
+if (!secretKey) {
+  throw new Error('SESSION_SECRET no está configurada. Revisa el archivo .env')
+}
 const encodedKey = new TextEncoder().encode(secretKey)
 
 const publicPaths = ['/_next', '/api/auth', '/api/planes', '/favicon.ico', '/api/webhooks', '/api/public']

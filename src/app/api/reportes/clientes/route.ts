@@ -54,7 +54,7 @@ export async function GET() {
 
     for (const v of vendedores) {
       if (y < 120) {
-        const np = doc.addPage([595.28, 841.89])
+        doc.addPage([595.28, 841.89])
         y = height - margin
         drawHeader()
       }
@@ -78,7 +78,7 @@ export async function GET() {
 
         for (const c of v.clientes) {
           if (y < 60) {
-            const np = doc.addPage([595.28, 841.89])
+            doc.addPage([595.28, 841.89])
             y = height - margin
             drawHeader()
           }

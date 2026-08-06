@@ -13,6 +13,7 @@ type WebhookObject = {
   subscription?: string | null
   status?: string
   amount_paid?: number | null
+  amount_total?: number | null
   currency?: string | null
   lines?: { data?: Array<{ period?: { end?: number } }> }
   metadata?: Record<string, string>
@@ -35,6 +36,9 @@ export async function POST(request: NextRequest) {
     if (webhookSecret) {
       const stripe = getStripe()
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
+    } else if (process.env.NODE_ENV === 'production') {
+      console.error('[STRIPE WEBHOOK] STRIPE_WEBHOOK_SECRET no está configurada. Rechazando evento.')
+      return NextResponse.json({ success: false, message: 'Webhook no configurado' }, { status: 500 })
     } else {
       console.warn('[STRIPE WEBHOOK] Sin STRIPE_WEBHOOK_SECRET, aceptando eventos en modo desarrollo')
       event = JSON.parse(body) as Stripe.Event
@@ -72,6 +76,21 @@ export async function POST(request: NextRequest) {
         const targetPlanId = planId ? parseInt(planId) : suscripcion?.planId
         if (!targetPlanId) {
           return NextResponse.json({ success: false, message: 'Plan no encontrado' }, { status: 404 })
+        }
+
+        const plan = await prisma.plan.findUnique({ where: { id: targetPlanId } })
+        if (!plan) {
+          return NextResponse.json({ success: false, message: 'Plan no encontrado' }, { status: 404 })
+        }
+
+        const precio = intervalo === 'ANUAL'
+          ? Number(plan.precioAnual ?? plan.precioMensual)
+          : Number(plan.precioMensual)
+        const priceCents = Math.round(precio * 100)
+        const amountPaid = object?.amount_paid ?? object?.amount_total ?? 0
+        if (amountPaid > 0 && amountPaid < priceCents) {
+          console.error('[STRIPE WEBHOOK] Monto insuficiente para el plan:', { targetPlanId, priceCents, amountPaid })
+          return NextResponse.json({ success: false, message: 'Monto insuficiente para el plan' }, { status: 400 })
         }
 
         const now = new Date()

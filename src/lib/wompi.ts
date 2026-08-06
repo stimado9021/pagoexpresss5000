@@ -100,7 +100,11 @@ export function verifyEventSignature(event: {
 }): boolean {
   const cfg = getWompiConfig()
   if (!cfg.eventsKey || cfg.eventsKey.includes('REEMPLAZA')) {
-    console.warn('[WOMPI WEBHOOK] Sin WOMPI_EVENTS_KEY, aceptando eventos sin validar firma')
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[WOMPI WEBHOOK] WOMPI_EVENTS_KEY no está configurada. Rechazando evento.')
+      return false
+    }
+    console.warn('[WOMPI WEBHOOK] Sin WOMPI_EVENTS_KEY, aceptando eventos sin validar firma (solo desarrollo)')
     return true
   }
 

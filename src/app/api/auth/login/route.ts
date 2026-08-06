@@ -11,18 +11,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Demasiados intentos. Espera un minuto.' }, { status: 429 })
     }
 
-    const { identificacion, password } = await request.json()
+    const { email, password, identificacion } = await request.json()
+    const query = String(email ?? identificacion ?? '').trim().toLowerCase()
 
-    if (!identificacion || !password) {
-      return NextResponse.json({ success: false, message: 'Identificación y contraseña requeridas' }, { status: 400 })
+    if (!query || !password) {
+      return NextResponse.json({ success: false, message: 'Correo y contraseña requeridos' }, { status: 400 })
     }
 
-    const query = String(identificacion).trim()
-
     const user = await prisma.usuario.findFirst({
-      where: {
-        OR: [{ cedula: query }, { email: query }],
-      },
+      where: { email: query },
     })
     if (!user) {
       return NextResponse.json({ success: false, message: 'Credenciales incorrectas' }, { status: 401 })
@@ -58,7 +55,7 @@ export async function POST(request: Request) {
         tenantId: user.tenantId,
       },
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, message: 'Error del servidor' }, { status: 500 })
   }
 }

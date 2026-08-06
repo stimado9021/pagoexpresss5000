@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { LogIn, User } from 'lucide-react'
 
 export default function LoginForm() {
-  const [cedula, setCedula] = useState('')
+  const [correo, setCorreo] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -21,7 +21,7 @@ export default function LoginForm() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identificacion: cedula.trim(), password }),
+        body: JSON.stringify({ email: correo.trim(), password }),
       })
       const data = await res.json()
 
@@ -57,13 +57,13 @@ export default function LoginForm() {
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-zinc-400 uppercase tracking-wide text-xs">Cédula o correo</label>
+              <label className="mb-1.5 block text-sm font-medium text-zinc-400 uppercase tracking-wide text-xs">Correo electrónico</label>
               <div className="relative">
                 <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
                 <input
-                  type="text" value={cedula} onChange={(e) => setCedula(e.target.value)}
+                  type="email" value={correo} onChange={(e) => setCorreo(e.target.value)}
                   className="w-full rounded-lg border border-zinc-800 bg-zinc-800 py-3 pl-9 pr-3 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 transition-all"
-                  placeholder="Identificación o correo" required
+                  placeholder="tu@correo.com" required autoComplete="email"
                 />
               </div>
             </div>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { verifyEventSignature, parseReference, isWompiConfigured } from '@/lib/wompi'
+import { verifyEventSignature, parseReference } from '@/lib/wompi'
 
 function daysForInterval(intervalo: string): number {
   return intervalo === 'ANUAL' ? 365 : 30
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, message: 'JSON inválido' }, { status: 400 })
   }
 
-  if (isWompiConfigured() && !verifyEventSignature(event)) {
+  if (!verifyEventSignature(event)) {
     return NextResponse.json({ success: false, message: 'Firma inválida' }, { status: 401 })
   }
 
@@ -58,6 +58,19 @@ async function procesarPagoAprobado(
   planId: number,
   intervalo: 'MONTHLY' | 'ANUAL'
 ) {
+  const plan = await prisma.plan.findUnique({ where: { id: planId } })
+  if (!plan) return
+
+  const precio = intervalo === 'ANUAL'
+    ? Number(plan.precioAnual ?? plan.precioMensual)
+    : Number(plan.precioMensual)
+  const priceCents = Math.round(precio * 100)
+  const amount = txn.amount_in_cents ?? 0
+  if (amount < priceCents) {
+    console.error('[WOMPI WEBHOOK] Monto insuficiente para el plan:', { planId, priceCents, amount })
+    return
+  }
+
   const suscripcion = await prisma.suscripcion.findUnique({
     where: { tenantId },
     include: { tenant: true },

@@ -55,7 +55,7 @@ export async function GET() {
 
     for (let i = 0; i < vendedores.length; i++) {
       if (y < 80) {
-        const newPage = doc.addPage([595.28, 841.89])
+        doc.addPage([595.28, 841.89])
         y = height - margin
         drawHeader()
         drawTableHeader()
