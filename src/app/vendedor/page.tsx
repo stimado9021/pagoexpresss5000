@@ -280,10 +280,10 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-3 lg:grid-cols-4">
-        <StatCard icon={<CreditCard size={16} />} iconBg="bg-lime/10 text-lime" label="Activos" value={String(stats?.activos ?? 0)} tip="Cantidad de préstamos que están en curso y aún no se han pagado completamente" />
-        <StatCard icon={<DollarSign size={16} />} iconBg="bg-emerald-500/20 text-emerald-400" label="Recuperado" value={stats ? moneyFmt.format(stats.monto_recuperado) : '$0'} color="text-emerald-400" tip="Dinero total que tus clientes ya han pagado" />
-        <StatCard icon={<TrendingUp size={16} />} iconBg="bg-amber-500/15 text-amber-400" label="Pendiente" value={stats ? moneyFmt.format(stats.saldo_pendiente) : '$0'} color="text-amber-400" tip="Dinero que aún te deben los clientes por pagar" />
-        <StatCard icon={<Users size={16} />} iconBg="bg-lime/10 text-lime" label="Clientes" value={String(stats?.total_clientes ?? 0)} tip="Total de clientes que tienes asignados" />
+        <StatCard icon={<CreditCard size={16} />} iconBg="bg-lime/10 text-lime" label="Activos" value={String(stats?.activos ?? 0)} tip="Préstamos en curso que aún tienen saldo por pagar. Cada vez que un cliente paga completo su deuda, este número baja." />
+        <StatCard icon={<DollarSign size={16} />} iconBg="bg-emerald-500/20 text-emerald-400" label="Recuperado" value={stats ? moneyFmt.format(stats.monto_recuperado) : '$0'} color="text-emerald-400" tip="Dinero total que tus clientes ya te pagaron. Incluye capital e intereses de todos los préstamos." />
+        <StatCard icon={<TrendingUp size={16} />} iconBg="bg-amber-500/15 text-amber-400" label="Pendiente" value={stats ? moneyFmt.format(stats.saldo_pendiente) : '$0'} color="text-amber-400" tip="Saldo total que tus clientes aún te deben. Es lo que falta por recaudar de todos los préstamos activos." />
+        <StatCard icon={<Users size={16} />} iconBg="bg-lime/10 text-lime" label="Clientes" value={String(stats?.total_clientes ?? 0)} tip="Clientes asignados bajo tu gestión. Son las personas cuyos préstamos y cobros vos administrás." />
       </div>
 
       {(() => {
@@ -297,9 +297,11 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                 <AlertTriangle size={16} className="text-bone" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-xs font-bold ${maxDias >= 7 ? 'text-red-400' : 'text-amber-400'}`}>
-                  {enMora.length} cliente{enMora.length !== 1 ? 's' : ''} con atraso
-                </p>
+                <Tooltip text="Estos clientes tienen pagos vencidos. Cobrá los días atrasados con los botones rojos de abono o envía un recordatorio por WhatsApp.">
+                  <p className={`text-xs font-bold ${maxDias >= 7 ? 'text-red-400' : 'text-amber-400'} cursor-help`}>
+                    {enMora.length} cliente{enMora.length !== 1 ? 's' : ''} con atraso
+                  </p>
+                </Tooltip>
                 <p className="text-[11px] text-bone/60">
                   {maxDias >= 7 ? 'Mora severa — envía recordatorios' : `Máx: ${maxDias} días`}
                 </p>
@@ -469,21 +471,25 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                             {fechasUnicasLocal.map((fecha, i) => {
                                 const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
                                 return (
-                                  <button key={`atraso-${i}`} onClick={() => handleCobrar(activos[0], 5000, fecha)}
-                                    className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
-                                    <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
-                                    <span>{fechaStr}</span>
-                                    <span className="font-semibold">$5k</span>
-                                  </button>
+                                  <Tooltip key={`atraso-${i}`} text={`Abona $5.000 para cubrir el día ${fechaStr}. Este pago reduce la deuda atrasada.`}>
+                                    <button onClick={() => handleCobrar(activos[0], 5000, fecha)}
+                                      className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
+                                      <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                                      <span>{fechaStr}</span>
+                                      <span className="font-semibold">$5k</span>
+                                    </button>
+                                  </Tooltip>
                                 )
                               })}
                             {!todosHoyPagado && (
-                              <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria, fechaHoyNegocio())}
-                                className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
-                                <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
-                                <span>Hoy · {fechaHoyNegocio().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
-                                <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
-                              </button>
+                              <Tooltip text={`Cobra la cuota completa de hoy (${moneyFmt.format(totalCuotaDiaria)}). Este pago cubre el día actual y evita que se acumule atraso.`}>
+                                <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria, fechaHoyNegocio())}
+                                  className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
+                                  <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                                  <span>Hoy · {fechaHoyNegocio().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
+                                  <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
+                                </button>
+                              </Tooltip>
                             )}
                           </div>
                         </div>
@@ -735,24 +741,26 @@ function ClientesView({
                 const saldo = activos.reduce((s, p) => s + Number(p.saldoPendiente), 0)
                 const enMora = activos.some(p => p.diasAtrasados > 0)
                 return (
-                  <button key={c.id} onClick={() => selectCliente(c)}
-                    className={`flex w-full items-center justify-between px-5 py-3 text-left transition-colors ${
-                      selectedCliente?.id === c.id ? 'bg-lime/10' : 'hover:bg-emerald-950'
-                    }`}>
-                    <div className="flex items-center gap-2.5">
-                      <Avatar nombre={c.nombre} apellido={c.apellido} size="sm" />
-                      <div>
-                        <p className="text-sm font-medium text-bone uppercase">{c.nombre} {c.apellido}</p>
-                        <p className="text-xs text-bone/60">{c.cedula}</p>
+                  <Tooltip key={c.id} text="Haz click para ver los datos, préstamos y pagos de este cliente.">
+                    <button onClick={() => selectCliente(c)}
+                      className={`flex w-full items-center justify-between px-5 py-3 text-left transition-colors ${
+                        selectedCliente?.id === c.id ? 'bg-lime/10' : 'hover:bg-emerald-950'
+                      }`}>
+                      <div className="flex items-center gap-2.5">
+                        <Avatar nombre={c.nombre} apellido={c.apellido} size="sm" />
+                        <div>
+                          <p className="text-sm font-medium text-bone uppercase">{c.nombre} {c.apellido}</p>
+                          <p className="text-xs text-bone/60">{c.cedula}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={`text-xs font-semibold ${enMora ? 'text-red-400' : saldo > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
-                        {saldo > 0 ? moneyFmt.format(saldo) : 'Al día'}
-                      </p>
-                      <p className="text-[11px] text-bone/60">{activos.length} préstamo{activos.length !== 1 ? 's' : ''}</p>
-                    </div>
-                  </button>
+                      <div className="text-right">
+                        <p className={`text-xs font-semibold ${enMora ? 'text-red-400' : saldo > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                          {saldo > 0 ? moneyFmt.format(saldo) : 'Al día'}
+                        </p>
+                        <p className="text-[11px] text-bone/60">{activos.length} préstamo{activos.length !== 1 ? 's' : ''}</p>
+                      </div>
+                    </button>
+                  </Tooltip>
                 )
               })
             )}
@@ -859,8 +867,8 @@ function ClientesView({
                       <p className="text-sm font-bold text-lime">{moneyFmt.format(montoTotalPrestado)}</p>
                     </div>
                     <div className={`rounded-lg p-3 ${maxDiasAtraso > 0 ? 'bg-red-500/15' : 'bg-emerald-500/20'}`}>
-                      <p className={`text-[11px] font-medium ${maxDiasAtraso > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                        {maxDiasAtraso > 0 ? 'Máx. atraso' : 'Estado'}
+                      <p className={`text-[11px] font-medium ${maxDiasAtraso > 0 ? 'text-red-400' : 'text-emerald-400'} flex items-center gap-1`}>
+                        {maxDiasAtraso > 0 ? <>Máx. atraso <InfoTip text="Cantidad máxima de días que este cliente debe sin pagar en cualquiera de sus préstamos. Si es 0, está al día." /></> : <>Estado <InfoTip text="Indica si el cliente está al día con sus pagos o tiene deuda vencida." /></>}
                       </p>
                       <p className={`text-sm font-bold ${maxDiasAtraso > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
                         {maxDiasAtraso > 0 ? `${maxDiasAtraso} días` : 'Al día'}
@@ -1032,24 +1040,28 @@ function ClientesView({
                             const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
                             const primerActivo = activos[0] as unknown as Prestamo
                             return (
-                              <button key={`atraso-${i}`} onClick={() => handleCobrar(primerActivo, 5000, fecha)}
-                                className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
-                                <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
-                                <span>{fechaStr}</span>
-                                <span className="font-semibold">$5k</span>
-                              </button>
+                              <Tooltip key={`atraso-${i}`} text={`Abona $5.000 para cubrir el día ${fechaStr}. Este pago reduce la deuda atrasada.`}>
+                                <button onClick={() => handleCobrar(primerActivo, 5000, fecha)}
+                                  className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
+                                  <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                                  <span>{fechaStr}</span>
+                                  <span className="font-semibold">$5k</span>
+                                </button>
+                              </Tooltip>
                             )
                           })}
                         {!todosHoyPagado && (
-                          <button onClick={() => {
-                            const primerActivo = activos[0] as unknown as Prestamo
-                            handleCobrar(primerActivo, totalCuotaDiaria, fechaHoyNegocio())
-                          }}
-                            className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
-                            <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
-                            <span>Hoy · {fechaHoyNegocio().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
-                            <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
-                          </button>
+                          <Tooltip text={`Cobra la cuota completa de hoy (${moneyFmt.format(totalCuotaDiaria)}). Este pago cubre el día actual y evita que se acumule atraso.`}>
+                            <button onClick={() => {
+                              const primerActivo = activos[0] as unknown as Prestamo
+                              handleCobrar(primerActivo, totalCuotaDiaria, fechaHoyNegocio())
+                            }}
+                              className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
+                              <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                              <span>Hoy · {fechaHoyNegocio().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
+                              <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
+                            </button>
+                          </Tooltip>
                         )}
                       </div>
                     </div>
