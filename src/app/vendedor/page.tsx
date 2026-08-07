@@ -224,22 +224,40 @@ export default function VendedorPage() {
 function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; prestamos: Prestamo[]; loading: boolean }) {
   const [expandedClientId, setExpandedClientId] = useState<string | null>(null)
 
+  function toggleExpandCliente(cedula: string) {
+    const isExpanded = expandedClientId === cedula
+    setExpandedClientId(isExpanded ? null : cedula)
+    if (!isExpanded) {
+      requestAnimationFrame(() => {
+        document.getElementById(`acordeon-${cedula}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }
+  }
+
   async function handleCobrar(prestamo: Prestamo, montoExtra?: number, fechaCubierta?: Date) {
-    const monto = montoExtra || Number(prestamo.cuotaDiaria)
-    const res = await fetch('/api/pagos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prestamo_id: prestamo.id,
-        monto,
-        fechaCubierta: fechaCubierta ? claveFecha(fechaCubierta) : undefined,
-      }),
-    })
-    const data = await res.json()
-    if (data.success) {
+    try {
+      const monto = montoExtra || Number(prestamo.cuotaDiaria)
+      const res = await fetch('/api/pagos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prestamo_id: prestamo.id,
+          monto,
+          fechaCubierta: fechaCubierta ? claveFecha(fechaCubierta) : undefined,
+        }),
+      })
+      let data: { success?: boolean; message?: string } | null = null
+      try {
+        data = await res.json()
+      } catch {
+        throw new Error(`Respuesta no válida del servidor (HTTP ${res.status})`)
+      }
+      if (!data?.success) {
+        throw new Error(data?.message || 'Error al registrar el pago')
+      }
       window.location.reload()
-    } else {
-      alert('Error: ' + data.message)
+    } catch (e) {
+      alert(e instanceof Error ? e.message : String(e))
     }
   }
 
@@ -317,7 +335,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
               <div key={cliente.cedula} className="rounded-xl border border-bone/10 bg-graphite-900 shadow-sm overflow-hidden">
                 {/* Header clickeable — accordion trigger */}
                 <button
-                  onClick={() => setExpandedClientId(isExpanded ? null : cliente.cedula)}
+                  onClick={() => toggleExpandCliente(cliente.cedula)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors sm:px-4 sm:py-3 ${
                     maxDiasAtraso >= 7 ? 'bg-red-500/15' :
                     maxDiasAtraso > 0 ? 'bg-amber-500/15' :
@@ -349,7 +367,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
 
                 {/* Contenido del accordion */}
                 {isExpanded && (
-                  <div className="border-t border-bone/10 divide-y divide-bone/10">
+                  <div id={`acordeon-${cliente.cedula}`} className="border-t border-bone/10 divide-y divide-bone/10">
                     {/* Préstamos del cliente */}
                     {ps.map((p) => {
                       const pct = Number(p.montoSolicitado) > 0 ? Math.round((Number(p.montoPagado) / Number(p.montoSolicitado)) * 100) : 0
@@ -646,26 +664,34 @@ function ClientesView({
   }
 
   async function handleCobrar(prestamo: Prestamo, montoExtra?: number, fechaCubierta?: Date) {
-    const monto = montoExtra || Number(prestamo.cuotaDiaria)
-    const res = await fetch('/api/pagos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prestamo_id: prestamo.id,
-        monto,
-        fechaCubierta: fechaCubierta ? claveFecha(fechaCubierta) : undefined,
-      }),
-    })
-    const data = await res.json()
-    if (data.success) {
+    try {
+      const monto = montoExtra || Number(prestamo.cuotaDiaria)
+      const res = await fetch('/api/pagos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prestamo_id: prestamo.id,
+          monto,
+          fechaCubierta: fechaCubierta ? claveFecha(fechaCubierta) : undefined,
+        }),
+      })
+      let data: { success?: boolean; message?: string } | null = null
+      try {
+        data = await res.json()
+      } catch {
+        throw new Error(`Respuesta no válida del servidor (HTTP ${res.status})`)
+      }
+      if (!data?.success) {
+        throw new Error(data?.message || 'Error al registrar el pago')
+      }
       await cargarClientes()
       if (selectedCliente) {
         const r = await fetch(`/api/clientes?id=${selectedCliente.id}`)
         const d = await r.json()
         if (d.success) setSelectedCliente({ ...selectedCliente, ...d.data, prestamosCliente: d.data.prestamos || [] })
       }
-    } else {
-      alert('Error: ' + data.message)
+    } catch (e) {
+      alert(e instanceof Error ? e.message : String(e))
     }
   }
 

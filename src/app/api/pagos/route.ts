@@ -13,13 +13,13 @@ async function checkTenantActivo(tenantId?: number): Promise<NextResponse | null
 }
 
 export async function POST(request: Request) {
-  const session = await requireRole(ROLES.SUPERADMIN, ROLES.EMPRESARIO, ROLES.VENDEDOR)
-  if (isErrorResponse(session)) return session
-
-  const tenantError = await checkTenantActivo(session.tenantId)
-  if (tenantError) return tenantError
-
   try {
+    const session = await requireRole(ROLES.SUPERADMIN, ROLES.EMPRESARIO, ROLES.VENDEDOR)
+    if (isErrorResponse(session)) return session
+
+    const tenantError = await checkTenantActivo(session.tenantId)
+    if (tenantError) return tenantError
+
     const data = await request.json()
     return apiResponse(
       await registrarPago({

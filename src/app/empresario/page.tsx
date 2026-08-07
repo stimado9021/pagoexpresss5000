@@ -91,11 +91,7 @@ function Avatar({ nombre, apellido, size = 'md' }: { nombre: string; apellido: s
 
 export default function AdminPage() {
   const router = useRouter()
-  const [view, setView] = useState<View>(() => {
-    if (typeof window === 'undefined') return 'dashboard'
-    const saved = sessionStorage.getItem('empresario.view')
-    return saved && ['dashboard', 'vendedores', 'configuracion', 'auditoria'].includes(saved) ? (saved as View) : 'dashboard'
-  })
+  const [view, setView] = useState<View>('dashboard')
   const [showSidebar, setShowSidebar] = useState(false)
   const [vendedores, setVendedores] = useState<Vendedor[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
@@ -138,10 +134,6 @@ export default function AdminPage() {
       .catch(() => {})
     return () => { cancelled = true }
   }, [router])
-
-  useEffect(() => {
-    sessionStorage.setItem('empresario.view', view)
-  }, [view])
 
   useEffect(() => {
     fetch('/api/subscriptions/me')
