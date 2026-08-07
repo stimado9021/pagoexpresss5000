@@ -8,6 +8,9 @@ import {
   Calendar, ArrowRight, ChevronRight, ChevronDown, Clock, BadgeCheck, Bell,
 } from 'lucide-react'
 import { Tooltip, InfoTip } from '@/components/Tooltip'
+import CambiarPassword from '@/components/CambiarPassword'
+import { hoyCubierto, claveFecha } from '@/lib/prestamo-utils'
+import { NEGOCIO_TIMEZONE, fechaHoyNegocio } from '@/lib/negocio'
 
 const moneyFmt = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })
 
@@ -65,16 +68,8 @@ function BadgeEstado({ estado }: { estado: string }) {
   )
 }
 
-function cuotaHoyPagada(prestamo: { cuotaDiaria: number | string; pagos?: { fechaPago: string; monto: number | string }[] }): boolean {
-  if (!prestamo.pagos) return false
-  const hoy = new Date()
-  const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`
-  const cuotaNum = Number(prestamo.cuotaDiaria)
-  return prestamo.pagos.some((pg) => {
-    const f = new Date(pg.fechaPago)
-    const pgStr = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`
-    return pgStr === hoyStr && Number(pg.monto) >= cuotaNum
-  })
+function cuotaHoyPagada(prestamo: { pagos?: { fechaPago: string; diasCubiertos: number }[] }): boolean {
+  return hoyCubierto(prestamo.pagos, new Date(), NEGOCIO_TIMEZONE)
 }
 
 export default function VendedorPage() {
@@ -193,6 +188,7 @@ export default function VendedorPage() {
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <span className="hidden sm:inline text-sm text-bone/60">{today}</span>
+            <CambiarPassword />
             <button onClick={logout} className="flex items-center gap-1.5 rounded-lg border border-bone/10 px-2.5 py-1.5 text-xs text-bone/60 hover:bg-emerald-950 transition-colors sm:px-3 sm:text-sm">
               <LogOut size={14} /> Salir
             </button>
@@ -228,12 +224,16 @@ export default function VendedorPage() {
 function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; prestamos: Prestamo[]; loading: boolean }) {
   const [expandedClientId, setExpandedClientId] = useState<string | null>(null)
 
-  async function handleCobrar(prestamo: Prestamo, montoExtra?: number) {
+  async function handleCobrar(prestamo: Prestamo, montoExtra?: number, fechaCubierta?: Date) {
     const monto = montoExtra || Number(prestamo.cuotaDiaria)
     const res = await fetch('/api/pagos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prestamo_id: prestamo.id, monto }),
+      body: JSON.stringify({
+        prestamo_id: prestamo.id,
+        monto,
+        fechaCubierta: fechaCubierta ? claveFecha(fechaCubierta) : undefined,
+      }),
     })
     const data = await res.json()
     if (data.success) {
@@ -438,11 +438,11 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                           <div className="flex flex-wrap gap-1 sm:gap-1.5">
                             {maxDiasAtrasoLocal > 0 && (
                               Array.from({ length: maxDiasAtrasoLocal }, (_, i) => {
-                                const fecha = new Date()
-                                fecha.setDate(fecha.getDate() - (maxDiasAtrasoLocal - 1 - i))
+                                const fecha = fechaHoyNegocio()
+                                fecha.setDate(fecha.getDate() - (maxDiasAtrasoLocal - i))
                                 const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
                                 return (
-                                  <button key={`atraso-${i}`} onClick={() => handleCobrar(activos[0], 5000)}
+                                  <button key={`atraso-${i}`} onClick={() => handleCobrar(activos[0], 5000, fecha)}
                                     className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
                                     <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
                                     <span>{fechaStr}</span>
@@ -452,10 +452,10 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                               })
                             )}
                             {!todosHoyPagado && (
-                              <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria)}
+                              <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria, fechaHoyNegocio())}
                                 className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
                                 <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
-                                <span>Hoy · {new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
+                                <span>Hoy · {fechaHoyNegocio().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
                                 <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
                               </button>
                             )}
@@ -645,12 +645,16 @@ function ClientesView({
     setDetailLoading(false)
   }
 
-  async function handleCobrar(prestamo: Prestamo, montoExtra?: number) {
+  async function handleCobrar(prestamo: Prestamo, montoExtra?: number, fechaCubierta?: Date) {
     const monto = montoExtra || Number(prestamo.cuotaDiaria)
     const res = await fetch('/api/pagos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prestamo_id: prestamo.id, monto }),
+      body: JSON.stringify({
+        prestamo_id: prestamo.id,
+        monto,
+        fechaCubierta: fechaCubierta ? claveFecha(fechaCubierta) : undefined,
+      }),
     })
     const data = await res.json()
     if (data.success) {
@@ -980,12 +984,12 @@ function ClientesView({
                       <div className="flex flex-wrap gap-1 sm:gap-1.5">
                         {maxDiasAtraso > 0 && (
                           Array.from({ length: maxDiasAtraso }, (_, i) => {
-                            const fecha = new Date()
-                            fecha.setDate(fecha.getDate() - (maxDiasAtraso - 1 - i))
+                            const fecha = fechaHoyNegocio()
+                            fecha.setDate(fecha.getDate() - (maxDiasAtraso - i))
                             const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
                             const primerActivo = activos[0] as unknown as Prestamo
                             return (
-                              <button key={`atraso-${i}`} onClick={() => handleCobrar(primerActivo, 5000)}
+                              <button key={`atraso-${i}`} onClick={() => handleCobrar(primerActivo, 5000, fecha)}
                                 className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
                                 <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
                                 <span>{fechaStr}</span>
@@ -997,11 +1001,11 @@ function ClientesView({
                         {!todosHoyPagado && (
                           <button onClick={() => {
                             const primerActivo = activos[0] as unknown as Prestamo
-                            handleCobrar(primerActivo, totalCuotaDiaria)
+                            handleCobrar(primerActivo, totalCuotaDiaria, fechaHoyNegocio())
                           }}
                             className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
                             <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
-                            <span>Hoy · {new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
+                            <span>Hoy · {fechaHoyNegocio().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
                             <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
                           </button>
                         )}

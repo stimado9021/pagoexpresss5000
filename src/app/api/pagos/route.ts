@@ -29,6 +29,7 @@ export async function POST(request: Request) {
         tenantId: session.tenantId,
         observaciones: data.observaciones ?? null,
         enviarWhatsApp: data.enviarWhatsApp !== false,
+        fechaCubierta: data.fechaCubierta ?? undefined,
       })
     )
   } catch (error) {

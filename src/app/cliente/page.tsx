@@ -6,6 +6,7 @@ import {
   LogOut, CreditCard, DollarSign, CheckCircle2, Clock, AlertTriangle,
   TrendingUp, Calendar, Banknote, BadgeCheck, Phone, Mail, MapPin, Users,
 } from 'lucide-react'
+import CambiarPassword from '@/components/CambiarPassword'
 
 const moneyFmt = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })
 
@@ -75,9 +76,12 @@ export default function ClientePage() {
           <span className="mx-1 text-bone/20 sm:mx-2">|</span>
           <span className="text-xs text-bone/60 sm:text-sm">Cliente</span>
         </div>
-        <button onClick={logout} className="flex items-center gap-1.5 rounded-lg border border-bone/10 px-2.5 py-1.5 text-xs text-bone/60 hover:bg-emerald-950 transition-colors sm:px-3 sm:text-sm">
-          <LogOut size={14} /> Salir
-        </button>
+        <div className="flex items-center gap-2">
+          <CambiarPassword />
+          <button onClick={logout} className="flex items-center gap-1.5 rounded-lg border border-bone/10 px-2.5 py-1.5 text-xs text-bone/60 hover:bg-emerald-950 transition-colors sm:px-3 sm:text-sm">
+            <LogOut size={14} /> Salir
+          </button>
+        </div>
       </header>
 
       <main className="mx-auto max-w-4xl px-4 py-4 space-y-4 sm:px-6 sm:py-6 sm:space-y-6 lg:px-8 lg:py-8 lg:space-y-8">

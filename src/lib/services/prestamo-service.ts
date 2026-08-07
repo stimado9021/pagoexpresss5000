@@ -253,7 +253,7 @@ export async function listarPrestamos(
     const raw = await db.prestamo.findMany({
       where: { clienteId },
       orderBy: { createdAt: 'desc' },
-      include: { pagos: { orderBy: { fechaPago: 'desc' }, take: 5 } },
+      include: { pagos: { select: { fechaPago: true, diasCubiertos: true } } },
     })
     return { ok: true, data: raw.map((p) => ({ ...p, diasAtrasados: calcularDiasAtrasados(p) })) }
   }
@@ -272,6 +272,7 @@ export async function listarPrestamos(
         ? {
             cliente: { select: { nombre: true, apellido: true, cedula: true } },
             vendedor: { select: { nombre: true, apellido: true } },
+            pagos: { select: { fechaPago: true, diasCubiertos: true } },
           }
         : undefined,
   })

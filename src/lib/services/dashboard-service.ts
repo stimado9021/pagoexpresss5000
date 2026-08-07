@@ -47,6 +47,7 @@ async function portfolioDashboard(
         fechaUltimoPago: true,
         estado: true,
         vendedor: { select: { nombre: true, apellido: true } },
+        pagos: { select: { fechaPago: true, diasCubiertos: true } },
       },
       orderBy: { createdAt: 'desc' },
       take: 20,
@@ -83,7 +84,7 @@ async function vendedorDashboard(session: ApiSession, db: DbClient): Promise<Rec
       where: { vendedorId: session.userId },
       include: {
         cliente: { select: { nombre: true, apellido: true, cedula: true } },
-        pagos: { orderBy: { fechaPago: 'desc' }, take: 5 },
+        pagos: { select: { id: true, monto: true, fechaPago: true, diasCubiertos: true, esPagoAtrasado: true } },
       },
       orderBy: { createdAt: 'desc' },
     }),
@@ -92,7 +93,7 @@ async function vendedorDashboard(session: ApiSession, db: DbClient): Promise<Rec
 
   const prestamos = rawPrestamos.map((p) => ({
     ...p,
-    diasAtrasados: Number(p.diasAtrasados) > 0 ? Number(p.diasAtrasados) : calcularDiasAtrasados(p),
+    diasAtrasados: calcularDiasAtrasados(p),
   }))
 
   return {
@@ -118,7 +119,7 @@ async function clienteDashboard(session: ApiSession, db: DbClient): Promise<Reco
     db.prestamo.findMany({
       where: { clienteId: session.userId },
       orderBy: { createdAt: 'desc' },
-      include: { pagos: { orderBy: { fechaPago: 'desc' }, take: 5 } },
+      include: { pagos: { select: { fechaPago: true, diasCubiertos: true } } },
     }),
   ])
   const prestamos = rawPrestamos.map((p) => ({ ...p, diasAtrasados: calcularDiasAtrasados(p) }))

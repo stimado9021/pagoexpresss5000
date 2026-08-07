@@ -163,6 +163,7 @@ const handlers: Record<string, ClienteQueryHandler> = {
             saldoPendiente: true, cuotaDiaria: true, diasAtrasados: true,
             diasPlazo: true, diasPagados: true, fechaInicio: true, montoTotal: true,
             fechaUltimoPago: true,
+            pagos: { select: { fechaPago: true, diasCubiertos: true } },
           },
         },
       },
@@ -178,7 +179,12 @@ const handlers: Record<string, ClienteQueryHandler> = {
         id: true, cedula: true, nombre: true, apellido: true,
         telefono: true, email: true, direccion: true, activo: true, createdAt: true,
         prestamosCliente: {
-          select: { estado: true, montoSolicitado: true, montoPagado: true, saldoPendiente: true, cuotaDiaria: true, diasAtrasados: true, fechaInicio: true, fechaUltimoPago: true, montoTotal: true },
+          select: {
+            estado: true, montoSolicitado: true, montoPagado: true, saldoPendiente: true,
+            cuotaDiaria: true, diasAtrasados: true, fechaInicio: true, fechaUltimoPago: true,
+            montoTotal: true,
+            pagos: { select: { fechaPago: true, diasCubiertos: true } },
+          },
         },
       },
       orderBy: { nombre: 'asc' },
@@ -256,7 +262,7 @@ const handlers: Record<string, ClienteQueryHandler> = {
     const prestamosRaw = await db.prestamo.findMany({
       where: { clienteId: usuario.id },
       orderBy: { fechaInicio: 'desc' },
-      include: { pagos: { orderBy: { fechaPago: 'desc' }, take: 5 } },
+      include: { pagos: { select: { id: true, monto: true, fechaPago: true, diasCubiertos: true, esPagoAtrasado: true } } },
     })
     const prestamos = prestamosRaw.map((p) => ({ ...p, diasAtrasados: calcularDiasAtrasados(p) }))
     return { ok: true, data: { ...usuarioPublico, prestamos } }
@@ -269,6 +275,7 @@ const handlers: Record<string, ClienteQueryHandler> = {
     const rawPrestamos = await db.prestamo.findMany({
       where: prestamoWhere,
       orderBy: { createdAt: 'desc' },
+      include: { pagos: { select: { fechaPago: true, diasCubiertos: true } } },
     })
     const prestamos = rawPrestamos.map((p) => ({ ...p, diasAtrasados: calcularDiasAtrasados(p) }))
     const totales = prestamos.reduce(

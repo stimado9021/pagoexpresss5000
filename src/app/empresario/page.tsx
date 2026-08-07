@@ -9,6 +9,7 @@ import {
   Calendar, TrendingUp, AlertCircle, ChevronRight, FileText, Settings, Bell, History,
 } from 'lucide-react'
 import { Tooltip, InfoTip } from '@/components/Tooltip'
+import CambiarPassword from '@/components/CambiarPassword'
 
 const moneyFmt = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -265,6 +266,7 @@ export default function AdminPage() {
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <span className="hidden sm:block text-sm text-zinc-400">{today}</span>
+            <CambiarPassword />
             <button onClick={logout} className="flex items-center gap-1.5 rounded-lg border border-zinc-800 px-2.5 py-1.5 text-xs text-zinc-400 hover:bg-emerald-950 transition-colors sm:px-3 sm:text-sm">
               <LogOut size={14} />
               Salir

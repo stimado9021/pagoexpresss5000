@@ -91,6 +91,78 @@ describe('registrarPago', () => {
   })
 })
 
+describe('registrarPago: cobertura por día (botón rojo vs amarillo)', () => {
+  function diasAtras(offset: number): Date {
+    const d = new Date()
+    d.setDate(d.getDate() - offset)
+    return d
+  }
+  function iso(offset: number): string {
+    const d = diasAtras(offset)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  }
+
+  function prestamoEnMora() {
+    return prestamoMock({
+      saldoPendiente: '5000',
+      montoPagado: '0',
+      montoTotal: '5000',
+      cuotaDiaria: '5000',
+      fechaInicio: diasAtras(4),
+      fechaUltimoPago: diasAtras(2),
+      pagos: [
+        { fechaPago: diasAtras(3), diasCubiertos: 1 },
+        { fechaPago: diasAtras(2), diasCubiertos: 1 },
+      ],
+    })
+  }
+
+  beforeEach(() => {
+    vi.mocked(prisma.prestamo.findFirst).mockReset()
+    vi.mocked(prisma.prestamo.update).mockReset()
+    vi.mocked(prisma.pago.create).mockReset()
+    vi.mocked(prisma.$transaction).mockReset()
+    vi.mocked(prisma.pago.create).mockResolvedValue({ id: 90 } as never)
+    vi.mocked(prisma.$transaction).mockResolvedValue([{ id: 90 }] as never)
+  })
+
+  it('pagar el día atrasado (rojo) solo cubre ese día y limpia el atraso', async () => {
+    vi.mocked(prisma.prestamo.findFirst).mockResolvedValue(prestamoEnMora() as never)
+    const res = await registrarPago({ prestamoId: 1, monto: 5000, vendedorId: 3, tenantId: 2, fechaCubierta: iso(1) })
+    expect(res.ok).toBe(true)
+
+    const createData = vi.mocked(prisma.pago.create).mock.calls[0][0] as { data: { fechaPago: Date; esPagoAtrasado: number; diasCubiertos: number } }
+    expect(createData.data.fechaPago.toISOString().slice(0, 10)).toBe(iso(1))
+    expect(createData.data.esPagoAtrasado).toBe(1)
+    expect(createData.data.diasCubiertos).toBe(1)
+
+    const updateData = vi.mocked(prisma.prestamo.update).mock.calls[0][0] as { data: { diasAtrasados: number; diasPagados: { increment: number } } }
+    expect(updateData.data.diasAtrasados).toBe(0)
+    expect(updateData.data.diasPagados.increment).toBe(1)
+  })
+
+  it('pagar HOY (amarillo) NO reduce el atraso de ayer', async () => {
+    vi.mocked(prisma.prestamo.findFirst).mockResolvedValue(prestamoEnMora() as never)
+    const res = await registrarPago({ prestamoId: 1, monto: 5000, vendedorId: 3, tenantId: 2, fechaCubierta: iso(0) })
+    expect(res.ok).toBe(true)
+
+    const createData = vi.mocked(prisma.pago.create).mock.calls[0][0] as { data: { fechaPago: Date; esPagoAtrasado: number } }
+    expect(createData.data.fechaPago.toISOString().slice(0, 10)).toBe(iso(0))
+    expect(createData.data.esPagoAtrasado).toBe(0)
+
+    const updateData = vi.mocked(prisma.prestamo.update).mock.calls[0][0] as { data: { diasAtrasados: number } }
+    expect(updateData.data.diasAtrasados).toBe(1)
+  })
+
+  it('sin fechaCubierta y con atraso, cubre el día vencido más antiguo', async () => {
+    vi.mocked(prisma.prestamo.findFirst).mockResolvedValue(prestamoEnMora() as never)
+    await registrarPago({ prestamoId: 1, monto: 5000, vendedorId: 3, tenantId: 2 })
+
+    const createData = vi.mocked(prisma.pago.create).mock.calls[0][0] as { data: { fechaPago: Date } }
+    expect(createData.data.fechaPago.toISOString().slice(0, 10)).toBe(iso(1))
+  })
+})
+
 describe('listarPagos', () => {
   beforeEach(() => {
     vi.mocked(prisma.prestamo.findMany).mockReset()

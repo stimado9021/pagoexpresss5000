@@ -1,6 +1,14 @@
 import { prisma } from '@/lib/prisma'
 import { roundMoney, esMontoValido, nuevoSaldo, nuevoMontoPagado, montoRestanteAlEliminar } from '@/lib/money'
 import { sendWhatsAppText, formatReceipt } from '@/lib/evolution-api'
+import {
+  agregarDias,
+  atrasoDesdeCobertura,
+  claveFecha,
+  fechasCubiertas,
+  iniciarDia,
+  primeraFechaSinCubrir,
+} from '@/lib/prestamo-utils'
 
 import type { Resultado } from './types'
 
@@ -15,13 +23,14 @@ export type RegistrarPagoInput = {
   tenantId?: number
   observaciones?: string | null
   enviarWhatsApp?: boolean
+  fechaCubierta?: string
 }
 
 export async function registrarPago(
   input: RegistrarPagoInput,
   db: DbClient = prisma
 ): Promise<Resultado<{ id: number }>> {
-  const { prestamoId, monto, vendedorId, tenantId, observaciones, enviarWhatsApp = true } = input
+  const { prestamoId, monto, vendedorId, tenantId, observaciones, enviarWhatsApp = true, fechaCubierta } = input
 
   if (!prestamoId || !esMontoValido(monto)) {
     return { ok: false, status: 400, message: 'Datos inválidos: monto debe ser mayor a 0' }
@@ -29,7 +38,10 @@ export async function registrarPago(
 
   const prestamo = await db.prestamo.findFirst({
     where: { id: prestamoId, ...(tenantId ? { tenantId } : {}) },
-    include: { cliente: { select: { nombre: true, apellido: true, telefono: true } } },
+    include: {
+      cliente: { select: { nombre: true, apellido: true, telefono: true } },
+      pagos: { select: { fechaPago: true, diasCubiertos: true } },
+    },
   })
   if (!prestamo) {
     return { ok: false, status: 404, message: 'Préstamo no encontrado' }
@@ -40,8 +52,32 @@ export async function registrarPago(
   const saldoFinal = nuevoSaldo(saldoAnterior, monto)
   const pagadoFinal = nuevoMontoPagado(Number(prestamo.montoPagado), monto, total)
   const estado = saldoFinal <= 0 ? 'pagado' : 'activo'
-  const diasCubiertos = Math.ceil(monto / Number(prestamo.cuotaDiaria))
-  const nuevosDiasAtrasados = Math.max(0, Number(prestamo.diasAtrasados) - diasCubiertos)
+
+  const cuotaDiaria = Number(prestamo.cuotaDiaria)
+  const diasCubiertos = Math.max(1, Math.ceil(monto / cuotaDiaria))
+  const hoy = iniciarDia(new Date())
+  const cubiertas = fechasCubiertas(prestamo.pagos)
+  const atrasoActual = atrasoDesdeCobertura(prestamo.fechaInicio, cubiertas, hoy)
+
+  let inicioCobertura: Date
+  if (fechaCubierta) {
+    inicioCobertura = iniciarDia(fechaCubierta)
+  } else if (atrasoActual > 0) {
+    inicioCobertura = primeraFechaSinCubrir(prestamo.fechaInicio, cubiertas, hoy)
+  } else {
+    inicioCobertura = hoy
+  }
+
+  const fechasCubiertasNuevas: string[] = []
+  for (let i = 0; i < diasCubiertos; i++) {
+    fechasCubiertasNuevas.push(claveFecha(agregarDias(inicioCobertura, i)))
+  }
+  const cubiertasTotales = new Set(cubiertas)
+  for (const k of fechasCubiertasNuevas) cubiertasTotales.add(k)
+  const nuevosDiasAtrasados = atrasoDesdeCobertura(prestamo.fechaInicio, cubiertasTotales, hoy)
+
+  const fechaCubiertaInicio = new Date(`${fechasCubiertasNuevas[0]}T00:00:00`)
+  const ultimaFechaCubierta = new Date(`${fechasCubiertasNuevas[fechasCubiertasNuevas.length - 1]}T00:00:00`)
 
   const [pago] = await db.$transaction([
     db.pago.create({
@@ -49,12 +85,12 @@ export async function registrarPago(
         prestamoId,
         vendedorId,
         tenantId: tenantId ?? prestamo.tenantId,
-        fechaPago: new Date(),
-        fechaEsperada: prestamo.fechaUltimoPago || prestamo.fechaInicio,
+        fechaPago: fechaCubiertaInicio,
+        fechaEsperada: fechaCubiertaInicio,
         monto,
         diasCubiertos,
-        esPagoAtrasado: Number(prestamo.diasAtrasados) > 0 ? 1 : 0,
-        diasAtraso: Number(prestamo.diasAtrasados),
+        esPagoAtrasado: fechasCubiertasNuevas[0] < claveFecha(hoy) ? 1 : 0,
+        diasAtraso: atrasoActual,
         observaciones: observaciones ?? null,
       },
     }),
@@ -64,7 +100,7 @@ export async function registrarPago(
         montoPagado: pagadoFinal,
         saldoPendiente: saldoFinal,
         diasPagados: { increment: diasCubiertos },
-        fechaUltimoPago: new Date(),
+        fechaUltimoPago: ultimaFechaCubierta,
         estado,
         diasAtrasados: nuevosDiasAtrasados,
       },

@@ -9,6 +9,7 @@ import {
   Shield, Eye, ChevronDown, ChevronUp,
 } from 'lucide-react'
 import { Tooltip, InfoTip } from '@/components/Tooltip'
+import CambiarPassword from '@/components/CambiarPassword'
 import type { Tenant } from '@prisma/client'
 
 const statusColors: Record<string, string> = {
@@ -93,6 +94,7 @@ export default function AdminTenantPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <CambiarPassword />
             <button onClick={() => router.push('/empresario')} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-bone/10 text-bone/60 hover:bg-emerald-950 transition-colors">
               <LayoutDashboard size={16} /> Ver Dashboard
             </button>
