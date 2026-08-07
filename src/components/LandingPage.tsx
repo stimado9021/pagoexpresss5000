@@ -427,14 +427,17 @@ export default function LandingPage() {
                             <p className="font-mono text-[10px] uppercase tracking-widest text-bone/40">Cobros de la semana</p>
                             <p className="font-mono text-[10px] text-emerald-400">${stats.cobrosSemana.toLocaleString('es-CO')}</p>
                           </div>
-                          <div className="flex items-end gap-2 h-24">
+                          <div className="flex items-end gap-1.5 sm:gap-2 h-36 sm:h-44">
                             {(stats.cobrosPorDia.length > 0 ? stats.cobrosPorDia : Array.from({ length: 7 }, () => ({
                               etiqueta: '', monto: 0, height: 4, fecha: '',
                             }))).map((c, i) => (
                               <div key={i} className="flex-1 flex flex-col items-center gap-1 group" title={`${c.etiqueta}: $${c.monto.toLocaleString('es-CO')}`}>
+                                <span className="text-[8px] sm:text-[9px] font-mono text-bone/50 group-hover:text-lime transition-colors">
+                                  {c.monto > 0 ? (c.monto >= 1000000 ? `$${(c.monto / 1000000).toFixed(1)}M` : c.monto >= 1000 ? `$${Math.round(c.monto / 1000)}k` : `$${c.monto}`) : ''}
+                                </span>
                                 <div
-                                  className={`w-full max-w-6 rounded-t-md ${c.monto > 0 ? 'bg-lime' : 'bg-emerald-800'} grow-bar transition-colors group-hover:bg-lime`}
-                                  style={{ height: `${Math.max(c.height, 4)}%`, animationDelay: `${i * 0.07}s` }}
+                                  className={`w-full max-w-8 rounded-t-md ${c.monto > 0 ? 'bg-lime' : 'bg-emerald-800/60'} grow-bar transition-colors group-hover:bg-lime`}
+                                  style={{ height: `${Math.max(c.height, 6)}%`, animationDelay: `${i * 0.07}s` }}
                                 />
                                 <span className="text-[8px] uppercase text-bone/40 truncate w-full text-center hidden sm:block">{c.etiqueta}</span>
                               </div>

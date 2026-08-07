@@ -43,7 +43,9 @@ export async function GET() {
   const diaKey = (d: Date) => d.toISOString().slice(0, 10)
   const porFecha = new Map<string, number>()
   for (const g of cobrosPorDia) {
-    porFecha.set(diaKey(g.fechaPago), Number(g._sum.monto ?? 0))
+    const key = diaKey(g.fechaPago)
+    const actual = porFecha.get(key) ?? 0
+    porFecha.set(key, actual + Number(g._sum.monto ?? 0))
   }
 
   const max = Math.max(...Array.from(porFecha.values()), 1)
