@@ -336,14 +336,15 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
             return (
               <div key={cliente.cedula} className="rounded-xl border border-bone/10 bg-graphite-900 shadow-sm overflow-hidden">
                 {/* Header clickeable — accordion trigger */}
-                <button
-                  onClick={() => toggleExpandCliente(cliente.cedula)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors sm:px-4 sm:py-3 ${
-                    maxDiasAtraso >= 7 ? 'bg-red-500/15' :
-                    maxDiasAtraso > 0 ? 'bg-amber-500/15' :
-                    'bg-emerald-950'
-                  }`}
-                >
+                <Tooltip text="Haz click para ver préstamos, pagos y datos de este cliente.">
+                  <button
+                    onClick={() => toggleExpandCliente(cliente.cedula)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors sm:px-4 sm:py-3 ${
+                      maxDiasAtraso >= 7 ? 'bg-red-500/15' :
+                      maxDiasAtraso > 0 ? 'bg-amber-500/15' :
+                      'bg-emerald-950'
+                    }`}
+                  >
                   <div className="flex items-center gap-2 min-w-0 sm:gap-2.5">
                     <Avatar nombre={cliente.nombre} apellido={cliente.apellido} size="sm" />
                     <div className="min-w-0">
@@ -365,7 +366,8 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                     </div>
                     <ChevronDown size={14} className={`text-bone/60 transition-transform duration-200 sm:size-4 ${isExpanded ? 'rotate-180' : ''}`} />
                   </div>
-                </button>
+                  </button>
+                </Tooltip>
 
                 {/* Contenido del accordion */}
                 {isExpanded && (
