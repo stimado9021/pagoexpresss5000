@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, CreditCard, DollarSign, LogOut, Plus, Search,
   TrendingUp, CheckCircle2, X, AlertTriangle, Phone, Mail, MapPin,
-  Calendar, ArrowRight, ChevronRight, ChevronDown, Clock, BadgeCheck, Bell,
+  Calendar, ArrowRight, ChevronRight, ChevronDown, Clock, BadgeCheck, Bell, Loader2,
 } from 'lucide-react'
 import { Tooltip, InfoTip } from '@/components/Tooltip'
 import CambiarPassword from '@/components/CambiarPassword'
@@ -223,6 +223,7 @@ export default function VendedorPage() {
 
 function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; prestamos: Prestamo[]; loading: boolean }) {
   const [expandedClientId, setExpandedClientId] = useState<string | null>(null)
+  const [cobrandoId, setCobrandoId] = useState<number | null>(null)
 
   function toggleExpandCliente(cedula: string) {
     const isExpanded = expandedClientId === cedula
@@ -235,6 +236,8 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
   }
 
   async function handleCobrar(prestamo: Prestamo, montoExtra?: number, fechaCubierta?: Date) {
+    if (cobrandoId !== null) return
+    setCobrandoId(prestamo.id)
     try {
       const monto = montoExtra || Number(prestamo.cuotaDiaria)
       const res = await fetch('/api/pagos', {
@@ -258,6 +261,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
       window.location.reload()
     } catch (e) {
       alert(e instanceof Error ? e.message : String(e))
+      setCobrandoId(null)
     }
   }
 
@@ -469,14 +473,16 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                               {maxDiasAtrasoLocal} día{maxDiasAtrasoLocal !== 1 ? 's' : ''} atraso — abonar $5.000 c/u
                             </p>
                           )}
-                          <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                           <div className="flex flex-wrap gap-1 sm:gap-1.5">
                             {fechasUnicasLocal.map((fecha, i) => {
                                 const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
+                                const estaCobrando = cobrandoId === activos[0].id
                                 return (
-                                  <Tooltip key={`atraso-${i}`} text={`Abona $5.000 para cubrir el día ${fechaStr}. Este pago reduce la deuda atrasada.`}>
-                                    <button onClick={() => handleCobrar(activos[0], 5000, fecha)}
-                                      className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
-                                      <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                                  <Tooltip key={`atraso-${i}`} text={estaCobrando ? 'Procesando pago...' : `Abona $5.000 para cubrir el día ${fechaStr}. Este pago reduce la deuda atrasada.`}>
+                                    <button onClick={() => handleCobrar(activos[0], 5000, fecha)} disabled={estaCobrando}
+                                      className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px] disabled:opacity-50 disabled:cursor-not-allowed">
+                                      {estaCobrando ? <Loader2 size={9} className="animate-spin sm:hidden" /> : <Calendar size={9} className="sm:hidden" />}
+                                      {estaCobrando ? <Loader2 size={10} className="hidden animate-spin sm:block" /> : <Calendar size={10} className="hidden sm:block" />}
                                       <span>{fechaStr}</span>
                                       <span className="font-semibold">$5k</span>
                                     </button>
@@ -484,10 +490,11 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                                 )
                               })}
                             {!todosHoyPagado && (
-                              <Tooltip text={`Cobra la cuota completa de hoy (${moneyFmt.format(totalCuotaDiaria)}). Este pago cubre el día actual y evita que se acumule atraso.`}>
-                                <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria, fechaHoyNegocio())}
-                                  className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
-                                  <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                              <Tooltip text={cobrandoId === activos[0].id ? 'Procesando pago...' : `Cobra la cuota completa de hoy (${moneyFmt.format(totalCuotaDiaria)}). Este pago cubre el día actual y evita que se acumule atraso.`}>
+                                <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria, fechaHoyNegocio())} disabled={cobrandoId === activos[0].id}
+                                  className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px] disabled:opacity-50 disabled:cursor-not-allowed">
+                                  {cobrandoId === activos[0].id ? <Loader2 size={9} className="animate-spin sm:hidden" /> : <Calendar size={9} className="sm:hidden" />}
+                                  {cobrandoId === activos[0].id ? <Loader2 size={10} className="hidden animate-spin sm:block" /> : <Calendar size={10} className="hidden sm:block" />}
                                   <span>Hoy · {fechaHoyNegocio().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
                                   <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
                                 </button>
@@ -536,6 +543,7 @@ function ClientesView({
   const [editForm, setEditForm] = useState({ nombre: '', apellido: '', telefono: '', email: '', direccion: '' })
   const [editSaving, setEditSaving] = useState(false)
   const [editMsg, setEditMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [cobrandoId, setCobrandoId] = useState<number | null>(null)
 
   const clientesFiltrados = buscar
     ? clientes.filter(c => `${c.nombre} ${c.apellido} ${c.cedula}`.toLowerCase().includes(buscar.toLowerCase()))
@@ -680,6 +688,8 @@ function ClientesView({
   }
 
   async function handleCobrar(prestamo: Prestamo, montoExtra?: number, fechaCubierta?: Date) {
+    if (cobrandoId !== null) return
+    setCobrandoId(prestamo.id)
     try {
       const monto = montoExtra || Number(prestamo.cuotaDiaria)
       const res = await fetch('/api/pagos', {
@@ -708,6 +718,8 @@ function ClientesView({
       }
     } catch (e) {
       alert(e instanceof Error ? e.message : String(e))
+    } finally {
+      setCobrandoId(null)
     }
   }
 
@@ -1041,30 +1053,34 @@ function ClientesView({
                         {fechasUnicasCl.map((fecha, i) => {
                             const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
                             const primerActivo = activos[0] as unknown as Prestamo
+                            const estaCobrando = cobrandoId === primerActivo.id
                             return (
-                              <Tooltip key={`atraso-${i}`} text={`Abona $5.000 para cubrir el día ${fechaStr}. Este pago reduce la deuda atrasada.`}>
-                                <button onClick={() => handleCobrar(primerActivo, 5000, fecha)}
-                                  className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
-                                  <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
+                              <Tooltip key={`atraso-${i}`} text={estaCobrando ? 'Procesando pago...' : `Abona $5.000 para cubrir el día ${fechaStr}. Este pago reduce la deuda atrasada.`}>
+                                <button onClick={() => handleCobrar(primerActivo, 5000, fecha)} disabled={estaCobrando}
+                                  className="flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-medium text-red-400 hover:bg-red-500/30 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px] disabled:opacity-50 disabled:cursor-not-allowed">
+                                  {estaCobrando ? <Loader2 size={9} className="animate-spin sm:hidden" /> : <Calendar size={9} className="sm:hidden" />}
+                                  {estaCobrando ? <Loader2 size={10} className="hidden animate-spin sm:block" /> : <Calendar size={10} className="hidden sm:block" />}
                                   <span>{fechaStr}</span>
                                   <span className="font-semibold">$5k</span>
                                 </button>
                               </Tooltip>
                             )
                           })}
-                        {!todosHoyPagado && (
-                          <Tooltip text={`Cobra la cuota completa de hoy (${moneyFmt.format(totalCuotaDiaria)}). Este pago cubre el día actual y evita que se acumule atraso.`}>
-                            <button onClick={() => {
-                              const primerActivo = activos[0] as unknown as Prestamo
-                              handleCobrar(primerActivo, totalCuotaDiaria, fechaHoyNegocio())
-                            }}
-                              className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
-                              <Calendar size={9} className="sm:hidden" /><Calendar size={10} className="hidden sm:block" />
-                              <span>Hoy · {fechaHoyNegocio().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
-                              <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
-                            </button>
-                          </Tooltip>
-                        )}
+                        {!todosHoyPagado && (() => {
+                          const primerActivoGlobal = activos[0] as unknown as Prestamo
+                          const estaCobrandoHoy = cobrandoId === primerActivoGlobal.id
+                          return (
+                            <Tooltip text={estaCobrandoHoy ? 'Procesando pago...' : `Cobra la cuota completa de hoy (${moneyFmt.format(totalCuotaDiaria)}). Este pago cubre el día actual y evita que se acumule atraso.`}>
+                              <button onClick={() => handleCobrar(primerActivoGlobal, totalCuotaDiaria, fechaHoyNegocio())} disabled={estaCobrandoHoy}
+                                className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px] disabled:opacity-50 disabled:cursor-not-allowed">
+                                {estaCobrandoHoy ? <Loader2 size={9} className="animate-spin sm:hidden" /> : <Calendar size={9} className="sm:hidden" />}
+                                {estaCobrandoHoy ? <Loader2 size={10} className="hidden animate-spin sm:block" /> : <Calendar size={10} className="hidden sm:block" />}
+                                <span>Hoy · {fechaHoyNegocio().toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}</span>
+                                <span className="font-semibold">{moneyFmt.format(totalCuotaDiaria)}</span>
+                              </button>
+                            </Tooltip>
+                          )
+                        })()}
                       </div>
                     </div>
                   )
