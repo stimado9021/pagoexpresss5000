@@ -20,6 +20,7 @@ export async function sendWhatsAppText(to: string, text: string): Promise<boolea
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': API_KEY },
       body: JSON.stringify({ number, text, options: { delay: 1200, presence: 'composing' } }),
+      signal: AbortSignal.timeout(10_000),
     })
     return res.ok
   } catch (err) {
@@ -43,6 +44,7 @@ export async function sendWhatsAppReply(to: string, text: string, replyMessageId
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': API_KEY },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(10_000),
     })
     return res.ok
   } catch (err) {

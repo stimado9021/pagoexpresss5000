@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     }),
   ])
 
-  await sendWhatsAppText(telefono, botResponse)
+  sendWhatsAppText(telefono, botResponse).catch(() => {})
 
   const mensajes = await getMensajes(sesion.id)
   return NextResponse.json({ success: true, mensajes })

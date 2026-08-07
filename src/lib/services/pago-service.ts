@@ -115,7 +115,7 @@ export async function registrarPago(
       cuotaDiaria: Number(prestamo.cuotaDiaria),
       saldoPendiente: saldoFinal,
     })
-    await sendWhatsAppText(prestamo.cliente.telefono, receipt).catch(() => {})
+    sendWhatsAppText(prestamo.cliente.telefono, receipt).catch(() => {})
   }
 
   return { ok: true, message: 'Pago registrado', data: { id: pago.id } }

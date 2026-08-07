@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import { Tooltip, InfoTip } from '@/components/Tooltip'
 import CambiarPassword from '@/components/CambiarPassword'
-import { hoyCubierto, claveFecha } from '@/lib/prestamo-utils'
+import { hoyCubierto, claveFecha, fechasCubiertas, iniciarDia, agregarDias } from '@/lib/prestamo-utils'
 import { NEGOCIO_TIMEZONE, fechaHoyNegocio } from '@/lib/negocio'
 
 const moneyFmt = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })
@@ -429,7 +429,19 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                     {(() => {
                       if (activos.length === 0) return null
                       const totalCuotaDiaria = activos.reduce((s, p) => s + Number(p.cuotaDiaria), 0)
-                      const maxDiasAtrasoLocal = Math.max(0, ...activos.map(p => p.diasAtrasados))
+                      const fechasAtrasoLocal: Date[] = []
+                      for (const p of activos) {
+                        const cubiertas = fechasCubiertas(p.pagos)
+                        const hoy = fechaHoyNegocio()
+                        const inicio = iniciarDia(p.fechaInicio)
+                        let d = agregarDias(inicio, 1)
+                        while (d < hoy) {
+                          if (!cubiertas.has(claveFecha(d))) fechasAtrasoLocal.push(new Date(d))
+                          d = agregarDias(d, 1)
+                        }
+                      }
+                      const fechasUnicasLocal = [...new Map(fechasAtrasoLocal.map(f => [claveFecha(f), f])).values()].sort((a, b) => a.getTime() - b.getTime())
+                      const maxDiasAtrasoLocal = fechasUnicasLocal.length
                       const todosHoyPagado = activos.every(p => cuotaHoyPagada(p))
                       const esPrimerDia = activos.every(p => p.diasPagados === 0 && p.diasAtrasados === 0)
                       const hayPendientes = maxDiasAtrasoLocal > 0 || !todosHoyPagado
@@ -454,10 +466,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                             </p>
                           )}
                           <div className="flex flex-wrap gap-1 sm:gap-1.5">
-                            {maxDiasAtrasoLocal > 0 && (
-                              Array.from({ length: maxDiasAtrasoLocal }, (_, i) => {
-                                const fecha = fechaHoyNegocio()
-                                fecha.setDate(fecha.getDate() - (maxDiasAtrasoLocal - i))
+                            {fechasUnicasLocal.map((fecha, i) => {
                                 const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
                                 return (
                                   <button key={`atraso-${i}`} onClick={() => handleCobrar(activos[0], 5000, fecha)}
@@ -467,8 +476,7 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
                                     <span className="font-semibold">$5k</span>
                                   </button>
                                 )
-                              })
-                            )}
+                              })}
                             {!todosHoyPagado && (
                               <button onClick={() => handleCobrar(activos[0], totalCuotaDiaria, fechaHoyNegocio())}
                                 className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1.5 text-[10px] font-medium text-amber-400 hover:bg-amber-500/25 transition-all active:scale-95 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-[11px]">
@@ -983,7 +991,19 @@ function ClientesView({
                   if (activos.length === 0) return null
 
                   const totalCuotaDiaria = activos.reduce((s, p) => s + Number(p.cuotaDiaria), 0)
-                  const maxDiasAtraso = Math.max(0, ...activos.map(p => p.diasAtrasados))
+                  const fechasAtrasoCl: Date[] = []
+                  for (const p of activos) {
+                    const cubiertas = fechasCubiertas(p.pagos)
+                    const hoy = fechaHoyNegocio()
+                    const inicio = iniciarDia(p.fechaInicio)
+                    let d = agregarDias(inicio, 1)
+                    while (d < hoy) {
+                      if (!cubiertas.has(claveFecha(d))) fechasAtrasoCl.push(new Date(d))
+                      d = agregarDias(d, 1)
+                    }
+                  }
+                  const fechasUnicasCl = [...new Map(fechasAtrasoCl.map(f => [claveFecha(f), f])).values()].sort((a, b) => a.getTime() - b.getTime())
+                  const maxDiasAtraso = fechasUnicasCl.length
                   const todosHoyPagado = activos.every(p => cuotaHoyPagada(p))
                   const esPrimerDia = activos.every(p => p.diasPagados === 0 && p.diasAtrasados === 0)
                   const hayPendientes = maxDiasAtraso > 0 || !todosHoyPagado
@@ -1008,10 +1028,7 @@ function ClientesView({
                         </p>
                       )}
                       <div className="flex flex-wrap gap-1 sm:gap-1.5">
-                        {maxDiasAtraso > 0 && (
-                          Array.from({ length: maxDiasAtraso }, (_, i) => {
-                            const fecha = fechaHoyNegocio()
-                            fecha.setDate(fecha.getDate() - (maxDiasAtraso - i))
+                        {fechasUnicasCl.map((fecha, i) => {
                             const fechaStr = fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
                             const primerActivo = activos[0] as unknown as Prestamo
                             return (
@@ -1022,8 +1039,7 @@ function ClientesView({
                                 <span className="font-semibold">$5k</span>
                               </button>
                             )
-                          })
-                        )}
+                          })}
                         {!todosHoyPagado && (
                           <button onClick={() => {
                             const primerActivo = activos[0] as unknown as Prestamo

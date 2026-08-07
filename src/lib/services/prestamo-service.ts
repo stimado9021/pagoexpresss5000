@@ -162,7 +162,7 @@ export async function crearPrestamo(
         esConsolidacion: true,
         deudaPrevia: saldoExistente,
       })
-      await sendWhatsAppText(telefono, msg).catch(() => {})
+      sendWhatsAppText(telefono, msg).catch(() => {})
     }
 
     return { ok: true, message: 'Préstamo anexado al saldo existente', data: prestamo }
@@ -201,7 +201,7 @@ export async function crearPrestamo(
       cuotaDiaria: cuota,
       diasPlazo,
     })
-    await sendWhatsAppText(telefono, msg).catch(() => {})
+    sendWhatsAppText(telefono, msg).catch(() => {})
   }
 
   return { ok: true, message: 'Préstamo registrado con éxito', data: prestamo }

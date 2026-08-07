@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   const response = getBotResponse(msg.text)
   if (response) {
-    await sendWhatsAppReply(msg.from, response, msg.messageId)
+    sendWhatsAppReply(msg.from, response, msg.messageId).catch(() => {})
   }
 
   const sesion = await prisma.chatSesion.findUnique({ where: { telefono: msg.from } })
