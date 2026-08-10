@@ -35,15 +35,15 @@ export async function POST(request: NextRequest) {
 
   const sesion = await prisma.chatSesion.findUnique({ where: { telefono: msg.from } })
   if (sesion) {
-    await prisma.$transaction([
-      prisma.chatMensaje.create({
+    await prisma.$transaction(async (tx) => {
+      await tx.chatMensaje.create({
         data: { sesionId: sesion.id, direccion: 'entrada', texto: msg.text },
-      }),
-      prisma.chatMensaje.create({
+      })
+      await tx.chatMensaje.create({
         data: { sesionId: sesion.id, direccion: 'salida', texto: response },
-      }),
-      prisma.chatSesion.update({ where: { id: sesion.id }, data: { updatedAt: new Date() } }),
-    ])
+      })
+      await tx.chatSesion.update({ where: { id: sesion.id }, data: { updatedAt: new Date() } })
+    })
   }
 
   return NextResponse.json({ success: true, received: true })

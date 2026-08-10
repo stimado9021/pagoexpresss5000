@@ -20,6 +20,7 @@ export async function GET() {
       data: {
         tasaInteres: Number(config.tasaInteres),
         cuotaDiariaMin: Number(config.cuotaDiariaMin),
+        porcentajeComisionVendedor: Number(config.porcentajeComisionVendedor),
         nombreEmpresa: config.nombreEmpresa,
         logoUrl: config.logoUrl,
       },
@@ -40,6 +41,7 @@ export async function PUT(request: Request) {
     const data = await request.json()
     const tasaInteres = parseFloat(data.tasaInteres)
     const cuotaDiariaMin = parseFloat(data.cuotaDiariaMin)
+    const porcentajeComisionVendedor = parseFloat(data.porcentajeComisionVendedor ?? 0)
 
     if (isNaN(tasaInteres) || tasaInteres <= 0) {
       return NextResponse.json({ success: false, message: 'Tasa de interés inválida' }, { status: 400 })
@@ -47,17 +49,20 @@ export async function PUT(request: Request) {
     if (isNaN(cuotaDiariaMin) || cuotaDiariaMin < 0) {
       return NextResponse.json({ success: false, message: 'Cuota diaria mínima inválida' }, { status: 400 })
     }
+    if (isNaN(porcentajeComisionVendedor) || porcentajeComisionVendedor < 0 || porcentajeComisionVendedor > 100) {
+      return NextResponse.json({ success: false, message: 'Porcentaje de comisión inválido (0-100)' }, { status: 400 })
+    }
 
     const config = await prisma.configuracionTenant.upsert({
       where: { tenantId: session.tenantId },
-      update: { tasaInteres, cuotaDiariaMin },
-      create: { tenantId: session.tenantId, tasaInteres, cuotaDiariaMin },
+      update: { tasaInteres, cuotaDiariaMin, porcentajeComisionVendedor },
+      create: { tenantId: session.tenantId, tasaInteres, cuotaDiariaMin, porcentajeComisionVendedor },
     })
 
     return NextResponse.json({
       success: true,
       message: 'Configuración guardada',
-      data: { tasaInteres: Number(config.tasaInteres), cuotaDiariaMin: Number(config.cuotaDiariaMin) },
+      data: { tasaInteres: Number(config.tasaInteres), cuotaDiariaMin: Number(config.cuotaDiariaMin), porcentajeComisionVendedor: Number(config.porcentajeComisionVendedor) },
     })
   } catch (error) {
     console.error('[EMPRESA CONFIG PUT ERROR]', error)

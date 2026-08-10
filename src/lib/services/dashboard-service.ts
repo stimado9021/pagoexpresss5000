@@ -7,6 +7,16 @@ type DbClient = typeof prisma
 
 type RoleStrategy = (session: ApiSession, db: DbClient) => Promise<Resultado<Record<string, unknown>>>
 
+function inicioMesActual(): Date {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth(), 1)
+}
+
+function finMesActual(): Date {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+}
+
 async function header(session: ApiSession, db: DbClient) {
   const [userInfo, tenantRecord, tenantConfig] = await Promise.all([
     db.usuario.findUnique({
@@ -27,7 +37,10 @@ async function portfolioDashboard(
   db: DbClient,
   tenantId: number | undefined
 ): Promise<Record<string, unknown>> {
-  const [vendedores, rawClientes] = await Promise.all([
+  const inicioMes = inicioMesActual()
+  const finMes = finMesActual()
+
+  const [vendedores, rawClientes, tenantConfig] = await Promise.all([
     db.usuario.findMany({
       where: { ...(tenantId ? { tenantId } : {}), rol: 'vendedor', activo: 1 },
       select: {
@@ -52,24 +65,51 @@ async function portfolioDashboard(
       orderBy: { createdAt: 'desc' },
       take: 20,
     }),
+    tenantId
+      ? db.configuracionTenant.findUnique({ where: { tenantId }, select: { porcentajeComisionVendedor: true } })
+      : null,
   ])
+
+  const porcentajeComision = Number(tenantConfig?.porcentajeComisionVendedor ?? 0)
 
   const clientes = rawClientes.map((c) => ({ ...c, diasAtrasados: calcularDiasAtrasados(c) }))
   const totalPorVendedor = (v: (typeof vendedores)[number]) =>
     v.prestamosCreados.reduce((s, p) => s + Number(p.montoSolicitado), 0)
 
+  const vendedorIds = vendedores.map(v => v.id)
+  const pagosMes = vendedorIds.length > 0 ? await prisma.pago.groupBy({
+    by: ['vendedorId'],
+    where: {
+      vendedorId: { in: vendedorIds },
+      fechaPago: { gte: inicioMes, lte: finMes },
+    },
+    _sum: { monto: true },
+  }) : []
+
+  const recaudadoPorVendedor = new Map<number, number>()
+  for (const pg of pagosMes) {
+    recaudadoPorVendedor.set(pg.vendedorId, Number(pg._sum.monto ?? 0))
+  }
+
   return {
-    vendedores: vendedores.map((v) => ({
-      id: v.id,
-      cedula: v.cedula,
-      nombre: v.nombre,
-      apellido: v.apellido,
-      telefono: v.telefono,
-      email: v.email,
-      total_clientes: v._count.clientes,
-      total_prestado: totalPorVendedor(v),
-    })),
+    vendedores: vendedores.map((v) => {
+      const recaudadoMes = recaudadoPorVendedor.get(v.id) ?? 0
+      const comisionMes = recaudadoMes * porcentajeComision / 100
+      return {
+        id: v.id,
+        cedula: v.cedula,
+        nombre: v.nombre,
+        apellido: v.apellido,
+        telefono: v.telefono,
+        email: v.email,
+        total_clientes: v._count.clientes,
+        total_prestado: totalPorVendedor(v),
+        recaudado_mes: recaudadoMes,
+        comision_mes: comisionMes,
+      }
+    }),
     clientes,
+    comisionPorcentaje: porcentajeComision,
     stats: {
       total_vendedores: vendedores.length,
       colocacion_total: vendedores.reduce((sum, v) => sum + totalPorVendedor(v), 0),
@@ -79,7 +119,10 @@ async function portfolioDashboard(
 }
 
 async function vendedorDashboard(session: ApiSession, db: DbClient): Promise<Record<string, unknown>> {
-  const [rawPrestamos, totalClientes] = await Promise.all([
+  const inicioMes = inicioMesActual()
+  const finMes = finMesActual()
+
+  const [rawPrestamos, totalClientes, tenantConfig, pagoMes] = await Promise.all([
     db.prestamo.findMany({
       where: { vendedorId: session.userId },
       include: {
@@ -89,12 +132,26 @@ async function vendedorDashboard(session: ApiSession, db: DbClient): Promise<Rec
       orderBy: { createdAt: 'desc' },
     }),
     db.usuario.count({ where: { rol: 'cliente', vendedorId: session.userId } }),
+    session.tenantId
+      ? db.configuracionTenant.findUnique({ where: { tenantId: session.tenantId }, select: { porcentajeComisionVendedor: true } })
+      : null,
+    db.pago.aggregate({
+      where: {
+        vendedorId: session.userId,
+        fechaPago: { gte: inicioMes, lte: finMes },
+      },
+      _sum: { monto: true },
+    }),
   ])
 
   const prestamos = rawPrestamos.map((p) => ({
     ...p,
     diasAtrasados: calcularDiasAtrasados(p),
   }))
+
+  const porcentajeComision = Number(tenantConfig?.porcentajeComisionVendedor ?? 0)
+  const recaudadoMes = Number(pagoMes._sum.monto ?? 0)
+  const comisionMes = recaudadoMes * porcentajeComision / 100
 
   return {
     prestamos,
@@ -106,6 +163,9 @@ async function vendedorDashboard(session: ApiSession, db: DbClient): Promise<Rec
       monto_recuperado: prestamos.reduce((s, p) => s + Number(p.montoPagado), 0),
       saldo_pendiente: prestamos.reduce((s, p) => s + Number(p.saldoPendiente), 0),
       total_clientes: totalClientes,
+      recaudado_mes: recaudadoMes,
+      comision_porcentaje: porcentajeComision,
+      comision_mes: comisionMes,
     },
   }
 }

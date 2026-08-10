@@ -159,16 +159,17 @@ model Invitacion {
 }
 
 model ConfiguracionTenant {
-  id               Int      @id @default(autoincrement())
-  tenantId         Int      @unique @map("tenant_id")
-  tenant           Tenant   @relation(fields: [tenantId], references: [id])
-  tasaInteres      Decimal  @default(20.00) @map("tasa_interes")
-  cuotaDiariaMin   Decimal  @default(0) @map("cuota_diaria_minima")
-  nombreEmpresa    String?  @db.VarChar(200) @map("nombre_empresa")
-  logoUrl          String?  @db.LongText
-  notificaciones   String?  @db.Text
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id                          Int      @id @default(autoincrement())
+  tenantId                    Int      @unique @map("tenant_id")
+  tenant                      Tenant   @relation(fields: [tenantId], references: [id])
+  tasaInteres                 Decimal  @default(20.00) @map("tasa_interes")
+  cuotaDiariaMin              Decimal  @default(0) @map("cuota_diaria_minima")
+  porcentajeComisionVendedor  Decimal  @default(0) @map("porcentaje_comision_vendedor")
+  nombreEmpresa               String?  @db.VarChar(200) @map("nombre_empresa")
+  logoUrl                     String?  @db.LongText
+  notificaciones              String?  @db.Text
+  createdAt                   DateTime @default(now()) @map("created_at")
+  updatedAt                   DateTime @updatedAt @map("updated_at")
 
   @@map("configuracion_tenant")
 }

@@ -23,6 +23,7 @@ type Vendedor = {
   id: number; cedula: string; nombre: string; apellido: string
   telefono: string | null; email: string | null
   total_clientes: number; total_prestado: number
+  recaudado_mes: number; comision_mes: number
 }
 
 type Cliente = {
@@ -106,6 +107,7 @@ export default function AdminPage() {
   const [userInfo, setUserInfo] = useState<{ nombre: string; apellido: string } | null>(null)
   const [tenantName, setTenantName] = useState<string | null>(null)
   const [tenantLogo, setTenantLogo] = useState<string | null>(null)
+  const [comisionPorcentaje, setComisionPorcentaje] = useState(0)
 
   const cargarDatos = async () => {
     const r = await fetch('/api/dashboard')
@@ -116,6 +118,7 @@ export default function AdminPage() {
     if (d.data.user) setUserInfo(d.data.user)
     if (d.data.tenantName) setTenantName(d.data.tenantName)
     if (d.data.tenantLogo) setTenantLogo(d.data.tenantLogo)
+    if (d.data.comisionPorcentaje != null) setComisionPorcentaje(d.data.comisionPorcentaje)
   }
 
   useEffect(() => {
@@ -130,6 +133,7 @@ export default function AdminPage() {
         if (d.data.user) setUserInfo(d.data.user)
         if (d.data.tenantName) setTenantName(d.data.tenantName)
         if (d.data.tenantLogo) setTenantLogo(d.data.tenantLogo)
+        if (d.data.comisionPorcentaje != null) setComisionPorcentaje(d.data.comisionPorcentaje)
       })
       .catch(() => {})
     return () => { cancelled = true }
@@ -300,7 +304,7 @@ export default function AdminPage() {
                 <p className="mt-0.5 text-sm text-zinc-400">Métrica general del sistema de préstamos</p>
               </div>
 
-              <div className="mb-6 grid grid-cols-2 gap-2 sm:mb-8 sm:gap-5 xl:grid-cols-4">
+              <div className="mb-6 grid grid-cols-2 gap-2 sm:mb-8 sm:gap-5 xl:grid-cols-5">
                 <KpiCard
                   icon={<Building2 size={18} />}
                   iconBg="bg-lime/10 text-lime"
@@ -337,6 +341,17 @@ export default function AdminPage() {
                   variacionLabel="requieren atención"
                   tip="Clientes que tienen préstamos con días de atraso en sus pagos"
                 />
+                {comisionPorcentaje > 0 && (
+                  <KpiCard
+                    icon={<TrendingUp size={18} />}
+                    iconBg="bg-lime/10 text-lime"
+                    label="Comisiones mes"
+                    value={moneyFmt.format(vendedores.reduce((s, v) => s + v.comision_mes, 0))}
+                    variacion={`${comisionPorcentaje}%`}
+                    variacionLabel={`${comisionPorcentaje}% sobre recaudado`}
+                    tip="Total de comisiones generadas por todos los vendedores este mes"
+                  />
+                )}
               </div>
 
               {/* ── Alertas de mora ── */}
@@ -400,7 +415,12 @@ export default function AdminPage() {
                               <p className="text-xs text-zinc-400">{v.total_clientes} clientes</p>
                             </div>
                           </div>
-                          <span className="text-xs font-medium text-lime">{moneyFmt.format(v.total_prestado)}</span>
+                          <div className="text-right">
+                            <span className="text-xs font-medium text-lime">{moneyFmt.format(v.total_prestado)}</span>
+                            {comisionPorcentaje > 0 && (
+                              <p className="text-[10px] text-lime/70">Comisión: {moneyFmt.format(v.comision_mes)}</p>
+                            )}
+                          </div>
                         </button>
                       ))
                     )}
@@ -496,11 +516,14 @@ export default function AdminPage() {
                         <th className="px-5 py-3.5 text-left font-medium">Contacto</th>
                         <th className="px-5 py-3.5 text-right font-medium">Clientes</th>
                         <th className="px-5 py-3.5 text-right font-medium">Colocación</th>
+                        {comisionPorcentaje > 0 && (
+                          <th className="px-5 py-3.5 text-right font-medium">Comisión mes</th>
+                        )}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-700">
                       {vendedores.length === 0 ? (
-                        <tr><td colSpan={5} className="px-5 py-10 text-center text-sm text-zinc-400">No hay vendedores registrados</td></tr>
+                        <tr><td colSpan={comisionPorcentaje > 0 ? 6 : 5} className="px-5 py-10 text-center text-sm text-zinc-400">No hay vendedores registrados</td></tr>
                       ) : (
                         vendedores.map((v) => (
                           <tr key={v.id} className="hover:bg-emerald-950 transition-colors">
@@ -519,6 +542,12 @@ export default function AdminPage() {
                               <span className="rounded-full bg-lime/10 px-2.5 py-0.5 text-xs font-medium text-lime">{v.total_clientes}</span>
                             </td>
                             <td className="px-5 py-3.5 text-right font-medium text-zinc-100">{moneyFmt.format(v.total_prestado)}</td>
+                            {comisionPorcentaje > 0 && (
+                              <td className="px-5 py-3.5 text-right">
+                                <span className="text-sm font-semibold text-lime">{moneyFmt.format(v.comision_mes)}</span>
+                                <p className="text-[10px] text-zinc-400">{comisionPorcentaje}% de {moneyFmt.format(v.recaudado_mes)}</p>
+                              </td>
+                            )}
                           </tr>
                         ))
                       )}
@@ -814,6 +843,7 @@ function DetailChip({ label, value, tip }: { label: string; value: string; tip?:
 function ConfigView() {
   const [tasaInteres, setTasaInteres] = useState('20')
   const [cuotaDiaria, setCuotaDiaria] = useState('5000')
+  const [porcentajeComision, setPorcentajeComision] = useState('0')
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
@@ -829,6 +859,7 @@ function ConfigView() {
         if (d.success) {
           setTasaInteres(String(Number(d.data.tasaInteres)))
           setCuotaDiaria(String(Number(d.data.cuotaDiariaMin)))
+          setPorcentajeComision(String(Number(d.data.porcentajeComisionVendedor ?? 0)))
           if (d.data.logoUrl) setLogoUrl(d.data.logoUrl)
         }
       })
@@ -841,7 +872,7 @@ function ConfigView() {
     const res = await fetch('/api/empresa/configuracion', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tasaInteres, cuotaDiariaMin: cuotaDiaria }),
+      body: JSON.stringify({ tasaInteres, cuotaDiariaMin: cuotaDiaria, porcentajeComisionVendedor: porcentajeComision }),
     })
     const d = await res.json()
     setMsg(d.success ? { ok: true, text: 'Configuración guardada' } : { ok: false, text: d.message })
@@ -912,7 +943,7 @@ function ConfigView() {
     <>
       <div className="mb-8">
         <h2 className="text-base font-semibold text-zinc-100">Configuración del sistema</h2>
-        <p className="mt-0.5 text-sm text-zinc-400">Tasa de interés, cuota diaria mínima y logo de tu empresa</p>
+        <p className="mt-0.5 text-sm text-zinc-400">Tasa de interés, cuota diaria mínima, comisiones y logo de tu empresa</p>
       </div>
 
       <div className="max-w-lg rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm">
@@ -970,6 +1001,13 @@ function ConfigView() {
               className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20"
               value={cuotaDiaria} onChange={(e) => setCuotaDiaria(e.target.value)} required />
             <p className="mt-1 text-[11px] text-zinc-400">Valor de la cuota diaria base para el cálculo de los días de plazo</p>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400 flex items-center gap-1">Comisión vendedor (%) <InfoTip text="Porcentaje que el vendedor gana sobre el total recaudado cada mes. Ej: si recauda $1.000.000 y la comisión es 5%, gana $50.000." /></label>
+            <input type="number" step="0.01" min="0" max="100"
+              className="w-full rounded-lg border border-zinc-800 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20"
+              value={porcentajeComision} onChange={(e) => setPorcentajeComision(e.target.value)} required />
+            <p className="mt-1 text-[11px] text-zinc-400">Porcentaje de ganancia del vendedor sobre lo recaudado mensualmente</p>
           </div>
           <button type="submit" disabled={saving}
             className="w-full rounded-lg bg-lime px-4 py-2.5 text-sm font-medium text-emerald-950 font-display hover:bg-zinc-100 transition-colors disabled:opacity-50">

@@ -79,8 +79,8 @@ export async function registrarPago(
   const fechaCubiertaInicio = new Date(`${fechasCubiertasNuevas[0]}T00:00:00`)
   const ultimaFechaCubierta = new Date(`${fechasCubiertasNuevas[fechasCubiertasNuevas.length - 1]}T00:00:00`)
 
-  const [pago] = await db.$transaction([
-    db.pago.create({
+  const [pago] = await db.$transaction(async (tx) => {
+    const pago = await tx.pago.create({
       data: {
         prestamoId,
         vendedorId,
@@ -93,8 +93,8 @@ export async function registrarPago(
         diasAtraso: atrasoActual,
         observaciones: observaciones ?? null,
       },
-    }),
-    db.prestamo.update({
+    })
+    await tx.prestamo.update({
       where: { id: prestamoId },
       data: {
         montoPagado: pagadoFinal,
@@ -104,8 +104,9 @@ export async function registrarPago(
         estado,
         diasAtrasados: nuevosDiasAtrasados,
       },
-    }),
-  ])
+    })
+    return [pago]
+  })
 
   if (enviarWhatsApp && prestamo.cliente.telefono) {
     const receipt = formatReceipt({
@@ -162,8 +163,8 @@ export async function editarPago(
   const nuevoSaldoFinal = nuevoSaldo(Number(prestamo.saldoPendiente), -diferencia)
   const nuevosDiasPagados = Math.max(0, Math.floor(nuevoMontoPagado / Number(prestamo.cuotaDiaria)))
 
-  await db.$transaction([
-    db.pago.update({
+  await db.$transaction(async (tx) => {
+    await tx.pago.update({
       where: { id: pagoId },
       data: {
         monto: montoNuevo,
@@ -171,8 +172,8 @@ export async function editarPago(
         diasCubiertos: Math.ceil(montoNuevo / Number(prestamo.cuotaDiaria)),
         observaciones: `${pagoOrig.observaciones || ''} | Editado: ${motivo}`.trim().replace(/^\| /, ''),
       },
-    }),
-    db.prestamo.update({
+    })
+    await tx.prestamo.update({
       where: { id: prestamo.id },
       data: {
         montoPagado: nuevoMontoPagado,
@@ -180,8 +181,8 @@ export async function editarPago(
         diasPagados: nuevosDiasPagados,
         estado: nuevoSaldoFinal <= 0 ? 'pagado' : 'activo',
       },
-    }),
-    db.historial.create({
+    })
+    await tx.historial.create({
       data: {
         usuarioId,
         tenantId: tenantId ?? pagoOrig.tenantId,
@@ -194,8 +195,8 @@ export async function editarPago(
           motivo,
         }),
       },
-    }),
-  ])
+    })
+  })
 
   return { ok: true, message: 'Pago actualizado' }
 }
@@ -231,9 +232,9 @@ export async function eliminarPago(
   const nuevoSaldoFinal = roundMoney(Number(prestamo.saldoPendiente) + montoEliminado)
   const nuevosDiasPagados = Math.max(0, Math.floor(nuevoMontoPagado / Number(prestamo.cuotaDiaria)))
 
-  await db.$transaction([
-    db.pago.delete({ where: { id: pagoId } }),
-    db.prestamo.update({
+  await db.$transaction(async (tx) => {
+    await tx.pago.delete({ where: { id: pagoId } })
+    await tx.prestamo.update({
       where: { id: prestamo.id },
       data: {
         montoPagado: nuevoMontoPagado,
@@ -241,8 +242,8 @@ export async function eliminarPago(
         diasPagados: nuevosDiasPagados,
         estado: 'activo',
       },
-    }),
-    db.historial.create({
+    })
+    await tx.historial.create({
       data: {
         usuarioId,
         tenantId: tenantId ?? pagoOrig.tenantId,
@@ -254,8 +255,8 @@ export async function eliminarPago(
           motivo,
         }),
       },
-    }),
-  ])
+    })
+  })
 
   return { ok: true, message: 'Pago eliminado' }
 }

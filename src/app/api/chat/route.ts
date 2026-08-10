@@ -71,14 +71,14 @@ export async function POST(request: NextRequest) {
 
   const botResponse = getBotResponse(texto)
 
-  await prisma.$transaction([
-    prisma.chatMensaje.create({
+  await prisma.$transaction(async (tx) => {
+    await tx.chatMensaje.create({
       data: { sesionId: sesion.id, direccion: 'entrada', texto },
-    }),
-    prisma.chatMensaje.create({
+    })
+    await tx.chatMensaje.create({
       data: { sesionId: sesion.id, direccion: 'salida', texto: botResponse },
-    }),
-  ])
+    })
+  })
 
   sendWhatsAppText(telefono, botResponse).catch(() => {})
 

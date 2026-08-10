@@ -37,7 +37,7 @@ type Cliente = {
 type Stats = {
   total_prestamos: number; activos: number; pagados: number
   monto_prestado: number; monto_recuperado: number; saldo_pendiente: number
-  total_clientes: number
+  total_clientes: number; recaudado_mes: number; comision_porcentaje: number; comision_mes: number
 }
 
 type View = 'dashboard' | 'clientes' | 'prestamos' | 'pagos'
@@ -289,6 +289,23 @@ function DashboardView({ stats, prestamos, loading }: { stats: Stats | null; pre
         <StatCard icon={<TrendingUp size={16} />} iconBg="bg-amber-500/15 text-amber-400" label="Pendiente" value={stats ? moneyFmt.format(stats.saldo_pendiente) : '$0'} color="text-amber-400" tip="Saldo total que tus clientes aún te deben. Es lo que falta por recaudar de todos los préstamos activos." />
         <StatCard icon={<Users size={16} />} iconBg="bg-lime/10 text-lime" label="Clientes" value={String(stats?.total_clientes ?? 0)} tip="Clientes asignados bajo tu gestión. Son las personas cuyos préstamos y cobros vos administrás." />
       </div>
+
+      {stats && stats.comision_porcentaje > 0 && (
+        <div className="mb-4 rounded-xl border border-lime/30 bg-lime/5 p-3 sm:mb-6 sm:p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime/10">
+                <TrendingUp size={16} className="text-lime" />
+              </div>
+              <div>
+                <p className="text-xs text-bone/60 sm:text-sm">Comisiones del mes ({stats.comision_porcentaje}%)</p>
+                <p className="text-[10px] text-bone/40 sm:text-xs">Sobre {moneyFmt.format(stats.recaudado_mes)} recaudados</p>
+              </div>
+            </div>
+            <p className="text-lg font-bold text-lime sm:text-xl">{moneyFmt.format(stats.comision_mes)}</p>
+          </div>
+        </div>
+      )}
 
       {(() => {
         const enMora = prestamos.filter(p => p.diasAtrasados > 0)
@@ -710,15 +727,9 @@ function ClientesView({
       if (!data?.success) {
         throw new Error(data?.message || 'Error al registrar el pago')
       }
-      await cargarClientes()
-      if (selectedCliente) {
-        const r = await fetch(`/api/clientes?id=${selectedCliente.id}`)
-        const d = await r.json()
-        if (d.success) setSelectedCliente({ ...selectedCliente, ...d.data, prestamosCliente: d.data.prestamos || [] })
-      }
+      window.location.reload()
     } catch (e) {
       alert(e instanceof Error ? e.message : String(e))
-    } finally {
       setCobrandoId(null)
     }
   }
