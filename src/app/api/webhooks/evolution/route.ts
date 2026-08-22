@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
   if (sesion) {
     await prisma.$transaction(async (tx) => {
       await tx.chatMensaje.create({
-        data: { sesionId: sesion.id, direccion: 'entrada', texto: msg.text },
+        data: { sesionId: sesion.id, direccion: 'entrada', texto: msg.text ?? '' },
       })
       await tx.chatMensaje.create({
         data: { sesionId: sesion.id, direccion: 'salida', texto: response },
