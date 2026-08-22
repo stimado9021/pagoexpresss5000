@@ -118,7 +118,7 @@ async function main() {
   if (!tenant) {
     tenant = await prisma.tenant.create({
       data: {
-        nombre: 'PagoExpress Platform',
+        nombre: 'Kredipay Platform',
         slug: 'platform',
         subdominio: 'platform',
         status: 'ACTIVE',
@@ -153,7 +153,7 @@ async function main() {
     await prisma.configuracionTenant.create({
       data: {
         tenantId: tenant.id,
-        nombreEmpresa: 'PagoExpress Platform',
+        nombreEmpresa: 'Kredipay Platform',
       },
     });
     console.log('Platform config created');

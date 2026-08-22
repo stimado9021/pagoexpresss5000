@@ -9,7 +9,7 @@ async function typeField(page: Page, selector: string, value: string) {
   }
 }
 
-test.describe('Landing page PagoExpress', () => {
+test.describe('Landing page Kredipay', () => {
   test('carga con título y encabezado principal', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' })
     await expect(page).toHaveTitle(/prestamistas/)

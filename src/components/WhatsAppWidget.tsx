@@ -126,7 +126,7 @@ export default function WhatsAppWidget() {
                 <WhatsAppIcon size={20} />
               </span>
               <div>
-                <p className="font-display text-sm font-semibold text-white">PagoExpress</p>
+                <p className="font-display text-sm font-semibold text-white">Kredipay</p>
                 <p className="flex items-center gap-1.5 font-mono text-[11px] text-white/70">
                   <span className="h-1.5 w-1.5 rounded-full bg-lime" />
                   Soporte en línea

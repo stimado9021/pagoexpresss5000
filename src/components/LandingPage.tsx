@@ -33,7 +33,7 @@ const Check = () => (
 );
 
 const WHATSAPP_NUMBER = '573247716650';
-const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola, quiero información sobre PagoExpress.')}`;
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola, quiero información sobre Kredipay.')}`;
 
 const WhatsAppIcon = ({ size = 18 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -239,9 +239,9 @@ export default function LandingPage() {
 
             <a href="#top" className="flex items-center gap-2.5">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
-                  <img src="/logo.webp" alt="PagoExpress" className="h-8 w-8 object-contain" />
+                  <img src="/logo.webp" alt="Kredipay" className="h-8 w-8 object-contain" />
               </span>
-              <span className="font-display font-bold text-lg tracking-tight text-bone">Pago<span className="text-lime">Express</span></span>
+              <span className="font-display font-bold text-lg tracking-tight text-bone">Kredipay</span>
             </a>
 
             <nav className="hidden lg:flex items-center gap-8 font-body text-sm text-bone/80">
@@ -312,7 +312,7 @@ export default function LandingPage() {
               </h1>
 
               <p className="mt-6 font-body text-lg text-bone/70 max-w-xl leading-relaxed">
-                PagoExpress es el sistema integral para gestionar préstamos personales y préstamos colocados a través de terceros: cobros, agentes, intereses y cartera, todo desde un mismo panel de control.
+                Kredipay es el sistema integral para gestionar préstamos personales y préstamos colocados a través de terceros: cobros, agentes, intereses y cartera, todo desde un mismo panel de control.
               </p>
 
               <div className="mt-9 flex flex-col sm:flex-row gap-4">
@@ -355,7 +355,7 @@ export default function LandingPage() {
                       <span className="h-2.5 w-2.5 rounded-full bg-bone/15" />
                       <span className="h-2.5 w-2.5 rounded-full bg-bone/15" />
                     </div>
-                    <span className="font-mono text-[11px] text-bone/40">app.pagoexpress.com/dashboard</span>
+                    <span className="font-mono text-[11px] text-bone/40">app.kredipay.vercel.app/dashboard</span>
                     <span className="w-12" />
                   </div>
 
@@ -465,7 +465,7 @@ export default function LandingPage() {
                     <span className="mx-6 text-bone/20">/</span>
                     <span className="mx-6">Tasa de mora promedio: <span className="text-lime">{stats.tasaMora}%</span></span>
                     <span className="mx-6 text-bone/20">/</span>
-                    <span className="mx-6">Empresas activas en PagoExpress: <span className="text-lime">{stats.empresasActivas || 0}</span></span>
+                    <span className="mx-6">Empresas activas en Kredipay: <span className="text-lime">{stats.empresasActivas || 0}</span></span>
                     <span className="mx-6 text-bone/20">/</span>
                     <span className="mx-6">Préstamos activos: <span className="text-lime">{stats.prestamosActivos}</span></span>
                     <span className="mx-6 text-bone/20">/</span>
@@ -491,7 +491,7 @@ export default function LandingPage() {
               Las herramientas que tu operación de préstamos necesita
             </h2>
             <p className="mt-4 font-body text-bone/65 leading-relaxed">
-              Desde el primer desembolso hasta el último cobro, PagoExpress ordena cada parte del ciclo de tu cartera para que tu equipo trabaje con datos claros, no con hojas de cálculo dispersas.
+              Desde el primer desembolso hasta el último cobro, Kredipay ordena cada parte del ciclo de tu cartera para que tu equipo trabaje con datos claros, no con hojas de cálculo dispersas.
             </p>
           </div>
 
@@ -693,7 +693,7 @@ export default function LandingPage() {
                 Tu empresa, con su propio panel en minutos
               </h2>
               <p className="mt-4 font-body text-bone/65 leading-relaxed">
-                Completa el formulario y te enviaremos el acceso a tu subdominio exclusivo dentro de PagoExpress. Sin instalaciones, sin procesos largos.
+                Completa el formulario y te enviaremos el acceso a tu subdominio exclusivo dentro de Kredipay. Sin instalaciones, sin procesos largos.
               </p>
               <div className="mt-8 space-y-4">
                 {[
@@ -781,7 +781,7 @@ export default function LandingPage() {
                         <input required type="text" id="subdominio" name="subdominio" placeholder="creditosdelvalle"
                           value={form.subdominio} onChange={setField('subdominio')}
                           className="w-full bg-transparent px-4 py-3.5 font-body text-sm text-bone placeholder:text-bone/30 focus:outline-none" />
-                        <span className="flex items-center px-4 font-mono text-sm text-bone/40 bg-graphite-700/50 border-l border-bone/10 whitespace-nowrap">.pagoexpress.com</span>
+                        <span className="flex items-center px-4 font-mono text-sm text-bone/40 bg-graphite-700/50 border-l border-bone/10 whitespace-nowrap">.kredipay.vercel.app</span>
                       </div>
                       {form.subdominio.trim().length >= 3 && (
                         <p className={`mt-2 font-mono text-xs ${subdisponible === false ? 'text-red-400' : subdisponible === true ? 'text-lime' : 'text-bone/40'}`}>
@@ -826,7 +826,7 @@ export default function LandingPage() {
                     <label className="mt-5 flex items-start gap-3 cursor-pointer">
                       <input required type="checkbox" className="mt-1 h-4 w-4 rounded border-bone/30 bg-graphite-800 accent-lime" />
                       <span className="font-body text-xs text-bone/50 leading-relaxed">
-                        Acepto los <a href="#" className="text-lime hover:underline">Términos de servicio</a> y la <Link href="/politica-de-datos" className="text-lime hover:underline">Política de privacidad</Link> de PagoExpress.
+                        Acepto los <a href="#" className="text-lime hover:underline">Términos de servicio</a> y la <Link href="/politica-de-datos" className="text-lime hover:underline">Política de privacidad</Link> de Kredipay.
                       </span>
                     </label>
                     {formError && (
@@ -862,8 +862,8 @@ export default function LandingPage() {
           <div className="mt-12 space-y-4 fade-up">
             {[
               {
-                q: '¿Para quién es PagoExpress?',
-                a: 'PagoExpress está diseñado para prestamistas, empresas de crédito, cooperativas y negocios de cobranza que quieren dejar las libretas y las hojas de cálculo. Sirve tanto al prestamista independiente como a la empresa con varios cobradores en campo.',
+                q: '¿Para quién es Kredipay?',
+                a: 'Kredipay está diseñado para prestamistas, empresas de crédito, cooperativas y negocios de cobranza que quieren dejar las libretas y las hojas de cálculo. Sirve tanto al prestamista independiente como a la empresa con varios cobradores en campo.',
               },
               {
                 q: '¿Puedo manejar préstamos con pago diario?',
@@ -871,7 +871,7 @@ export default function LandingPage() {
               },
               {
                 q: '¿Cómo controlo la mora de mis clientes?',
-                a: 'PagoExpress marca automáticamente los días de atraso de cada préstamo y te muestra en el dashboard quién debe, cuánto y desde cuándo. Puedes enviar recordatorios y saber exactamente qué clientes están en mora para actuar a tiempo.',
+                a: 'Kredipay marca automáticamente los días de atraso de cada préstamo y te muestra en el dashboard quién debe, cuánto y desde cuándo. Puedes enviar recordatorios y saber exactamente qué clientes están en mora para actuar a tiempo.',
               },
               {
                 q: '¿Puedo asignar carteras a vendedores o agentes?',
@@ -879,7 +879,7 @@ export default function LandingPage() {
               },
               {
                 q: '¿Necesito instalar algún programa?',
-                a: 'No. PagoExpress funciona 100% en el navegador desde tu celular, tablet o computador. Cada empresa obtiene su propio subdominio y panel independiente, listo para usar en minutos.',
+                a: 'No. Kredipay funciona 100% en el navegador desde tu celular, tablet o computador. Cada empresa obtiene su propio subdominio y panel independiente, listo para usar en minutos.',
               },
               {
                 q: '¿Mis datos están seguros?',
@@ -887,7 +887,7 @@ export default function LandingPage() {
               },
               {
                 q: '¿Cuánto cuesta y hay prueba gratis?',
-                a: 'Puedes probar PagoExpress 14 días gratis sin tarjeta de crédito. Los planes comienzan desde $39.000/mes para prestamistas independientes y crecen según el tamaño de tu cartera. Cambia o cancela cuando quieras.',
+                a: 'Puedes probar Kredipay 14 días gratis sin tarjeta de crédito. Los planes comienzan desde $39.000/mes para prestamistas independientes y crecen según el tamaño de tu cartera. Cambia o cancela cuando quieras.',
               },
             ].map(({ q, a }) => (
               <details key={q} className="group rounded-2xl border border-bone/10 bg-graphite-900 overflow-hidden">
@@ -917,9 +917,9 @@ export default function LandingPage() {
             <div className="col-span-2 lg:col-span-4">
               <a href="#top" className="flex items-center gap-2.5 mb-4">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
-                <img src="/logo.webp" alt="PagoExpress" className="h-8 w-8 object-contain" />
+                <img src="/logo.webp" alt="Kredipay" className="h-8 w-8 object-contain" />
                 </span>
-                <span className="font-display font-bold text-lg text-bone">Pago<span className="text-lime">Express</span></span>
+                <span className="font-display font-bold text-lg text-bone">Kredipay</span>
               </a>
               <p className="font-body text-sm text-bone/50 leading-relaxed max-w-xs">El sistema integral para gestionar préstamos personales y a través de terceros, pensado para empresas de crédito modernas.</p>
             </div>
@@ -947,7 +947,7 @@ export default function LandingPage() {
               <ul className="space-y-3 font-body text-sm text-bone/50">
                 <li className="flex items-center gap-2">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 4H20V18H4V4Z" stroke="currentColor" strokeWidth="1.6" /><path d="M4 6L12 13L20 6" stroke="currentColor" strokeWidth="1.6" /></svg>
-                  soporte@pagoexpress.com
+                  soporte@kredipay.com
                 </li>
                 <li className="flex items-center gap-2">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8C8 13.6 10.4 16 13.2 17.4L15.4 15.2C15.7 14.9 16.1 14.8 16.5 14.9C17.7 15.3 19 15.5 20.3 15.5C20.9 15.5 21.3 16 21.3 16.5V20C21.3 20.6 20.9 21 20.3 21C10.7 21 3 13.3 3 3.7C3 3.1 3.4 2.7 4 2.7H7.5C8 2.7 8.5 3.1 8.5 3.7C8.5 5 8.7 6.3 9.1 7.5C9.2 7.9 9.1 8.3 8.8 8.6L6.6 10.8Z" stroke="currentColor" strokeWidth="1.6" /></svg>
@@ -958,7 +958,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-14 pt-8 border-t border-bone/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="font-mono text-xs text-bone/35">© 2026 PagoExpress. Todos los derechos reservados.</p>
+            <p className="font-mono text-xs text-bone/35">© 2026 Kredipay. Todos los derechos reservados.</p>
             <p className="font-mono text-xs text-bone/35">Hecho para prestamistas que quieren crecer sin caos.</p>
           </div>
         </div>

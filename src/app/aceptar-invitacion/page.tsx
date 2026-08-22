@@ -95,8 +95,8 @@ export default function AceptarInvitacionPage() {
     <div className="flex min-h-screen items-center justify-center bg-emerald-950 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg shadow-lime/20"><img src="/logo.webp" alt="PagoExpress" className="h-10 w-10 object-contain" /></span>
-          <h1 className="text-xl font-bold text-zinc-100 font-display">PagoExpress</h1>
+          <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg shadow-lime/20"><img src="/logo.webp" alt="Kredipay" className="h-10 w-10 object-contain" /></span>
+          <h1 className="text-xl font-bold text-zinc-100 font-display">Kredipay</h1>
           <p className="mt-1 text-sm text-zinc-400">Completa tus datos para unirte</p>
         </div>
         <Suspense fallback={<div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-sm text-zinc-400">Cargando...</div>}>

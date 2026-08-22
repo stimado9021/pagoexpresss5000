@@ -1,10 +1,10 @@
-# PagoExpress
+# Kredipay
 
 > Software para prestamistas y empresas de crédito en Colombia: gestión de cobros, agentes, intereses, cartera y reportes desde un solo panel de control.
 
-## Qué es PagoExpress
+## Qué es Kredipay
 
-PagoExpress es una plataforma web diseñada para prestamistas, empresas de crédito, cooperativas y negocios de cobranza. Permite gestionar clientes, crear préstamos con cálculo automático de intereses, programar cuotas diarias, registrar pagos, controlar la mora, asignar carteras a vendedores y generar reportes. Cada empresa obtiene su propio subdominio y panel independiente.
+Kredipay es una plataforma web diseñada para prestamistas, empresas de crédito, cooperativas y negocios de cobranza. Permite gestionar clientes, crear préstamos con cálculo automático de intereses, programar cuotas diarias, registrar pagos, controlar la mora, asignar carteras a vendedores y generar reportes. Cada empresa obtiene su propio subdominio y panel independiente.
 
 ## Funcionalidades principales
 
@@ -17,6 +17,6 @@ PagoExpress es una plataforma web diseñada para prestamistas, empresas de créd
 
 ## Links
 
-- [PagoExpress](https://pagoexpress.com/)
-- [Iniciar sesión](https://pagoexpress.com/login)
-- [Crear mi espacio de trabajo](https://pagoexpress.com/#registro)
+- [Kredipay](https://kredipay.vercel.app/)
+- [Iniciar sesión](https://kredipay.vercel.app/login)
+- [Crear mi espacio de trabajo](https://kredipay.vercel.app/#registro)

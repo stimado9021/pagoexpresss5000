@@ -41,7 +41,7 @@ export async function GET() {
 
     const drawHeader = () => {
       y -= 10
-      page.drawText('PagoExpress', { x: margin, y, size: 18, font: helveticaBold, color: rgb(0.2, 0.2, 0.4) })
+      page.drawText('Kredipay', { x: margin, y, size: 18, font: helveticaBold, color: rgb(0.2, 0.2, 0.4) })
       y -= 16
       page.drawText('Reporte de Clientes por Vendedor', { x: margin, y, size: 10, font: helvetica, color: rgb(0.4, 0.4, 0.4) })
       y -= 12

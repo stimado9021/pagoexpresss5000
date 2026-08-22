@@ -87,7 +87,7 @@ export default function AdminTenantPage() {
         </div>
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.webp" alt="PagoExpress" className="h-7 w-7 object-contain" /></span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shrink-0"><img src="/logo.webp" alt="Kredipay" className="h-7 w-7 object-contain" /></span>
             <div>
               <h1 className="font-display font-bold text-2xl text-bone">Panel de Administración</h1>
               <p className="text-bone/60 text-sm mt-1">Gestiona todas las empresas en la plataforma</p>

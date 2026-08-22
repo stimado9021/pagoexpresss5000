@@ -55,9 +55,9 @@ describe('getBotResponse', () => {
     expect(r).toContain('14 días de prueba')
   })
 
-  it('responde con la introducción a "qué es pagoexpress"', () => {
-    const r = getBotResponse('qué es pagoexpress?')
-    expect(r).toContain('PagoExpress es una plataforma')
+  it('responde con la introducción a "qué es kredipay"', () => {
+    const r = getBotResponse('qué es kredipay?')
+    expect(r).toContain('Kredipay es una plataforma')
   })
 
   it('devuelve el fallback con menú para entradas desconocidas', () => {

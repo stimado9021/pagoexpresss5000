@@ -3,9 +3,9 @@ type Intent = {
   response: string
 }
 
-const SITE_URL = 'https://pagoexpress.de5.net'
+const SITE_URL = 'https://kredipay.vercel.app'
 
-const WELCOME = `¡Hola! 👋 Bienvenido a *PagoExpress*.
+const WELCOME = `¡Hola! 👋 Bienvenido a *Kredipay*.
 
 Soy el asistente virtual de la plataforma. Puedo ayudarte con:
 
@@ -18,11 +18,11 @@ Soy el asistente virtual de la plataforma. Puedo ayudarte con:
 
 Escribe el número de la opción o tu pregunta. También puedes visitar 🌐 ${SITE_URL}`
 
-const INTRO = `🌟 *¿Qué es PagoExpress?*
+const INTRO = `🌟 *¿Qué es Kredipay?*
 
-PagoExpress es una plataforma para prestamistas y empresas de crédito que te ayuda a administrar préstamos, clientes y equipo de cobro en un solo lugar.
+Kredipay es una plataforma para prestamistas y empresas de crédito que te ayuda a administrar préstamos, clientes y equipo de cobro en un solo lugar.
 
-Con PagoExpress puedes:
+Con Kredipay puedes:
 • Crear tu empresa con su propio subdominio.
 • Administrar vendedores y clientes.
 • Registrar préstamos con interés y cuotas diarias.
@@ -31,7 +31,7 @@ Con PagoExpress puedes:
 
 Todo comienza con 14 días de prueba gratis. ¿Quieres conocer los planes? Responde: 1`
 
-const PLANES = `📦 *Planes de PagoExpress*
+const PLANES = `📦 *Planes de Kredipay*
 
 1️⃣ *Independiente* — US$39/mes (US$390/año)
 • Hasta 2 vendedores
@@ -56,7 +56,7 @@ const PLANES = `📦 *Planes de PagoExpress*
 
 const PAGAR_PLAN = `💳 *¿Cómo pagar tu plan?*
 
-1. Ingresa al dashboard de tu empresa (tu subdominio, p. ej. miempresa.pagoexpress.com) con tu cuenta de empresario.
+1. Ingresa al dashboard de tu empresa (tu subdominio, p. ej. miempresa.kredipay.vercel.app) con tu cuenta de empresario.
 2. Entra a *Suscripción* en el menú lateral.
 3. Elige tu plan y la frecuencia (mensual o anual).
 4. Selecciona tu método de pago: tarjeta de crédito o débito (vía Wompi o Stripe).
@@ -64,7 +64,7 @@ const PAGAR_PLAN = `💳 *¿Cómo pagar tu plan?*
 
 ¿Necesitas ayuda con otra cosa? Responde con el número de una opción del menú.`
 
-const PRESTAMOS = `📋 *¿Cómo funcionan los préstamos en PagoExpress?*
+const PRESTAMOS = `📋 *¿Cómo funcionan los préstamos en Kredipay?*
 
 • El empresario configura la tasa de interés de su empresa (por defecto 20%).
 • El vendedor registra el préstamo indicando el monto y el plazo en días.
@@ -97,11 +97,11 @@ El empresario también puede ver los clientes de cada vendedor desde su dashboar
 
 ¿Quieres saber cómo funcionan los préstamos? Responde: 3`
 
-const EMPRESA = `🏢 *¿Cómo crear tu empresa en PagoExpress?*
+const EMPRESA = `🏢 *¿Cómo crear tu empresa en Kredipay?*
 
 1. Entra a ${SITE_URL} y pulsa *Registrarme*.
 2. Completa el formulario: nombre de la empresa, nombre del administrador, correo, subdominio y contraseña.
-3. Tu subdominio quedará así: *tuempresa.pagoexpress.com*.
+3. Tu subdominio quedará así: *tuempresa.kredipay.vercel.app*.
 4. Al registrarte empiezas en el plan *Independiente* con *14 días de prueba gratis*.
 5. Ingresa a tu subdominio con tu correo o cédula y comienza a trabajar.
 
@@ -109,7 +109,7 @@ const EMPRESA = `🏢 *¿Cómo crear tu empresa en PagoExpress?*
 
 const PRUEBA = `🎁 *Prueba gratis de 14 días*
 
-Todos los planes de PagoExpress incluyen *14 días de prueba gratis*.
+Todos los planes de Kredipay incluyen *14 días de prueba gratis*.
 
 Al crear tu empresa empiezas automáticamente en el plan Independiente sin costo durante los primeros 14 días. Después puedes elegir el plan que mejor se ajuste a tu negocio.
 
@@ -178,7 +178,7 @@ const INTENTS: Intent[] = [
     response: CONTACTO,
   },
   {
-    keywords: ['que es pagoexpress', 'que es pago express', 'pagoexpress', 'pago express', 'informacion', 'opciones', 'menu'],
+    keywords: ['que es kredipay', 'que es kredi pay', 'kredipay', 'kredi pay', 'informacion', 'opciones', 'menu'],
     response: INTRO,
   },
   {

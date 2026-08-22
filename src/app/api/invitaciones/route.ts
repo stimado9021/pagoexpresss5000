@@ -58,11 +58,11 @@ export async function POST(request: Request) {
 
     await sendEmail({
       to: email,
-      subject: `Te invitaron a ${tenant?.nombre ?? 'PagoExpress'}`,
+      subject: `Te invitaron a ${tenant?.nombre ?? 'Kredipay'}`,
       html: layoutHtml(`
         <h1 style="font-size:20px;margin:0 0 12px;">Has sido invitado</h1>
         <p style="margin:0 0 16px;">
-          <strong>${tenant?.nombre ?? 'PagoExpress'}</strong> te invitó a unirte como <strong>${rolLabel}</strong> en su sistema PagoExpress.
+          <strong>${tenant?.nombre ?? 'Kredipay'}</strong> te invitó a unirte como <strong>${rolLabel}</strong> en su sistema Kredipay.
         </p>
         <p style="margin:0 0 20px;">El enlace de invitación es válido por 7 días.</p>
         <a href="${acceptUrl}" style="display:inline-block;background:#c9f24c;color:#022c22;text-decoration:none;font-weight:700;padding:12px 24px;border-radius:999px;">

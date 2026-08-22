@@ -179,7 +179,7 @@ async function clienteDashboard(session: ApiSession, db: DbClient): Promise<Reco
     db.prestamo.findMany({
       where: { clienteId: session.userId },
       orderBy: { createdAt: 'desc' },
-      include: { pagos: { select: { fechaPago: true, diasCubiertos: true } } },
+      include: { pagos: { select: { id: true, monto: true, fechaPago: true, diasCubiertos: true, esPagoAtrasado: true, createdAt: true } } },
     }),
   ])
   const prestamos = rawPrestamos.map((p) => ({ ...p, diasAtrasados: calcularDiasAtrasados(p) }))

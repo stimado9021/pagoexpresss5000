@@ -4,7 +4,7 @@ import { Resend } from 'resend'
 const apiKey = process.env.RESEND_API_KEY
 const resend = apiKey ? new Resend(apiKey) : null
 
-const from = process.env.EMAIL_FROM || 'PagoExpress <onboarding@resend.dev>'
+const from = process.env.EMAIL_FROM || 'Kredipay <onboarding@resend.dev>'
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
 export async function sendEmail({
@@ -54,10 +54,10 @@ export async function sendCredenciales({
 }) {
   return sendEmail({
     to,
-    subject: `Tus credenciales de acceso a PagoExpress${rol ? ` (${rol})` : ''}`,
+    subject: `Tus credenciales de acceso a Kredipay${rol ? ` (${rol})` : ''}`,
     html: layoutHtml(`
       <h1 style="font-size:20px;margin:0 0 12px;">¡Hola, ${nombre}!</h1>
-      <p style="margin:0 0 16px;">Tu usuario en PagoExpress quedó listo. Estas son tus credenciales de acceso:</p>
+      <p style="margin:0 0 16px;">Tu usuario en Kredipay quedó listo. Estas son tus credenciales de acceso:</p>
       <table style="width:100%;border-collapse:collapse;margin:0 0 20px;background:#1e293b;border-radius:10px;overflow:hidden;">
         <tr>
           <td style="padding:12px 16px;color:#a8a29e;width:40%;">Correo de acceso</td>
@@ -80,14 +80,14 @@ export function layoutHtml(body: string): string {  return `
       <div style="background:#14532d;padding:24px 32px;">
         <div style="display:flex;align-items:center;gap:10px;">
           <div style="width:32px;height:32px;border-radius:8px;background:#c9f24c;display:flex;align-items:center;justify-content:center;font-weight:700;color:#022c22;">P</div>
-          <span style="color:#f5f5f4;font-size:17px;font-weight:700;">PagoExpress</span>
+          <span style="color:#f5f5f4;font-size:17px;font-weight:700;">Kredipay</span>
         </div>
       </div>
       <div style="padding:32px;color:#f5f5f4;font-size:14px;line-height:1.6;">
         ${body}
       </div>
       <div style="padding:16px 32px;border-top:1px solid rgba(255,255,255,0.08);color:#a8a29e;font-size:12px;text-align:center;">
-        &copy; ${new Date().getFullYear()} PagoExpress &bull; Gestión de préstamos
+        &copy; ${new Date().getFullYear()} Kredipay &bull; Gestión de préstamos
       </div>
     </div>
   </div>`

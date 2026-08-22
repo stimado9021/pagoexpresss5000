@@ -40,7 +40,7 @@ async function ensurePrice(plan, nombreSufijo, cantidad, nombreCompleto) {
   }
 
   const product = await stripe.products.create({
-    name: `PagoExpress ${plan.nombre} ${nombreSufijo === 'Mensual' ? 'Mensual' : 'Anual'}`,
+    name: `Kredipay ${plan.nombre} ${nombreSufijo === 'Mensual' ? 'Mensual' : 'Anual'}`,
     description: plan.description || undefined,
     metadata: { planSlug: plan.slug, intervalo: nombreSufijo === 'Mensual' ? 'MONTHLY' : 'ANUAL' },
   });
@@ -68,8 +68,8 @@ async function main() {
 
   for (const plan of plans) {
     console.log(`Procesando plan: ${plan.nombre} (${plan.slug})`);
-    const mensualId = await ensurePrice(plan, 'Mensual', plan.precioMensual, `PagoExpress ${plan.nombre} Mensual`);
-    const anualId = await ensurePrice(plan, 'Anual', plan.precioAnual ?? plan.precioMensual * 10, `PagoExpress ${plan.nombre} Anual`);
+    const mensualId = await ensurePrice(plan, 'Mensual', plan.precioMensual, `Kredipay ${plan.nombre} Mensual`);
+    const anualId = await ensurePrice(plan, 'Anual', plan.precioAnual ?? plan.precioMensual * 10, `Kredipay ${plan.nombre} Anual`);
     await prisma.plan.update({
       where: { id: plan.id },
       data: { stripePriceMensualId: mensualId, stripePriceAnualId: anualId },

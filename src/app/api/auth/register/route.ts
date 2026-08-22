@@ -87,7 +87,7 @@ export async function POST(request: Request) {
       data: {
         nombre: empresa,
         slug,
-        subdominio: `${slug}.pagoexpress.com`,
+        subdominio: `${slug}.kredipay.vercel.app`,
         planId: plan.id,
         status: 'TRIAL',
         trialStartsAt: now,
@@ -140,14 +140,14 @@ export async function POST(request: Request) {
 
     await sendEmail({
       to: correo,
-      subject: 'Tu espacio en PagoExpress está listo',
+      subject: 'Tu espacio en Kredipay está listo',
       html: layoutHtml(`
         <h1 style="font-size:20px;margin:0 0 12px;">¡Bienvenido, ${adminNombre}!</h1>
         <p style="margin:0 0 16px;">Tu empresa <strong>${empresa}</strong> ya está creada con 14 días de prueba gratis.</p>
         <table style="width:100%;border-collapse:collapse;margin:0 0 20px;">
           <tr>
             <td style="padding:8px 0;color:#a8a29e;">Subdominio</td>
-            <td style="padding:8px 0;text-align:right;font-family:monospace;">${slug}.pagoexpress.com</td>
+            <td style="padding:8px 0;text-align:right;font-family:monospace;">${slug}.kredipay.vercel.app</td>
           </tr>
           <tr>
             <td style="padding:8px 0;color:#a8a29e;">Correo de acceso</td>

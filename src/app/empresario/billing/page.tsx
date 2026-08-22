@@ -170,7 +170,7 @@ function BillingContent() {
             <AlertTriangle size={20} className="mt-0.5 shrink-0 text-amber-400" />
             <div className="text-sm text-amber-300">
               <p className="font-semibold">Tu acceso está limitado.</p>
-              <p className="mt-1 text-amber-200/80">Activa un plan para continuar usando el panel de PagoExpress.</p>
+              <p className="mt-1 text-amber-200/80">Activa un plan para continuar usando el panel de Kredipay.</p>
             </div>
           </div>
         )}
@@ -272,7 +272,7 @@ function BillingContent() {
 
         <div className="mt-10 pb-6 text-center">
           <button onClick={() => router.push('/empresario')} className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors">
-            <CreditCard size={15} /> ¿Preguntas sobre facturación? soporte@pagoexpress.com
+            <CreditCard size={15} /> ¿Preguntas sobre facturación? soporte@kredipay.com
           </button>
         </div>
       </div>
