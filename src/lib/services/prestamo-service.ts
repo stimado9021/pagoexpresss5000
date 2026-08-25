@@ -221,10 +221,12 @@ const queryStrategies: Record<
 
 export async function listarPrestamos(
   session: ApiSession,
-  options: { clienteId?: number } = {},
+  options: { clienteId?: number; limit?: number; offset?: number } = {},
   db: DbClient = prisma
 ): Promise<Resultado<unknown>> {
   const { clienteId } = options
+  const limit = Math.min(Math.max(options.limit ?? 50, 1), 100)
+  const offset = Math.max(options.offset ?? 0, 0)
 
   if (clienteId !== undefined) {
     if (!clienteId) {
@@ -250,12 +252,17 @@ export async function listarPrestamos(
       }
     }
 
-    const raw = await db.prestamo.findMany({
-      where: { clienteId },
-      orderBy: { createdAt: 'desc' },
-      include: { pagos: { select: { fechaPago: true, diasCubiertos: true } } },
-    })
-    return { ok: true, data: raw.map((p) => ({ ...p, diasAtrasados: calcularDiasAtrasados(p) })) }
+    const [total, raw] = await Promise.all([
+      db.prestamo.count({ where: { clienteId } }),
+      db.prestamo.findMany({
+        where: { clienteId },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset,
+        include: { pagos: { select: { fechaPago: true, diasCubiertos: true } } },
+      }),
+    ])
+    return { ok: true, data: raw.map((p) => ({ ...p, diasAtrasados: calcularDiasAtrasados(p) })), total }
   }
 
   const strategy = queryStrategies[session.rol]
@@ -264,17 +271,22 @@ export async function listarPrestamos(
   }
 
   const { where, include } = strategy(session)
-  const raw = await db.prestamo.findMany({
-    where,
-    orderBy: { createdAt: 'desc' },
-    include:
-      include === 'portfolio'
-        ? {
-            cliente: { select: { nombre: true, apellido: true, cedula: true } },
-            vendedor: { select: { nombre: true, apellido: true } },
-            pagos: { select: { fechaPago: true, diasCubiertos: true } },
-          }
-        : undefined,
-  })
-  return { ok: true, data: raw.map((p) => ({ ...p, diasAtrasados: calcularDiasAtrasados(p) })) }
+  const [total, raw] = await Promise.all([
+    db.prestamo.count({ where }),
+    db.prestamo.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: offset,
+      include:
+        include === 'portfolio'
+          ? {
+              cliente: { select: { nombre: true, apellido: true, cedula: true } },
+              vendedor: { select: { nombre: true, apellido: true } },
+              pagos: { select: { fechaPago: true, diasCubiertos: true } },
+            }
+          : undefined,
+    }),
+  ])
+  return { ok: true, data: raw.map((p) => ({ ...p, diasAtrasados: calcularDiasAtrasados(p) })), total, limit, offset }
 }

@@ -34,3 +34,9 @@ export async function listarHistorial(
 
   return { ok: true, data: registros, total }
 }
+
+export async function purgarHistorial(days = 90, db: DbClient = prisma) {
+  const cutoff = new Date(Date.now() - days * 86_400_000)
+  const res = await db.historial.deleteMany({ where: { createdAt: { lt: cutoff } } })
+  return res.count
+}

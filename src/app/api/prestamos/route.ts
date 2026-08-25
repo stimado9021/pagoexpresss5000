@@ -21,10 +21,12 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url)
   const clienteId = searchParams.get('cliente_id')
+  const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50'), 1), 100)
+  const offset = Math.max(parseInt(searchParams.get('offset') || '0'), 0)
 
   try {
     return apiResponse(
-      await listarPrestamos(session, { clienteId: clienteId ? parseInt(clienteId) : undefined })
+      await listarPrestamos(session, { clienteId: clienteId ? parseInt(clienteId) : undefined, limit, offset })
     )
   } catch {
     return NextResponse.json({ success: false, message: 'Error del servidor' }, { status: 500 })

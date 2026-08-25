@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { calcularDiasAtrasados } from '@/lib/prestamo-utils'
+import { cached } from '@/lib/cache'
 import type { ApiSession } from '@/lib/api-helpers'
 import type { Resultado } from './types'
 
@@ -77,9 +78,10 @@ async function portfolioDashboard(
     v.prestamosCreados.reduce((s, p) => s + Number(p.montoSolicitado), 0)
 
   const vendedorIds = vendedores.map(v => v.id)
-  const pagosMes = vendedorIds.length > 0 ? await prisma.pago.groupBy({
+  const pagosMes = vendedorIds.length > 0 ? await db.pago.groupBy({
     by: ['vendedorId'],
     where: {
+      ...(tenantId ? { tenantId } : {}),
       vendedorId: { in: vendedorIds },
       fechaPago: { gte: inicioMes, lte: finMes },
     },
@@ -124,7 +126,8 @@ async function vendedorDashboard(session: ApiSession, db: DbClient): Promise<Rec
 
   const [rawPrestamos, totalClientes, tenantConfig, pagoMes] = await Promise.all([
     db.prestamo.findMany({
-      where: { vendedorId: session.userId },
+      where: { vendedorId: session.userId, ...(session.tenantId ? { tenantId: session.tenantId } : {}) },
+      take: 50,
       include: {
         cliente: { select: { nombre: true, apellido: true, cedula: true } },
         pagos: { select: { id: true, monto: true, fechaPago: true, diasCubiertos: true, esPagoAtrasado: true } },
@@ -138,6 +141,7 @@ async function vendedorDashboard(session: ApiSession, db: DbClient): Promise<Rec
     db.pago.aggregate({
       where: {
         vendedorId: session.userId,
+        ...(session.tenantId ? { tenantId: session.tenantId } : {}),
         fechaPago: { gte: inicioMes, lte: finMes },
       },
       _sum: { monto: true },
@@ -216,8 +220,12 @@ export async function getDashboard(
   if (!strategy) {
     return { ok: false, status: 400, message: 'Rol no válido' }
   }
+  // cache 30s por rol+tenant+usuario para evitar N queries paralelas en dashboard
+  const cacheKey = `dash:${session.rol}:${session.tenantId ?? 'global'}:${session.userId}`
+  const ttl = session.rol === 'vendedor' ? 30_000 : 30_000
   try {
-    return await strategy(session, db)
+    const result = await cached(cacheKey, ttl, () => strategy(session, db))
+    return result
   } catch (error) {
     console.error('[DASHBOARD ERROR]', error)
     return { ok: false, status: 500, message: 'Error del servidor' }

@@ -198,10 +198,13 @@ model Usuario {
   pagos       Pago[]
   historial   Historial[]
 
-  @@index([cedula])
+   @@index([cedula])
   @@index([rol])
   @@index([nombre, apellido])
   @@index([tenantId])
+  @@index([tenantId, rol])
+  @@index([tenantId, rol, activo])
+  @@index([vendedorId])
   @@map("usuarios")
 }
 
@@ -237,6 +240,10 @@ model Prestamo {
   @@index([vendedorId])
   @@index([estado])
   @@index([fechaInicio])
+  @@index([tenantId, estado])
+  @@index([tenantId, estado, createdAt])
+  @@index([tenantId, vendedorId])
+  @@index([vendedorId, estado])
   @@map("prestamos")
 }
 
@@ -247,7 +254,7 @@ model Pago {
   vendedorId     Int      @map("vendedor_id")
   fechaPago      DateTime @map("fecha_pago")
   fechaEsperada  DateTime @map("fecha_esperada")
-  monto          Decimal
+  monto          Decimal  @db.Decimal(10, 2)
   diasCubiertos  Int      @default(1) @map("dias_cubiertos")
   esPagoAtrasado Int      @default(0) @map("es_pago_atrasado")
   diasAtraso     Int      @default(0) @map("dias_atraso")
@@ -262,6 +269,10 @@ model Pago {
   @@index([prestamoId])
   @@index([fechaPago])
   @@index([fechaEsperada])
+  @@index([tenantId, vendedorId, fechaPago])
+  @@index([tenantId, prestamoId])
+  @@index([vendedorId, fechaPago])
+  @@index([tenantId, createdAt])
   @@map("pagos")
 }
 
@@ -282,6 +293,8 @@ model Historial {
   @@index([usuarioId])
   @@index([tenantId])
   @@index([createdAt])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, accion])
   @@map("historial")
 }
 

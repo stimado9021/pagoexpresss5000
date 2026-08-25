@@ -135,6 +135,8 @@ export type ClienteQuery = {
   resumen?: string
   cliente_id?: string
   vendedor_id?: string
+  limit?: string
+  offset?: string
 }
 
 type HandlerCtx = { session: ApiSession; query: ClienteQuery; db: DbClient }
@@ -151,53 +153,77 @@ function clave(session: ApiSession, q: ClienteQuery): string {
 }
 
 const handlers: Record<string, ClienteQueryHandler> = {
-  resumen_vendedor: async ({ session, db }) => {
-    const clientes = await db.usuario.findMany({
-      where: { rol: 'cliente', vendedorId: session.userId },
-      select: {
-        id: true, cedula: true, nombre: true, apellido: true,
-        telefono: true, email: true, direccion: true, activo: true, createdAt: true,
-        prestamosCliente: {
-          select: {
-            id: true, estado: true, montoSolicitado: true, montoPagado: true,
-            saldoPendiente: true, cuotaDiaria: true, diasAtrasados: true,
-            diasPlazo: true, diasPagados: true, fechaInicio: true, montoTotal: true,
-            fechaUltimoPago: true,
-            pagos: { select: { fechaPago: true, diasCubiertos: true } },
+  resumen_vendedor: async ({ session, query, db }) => {
+    const limit = Math.min(Math.max(parseInt(String(query.limit ?? '50')), 1), 100)
+    const offset = Math.max(parseInt(String(query.offset ?? '0')), 0)
+    const where = { rol: 'cliente', vendedorId: session.userId } as const
+    const [total, clientes] = await Promise.all([
+      db.usuario.count({ where }),
+      db.usuario.findMany({
+        where,
+        select: {
+          id: true, cedula: true, nombre: true, apellido: true,
+          telefono: true, email: true, direccion: true, activo: true, createdAt: true,
+          prestamosCliente: {
+            select: {
+              id: true, estado: true, montoSolicitado: true, montoPagado: true,
+              saldoPendiente: true, cuotaDiaria: true, diasAtrasados: true,
+              diasPlazo: true, diasPagados: true, fechaInicio: true, montoTotal: true,
+              fechaUltimoPago: true,
+              pagos: { select: { fechaPago: true, diasCubiertos: true } },
+            },
           },
         },
-      },
-      orderBy: { nombre: 'asc' },
-    })
-    return { ok: true, data: withAtrasos(clientes) }
+        orderBy: { nombre: 'asc' },
+        take: limit,
+        skip: offset,
+      }),
+    ])
+    return { ok: true, data: withAtrasos(clientes), total }
   },
 
   por_vendedor: async ({ session, query, db }) => {
-    const clientes = await db.usuario.findMany({
-      where: { rol: 'cliente', vendedorId: parseInt(String(query.vendedor_id)), ...tenantFilter(session) },
-      select: {
-        id: true, cedula: true, nombre: true, apellido: true,
-        telefono: true, email: true, direccion: true, activo: true, createdAt: true,
-        prestamosCliente: {
-          select: {
-            estado: true, montoSolicitado: true, montoPagado: true, saldoPendiente: true,
-            cuotaDiaria: true, diasAtrasados: true, fechaInicio: true, fechaUltimoPago: true,
-            montoTotal: true,
-            pagos: { select: { fechaPago: true, diasCubiertos: true } },
+    const limit = Math.min(Math.max(parseInt(String(query.limit ?? '50')), 1), 100)
+    const offset = Math.max(parseInt(String(query.offset ?? '0')), 0)
+    const where = { rol: 'cliente', vendedorId: parseInt(String(query.vendedor_id)), ...tenantFilter(session) }
+    const [total, clientes] = await Promise.all([
+      db.usuario.count({ where }),
+      db.usuario.findMany({
+        where,
+        select: {
+          id: true, cedula: true, nombre: true, apellido: true,
+          telefono: true, email: true, direccion: true, activo: true, createdAt: true,
+          prestamosCliente: {
+            select: {
+              estado: true, montoSolicitado: true, montoPagado: true, saldoPendiente: true,
+              cuotaDiaria: true, diasAtrasados: true, fechaInicio: true, fechaUltimoPago: true,
+              montoTotal: true,
+              pagos: { select: { fechaPago: true, diasCubiertos: true } },
+            },
           },
         },
-      },
-      orderBy: { nombre: 'asc' },
-    })
-    return { ok: true, data: withAtrasos(clientes) }
+        orderBy: { nombre: 'asc' },
+        take: limit,
+        skip: offset,
+      }),
+    ])
+    return { ok: true, data: withAtrasos(clientes), total }
   },
 
   por_rol: async ({ query, db }) => {
-    const usuarios = await db.usuario.findMany({
-      where: { rol: String(query.rol) },
-      orderBy: { nombre: 'asc' },
-      include: { _count: { select: { prestamosCliente: true } } },
-    })
+    const limit = Math.min(Math.max(parseInt(String(query.limit ?? '50')), 1), 100)
+    const offset = Math.max(parseInt(String(query.offset ?? '0')), 0)
+    const where = { rol: String(query.rol) }
+    const [total, usuarios] = await Promise.all([
+      db.usuario.count({ where }),
+      db.usuario.findMany({
+        where,
+        orderBy: { nombre: 'asc' },
+        take: limit,
+        skip: offset,
+        include: { _count: { select: { prestamosCliente: true } } },
+      }),
+    ])
     return {
       ok: true,
       data: usuarios.map((u) => ({
@@ -212,6 +238,7 @@ const handlers: Record<string, ClienteQueryHandler> = {
         created_at: u.createdAt,
         prestamos: u._count.prestamosCliente,
       })),
+      total,
     }
   },
 
