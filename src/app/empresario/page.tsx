@@ -278,22 +278,40 @@ export default function AdminPage() {
             </h1>
           </div>
           {planInfo && (planInfo.status === 'TRIAL_EXPIRED' || planInfo.status === 'SUSPENDED' || planInfo.status === 'CANCELLED') && (
-            <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5">
-              <div className="flex items-start gap-3">
-                <AlertTriangle size={18} className="mt-0.5 shrink-0 text-amber-400 sm:hidden" />
-                <AlertTriangle size={20} className="mt-0.5 shrink-0 text-amber-400 hidden sm:block" />
-                <div className="text-sm">
-                  <p className="font-semibold text-amber-300">Tu plan está {planInfo.status === 'TRIAL_EXPIRED' ? 'vencido' : 'suspendido'}</p>
-                  <p className="mt-1 text-amber-200/80">Activa un plan para restablecer el acceso completo.</p>
+            <>
+              <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle size={18} className="mt-0.5 shrink-0 text-amber-400 sm:hidden" />
+                  <AlertTriangle size={20} className="mt-0.5 shrink-0 text-amber-400 hidden sm:block" />
+                  <div className="text-sm">
+                    <p className="font-semibold text-amber-300">Tu plan está {planInfo.status === 'TRIAL_EXPIRED' ? 'vencido' : 'suspendido'}</p>
+                    <p className="mt-1 text-amber-200/80">Activa un plan para restablecer el acceso completo. Tus datos están a salvo.</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => router.push('/empresario/billing')}
+                  className="shrink-0 w-full rounded-full bg-lime px-5 py-2.5 font-display text-sm font-semibold text-emerald-950 hover:bg-zinc-100 transition-colors sm:w-auto"
+                >
+                  Ver planes y pagar
+                </button>
+              </div>
+              <div className="mb-6 rounded-2xl border border-red-500/30 bg-zinc-900 p-6 text-center">
+                <div className="mx-auto max-w-xl">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/15">
+                    <AlertTriangle size={24} className="text-amber-400" />
+                  </div>
+                  <h3 className="mt-4 font-display text-lg font-bold text-zinc-100">Acceso limitado — elige un plan para continuar</h3>
+                  <p className="mt-2 text-sm text-zinc-400">Tu periodo de prueba terminó. No puedes crear vendedores, clientes ni préstamos hasta activar una suscripción. Serás redirigido a facturación.</p>
+                  <button
+                    onClick={() => router.push('/empresario/billing')}
+                    className="mt-5 w-full rounded-full bg-lime px-6 py-3 font-display text-sm font-semibold text-emerald-950 hover:bg-zinc-100 transition-colors sm:w-auto"
+                  >
+                    Ir a Suscripción y pagar
+                  </button>
+                  <p className="mt-3 text-xs text-zinc-500">Soporte: soporte@kredipay.com</p>
                 </div>
               </div>
-              <button
-                onClick={() => router.push('/empresario/billing')}
-                className="shrink-0 w-full rounded-full bg-lime px-5 py-2.5 font-display text-sm font-semibold text-emerald-950 hover:bg-zinc-100 transition-colors sm:w-auto"
-              >
-                Ver planes
-              </button>
-            </div>
+            </>
           )}
 
           {/* ══════ DASHBOARD ══════ */}

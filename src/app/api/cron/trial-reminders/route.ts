@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { sendTrialReminders } from '@/lib/notifications'
+import { sendTrialReminders, sendRenewalReminders } from '@/lib/notifications'
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    await sendTrialReminders()
+    await Promise.all([sendTrialReminders(), sendRenewalReminders()])
     return NextResponse.json({ success: true, message: 'Trial reminders processed' })
   } catch (error) {
     console.error('Trial reminder error:', error)

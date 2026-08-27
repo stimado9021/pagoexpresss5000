@@ -15,12 +15,16 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await requireRole(ROLES.SUPERADMIN, ROLES.EMPRESARIO)
+  const session = await requireRole(ROLES.SUPERADMIN)
   if (isErrorResponse(session)) return session
 
   try {
     const body = await request.json()
-    return apiResponse(await cambiarPlan(session, body.planId))
+    if (!body?.tenantId) {
+      return NextResponse.json({ success: false, message: 'tenantId requerido (solo superadmin puede asignar planes sin pago)' }, { status: 400 })
+    }
+    const targetSession = { ...session, tenantId: Number(body.tenantId) }
+    return apiResponse(await cambiarPlan(targetSession, body.planId))
   } catch (error) {
     console.error('[SUBSCRIPTIONS POST ERROR]', error)
     return NextResponse.json({ success: false, message: 'Error al procesar la suscripción' }, { status: 500 })

@@ -94,7 +94,10 @@ export async function POST(request: NextRequest) {
         }
 
         const now = new Date()
-        const pagadoHasta = new Date(now.getTime() + daysForInterval(intervalo) * 24 * 60 * 60 * 1000)
+        // Sincronizado con Wompi: si ya tiene pagadoHasta futuro, acumula, si no parte de now
+        const existing = await prisma.suscripcion.findUnique({ where: { tenantId: targetTenantId }, include: { tenant: true } })
+        const base = existing?.pagadoHasta && existing.pagadoHasta > now ? existing.pagadoHasta : now
+        const pagadoHasta = new Date(base.getTime() + daysForInterval(intervalo) * 24 * 60 * 60 * 1000)
 
         const empresario = await prisma.usuario.findFirst({
           where: { tenantId: targetTenantId, rol: 'empresario' },
@@ -129,7 +132,7 @@ export async function POST(request: NextRequest) {
             data: {
               planId: targetPlanId,
               status: 'ACTIVE',
-              planStartsAt: now,
+              planStartsAt: existing?.tenant?.planStartsAt ?? now,
               planExpiresAt: pagadoHasta,
             },
           })

@@ -29,7 +29,7 @@ Con Kredipay puedes:
 • Enviar comprobantes y recordatorios por WhatsApp automáticamente.
 • Controlar todo desde tu dashboard.
 
-Todo comienza con 14 días de prueba gratis. ¿Quieres conocer los planes? Responde: 1`
+Todo comienza con 15 días de prueba gratis. ¿Quieres conocer los planes? Responde: 1`
 
 const PLANES = `📦 *Planes de Kredipay*
 
@@ -50,7 +50,7 @@ const PLANES = `📦 *Planes de Kredipay*
 • Acceso a API
 • Marca personalizada
 
-✅ Los 3 planes incluyen *14 días de prueba gratis*.
+✅ Los 3 planes incluyen *15 días de prueba gratis*.
 
 ¿Quieres saber cómo pagar tu plan o cómo crear tu empresa?`
 
@@ -102,16 +102,16 @@ const EMPRESA = `🏢 *¿Cómo crear tu empresa en Kredipay?*
 1. Entra a ${SITE_URL} y pulsa *Registrarme*.
 2. Completa el formulario: nombre de la empresa, nombre del administrador, correo, subdominio y contraseña.
 3. Tu subdominio quedará así: *tuempresa.kredipay.vercel.app*.
-4. Al registrarte empiezas en el plan *Independiente* con *14 días de prueba gratis*.
+4. Al registrarte empiezas en el plan *Independiente* con *15 días de prueba gratis*.
 5. Ingresa a tu subdominio con tu correo o cédula y comienza a trabajar.
 
 ¿Quieres conocer los planes? Responde: 1`
 
-const PRUEBA = `🎁 *Prueba gratis de 14 días*
+const PRUEBA = `🎁 *Prueba gratis de 15 días*
 
-Todos los planes de Kredipay incluyen *14 días de prueba gratis*.
+Todos los planes de Kredipay incluyen *15 días de prueba gratis*.
 
-Al crear tu empresa empiezas automáticamente en el plan Independiente sin costo durante los primeros 14 días. Después puedes elegir el plan que mejor se ajuste a tu negocio.
+Al crear tu empresa empiezas automáticamente en el plan Independiente sin costo durante los primeros 15 días. Después puedes elegir el plan que mejor se ajuste a tu negocio.
 
 ¿Quieres conocer los planes? Responde: 1`
 

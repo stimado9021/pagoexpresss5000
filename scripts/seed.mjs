@@ -41,7 +41,7 @@ async function main() {
         intervalo: 'MONTHLY',
         description: 'Para prestamistas que están comenzando a formalizar su cartera.',
         activo: true,
-        trialDays: 14,
+        trialDays: 15,
       },
       limietes: [
         { recurso: 'MAX_VENDEDORES', valor: 2 },
@@ -61,7 +61,7 @@ async function main() {
         intervalo: 'MONTHLY',
         description: 'Para empresas de crédito con equipo de cobro y agentes en campo.',
         activo: true,
-        trialDays: 14,
+        trialDays: 15,
       },
       limietes: [
         { recurso: 'MAX_VENDEDORES', valor: 15 },
@@ -81,7 +81,7 @@ async function main() {
         intervalo: 'MONTHLY',
         description: 'Para redes de prestamistas y operaciones de alto volumen.',
         activo: true,
-        trialDays: 14,
+        trialDays: 15,
       },
       limietes: [
         { recurso: 'MAX_VENDEDORES', valor: -1 },

@@ -13,7 +13,7 @@ describe('getBotResponse', () => {
     const r = getBotResponse('1')
     expect(r).toContain('Independiente')
     expect(r).toContain('US$99/mes')
-    expect(r).toContain('14 días de prueba')
+    expect(r).toContain('15 días de prueba')
   })
 
   it('responde a una pregunta de precios con los planes', () => {
@@ -47,12 +47,12 @@ describe('getBotResponse', () => {
   it('responde a cómo crear la empresa', () => {
     const r = getBotResponse('como creo mi empresa')
     expect(r).toContain('subdominio')
-    expect(r).toContain('14 días de prueba')
+    expect(r).toContain('15 días de prueba')
   })
 
   it('responde a la prueba gratis', () => {
     const r = getBotResponse('tiene prueba gratis?')
-    expect(r).toContain('14 días de prueba')
+    expect(r).toContain('15 días de prueba')
   })
 
   it('responde con la introducción a "qué es kredipay"', () => {

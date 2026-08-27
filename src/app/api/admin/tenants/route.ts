@@ -54,7 +54,7 @@ export async function PUT(request: Request) {
     updateData.status = status
     if (status === 'TRIAL' && !updateData.trialStartsAt) {
       updateData.trialStartsAt = new Date()
-      updateData.trialEndsAt = new Date(Date.now() + (trialDays || 14) * 24 * 60 * 60 * 1000)
+      updateData.trialEndsAt = new Date(Date.now() + (trialDays || 15) * 24 * 60 * 60 * 1000)
     }
     if (status === 'ACTIVE') {
       updateData.planStartsAt = new Date()

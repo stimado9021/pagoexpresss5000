@@ -49,6 +49,10 @@ export async function cambiarPlan(
   planId: unknown,
   db: DbClient = prisma
 ): Promise<Resultado<Record<string, unknown>>> {
+  // Solo superadmin puede asignar plan sin pago (uso interno/admin)
+  if (session.rol !== 'superadmin') {
+    return { ok: false, status: 403, message: 'Solo el administrador puede asignar planes manualmente. Usa /api/subscriptions/checkout para pagar.' }
+  }
   const tenant = requireTenant(session)
   if ('ok' in tenant) return tenant
 

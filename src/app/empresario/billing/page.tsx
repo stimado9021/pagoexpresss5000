@@ -170,10 +170,28 @@ function BillingContent() {
             <AlertTriangle size={20} className="mt-0.5 shrink-0 text-amber-400" />
             <div className="text-sm text-amber-300">
               <p className="font-semibold">Tu acceso está limitado.</p>
-              <p className="mt-1 text-amber-200/80">Activa un plan para continuar usando el panel de Kredipay.</p>
+              <p className="mt-1 text-amber-200/80">Activa un plan para continuar usando el panel de Kredipay. Tus datos están seguros y se restaurarán al pagar.</p>
             </div>
           </div>
         )}
+
+        {(() => {
+          const expiryRaw = data?.suscripcion?.pagadoHasta || data?.tenant.trialEndsAt
+          if (!expiryRaw || ['TRIAL_EXPIRED','SUSPENDED','CANCELLED'].includes(status)) return null
+          // eslint-disable-next-line react-hooks/purity
+          const daysLeft = Math.ceil((new Date(expiryRaw).getTime() - Date.now()) / (1000*60*60*24))
+          if (daysLeft > 3 || daysLeft < 0) return null
+          return (
+            <div className="mb-8 flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
+              <AlertTriangle size={20} className="mt-0.5 shrink-0 text-amber-400" />
+              <div className="flex-1 text-sm text-amber-300">
+                <p className="font-semibold">Tu plan vence en {daysLeft} día{daysLeft!==1?'s':''} — {new Date(expiryRaw).toLocaleDateString('es-CO')}</p>
+                <p className="mt-1 text-amber-200/80">Renueva ahora para evitar la suspensión automática. Si pagas antes, los días se acumulan.</p>
+              </div>
+              <button onClick={() => document.getElementById('planes-grid')?.scrollIntoView({behavior:'smooth'})} className="hidden sm:inline-flex shrink-0 rounded-full bg-amber-500 px-5 py-2.5 font-display text-sm font-semibold text-emerald-950 hover:bg-amber-400 transition-colors">Renovar ahora</button>
+            </div>
+          )
+        })()}
 
         <div className="mb-8 flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold">Elige tu plan</h2>
@@ -220,7 +238,7 @@ function BillingContent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div id="planes-grid" className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {data?.planes.map((plan) => {
             const precio = yearly && plan.precioAnual ? plan.precioAnual : plan.precioMensual
             const esActual = plan.id === planActualId
@@ -243,7 +261,17 @@ function BillingContent() {
                   <li className="flex items-center gap-2"><Check size={15} className="text-lime-400" /> Cálculo automático de intereses</li>
                 </ul>
                 {esActual ? (
-                  <button disabled className="mt-7 w-full rounded-full border border-zinc-700 py-3 font-display text-sm font-semibold text-zinc-400">Plan actual</button>
+                  <div className="mt-7 space-y-2">
+                    <button disabled className="w-full rounded-full border border-zinc-700 py-3 font-display text-sm font-semibold text-zinc-400">Plan actual</button>
+                    <button
+                      onClick={() => checkout(plan.id)}
+                      disabled={checkoutLoading !== null}
+                      className="w-full rounded-full bg-lime-500 py-2.5 font-display text-sm font-semibold text-emerald-950 hover:bg-zinc-200 transition-colors disabled:opacity-60"
+                    >
+                      {checkoutLoading === plan.id ? 'Redirigiendo...' : 'Renovar / Extender'}
+                    </button>
+                    <p className="text-center font-mono text-[11px] text-zinc-500">Paga y se acumula a tu vigencia actual</p>
+                  </div>
                 ) : (
                   <button
                     onClick={() => checkout(plan.id)}

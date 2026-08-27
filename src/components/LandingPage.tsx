@@ -663,7 +663,7 @@ export default function LandingPage() {
                   🎉 Oferta de lanzamiento
                 </span>
                 <h3 className="font-display font-bold text-2xl sm:text-3xl text-bone leading-snug">
-                  14 días de prueba gratis + 50% de descuento tu primer mes
+                  15 días de prueba gratis + 50% de descuento tu primer mes
                 </h3>
                 <p className="mt-3 font-body text-bone/65">
                   Registra tu empresa hoy y activa tu espacio de trabajo sin costo. Solo pagas si decides quedarte.
@@ -835,7 +835,7 @@ export default function LandingPage() {
                     <button type="submit" disabled={formLoading} className="mt-7 w-full inline-flex items-center justify-center gap-2 rounded-full bg-lime py-4 font-display font-semibold text-emerald-950 hover:bg-bone transition-colors disabled:opacity-60">
                       {formLoading ? 'Creando tu espacio...' : 'Crear mi espacio de trabajo'}
                     </button>
-                    <p className="mt-3 text-center font-mono text-xs text-bone/35">14 días de prueba gratis · Sin tarjeta de crédito</p>
+                    <p className="mt-3 text-center font-mono text-xs text-bone/35">15 días de prueba gratis · Sin tarjeta de crédito</p>
                   </>
                 )}
               </form>
@@ -887,7 +887,7 @@ export default function LandingPage() {
               },
               {
                 q: '¿Cuánto cuesta y hay prueba gratis?',
-                a: 'Puedes probar Kredipay 14 días gratis sin tarjeta de crédito. Los planes comienzan desde $39.000/mes para prestamistas independientes y crecen según el tamaño de tu cartera. Cambia o cancela cuando quieras.',
+                a: 'Puedes probar Kredipay 15 días gratis sin tarjeta de crédito. Los planes comienzan desde $39.000/mes para prestamistas independientes y crecen según el tamaño de tu cartera. Cambia o cancela cuando quieras.',
               },
             ].map(({ q, a }) => (
               <details key={q} className="group rounded-2xl border border-bone/10 bg-graphite-900 overflow-hidden">

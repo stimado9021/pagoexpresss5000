@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     }
 
     const now = new Date()
-    const trialEnd = new Date(now.getTime() + (plan.trialDays || 14) * 24 * 60 * 60 * 1000)
+    const trialEnd = new Date(now.getTime() + (plan.trialDays || 15) * 24 * 60 * 60 * 1000)
 
     const tenant = await prisma.tenant.create({
       data: {
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
       subject: 'Tu espacio en Kredipay está listo',
       html: layoutHtml(`
         <h1 style="font-size:20px;margin:0 0 12px;">¡Bienvenido, ${adminNombre}!</h1>
-        <p style="margin:0 0 16px;">Tu empresa <strong>${empresa}</strong> ya está creada con 14 días de prueba gratis.</p>
+        <p style="margin:0 0 16px;">Tu empresa <strong>${empresa}</strong> ya está creada con 15 días de prueba gratis.</p>
         <table style="width:100%;border-collapse:collapse;margin:0 0 20px;">
           <tr>
             <td style="padding:8px 0;color:#a8a29e;">Subdominio</td>

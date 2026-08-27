@@ -93,7 +93,7 @@ model Plan {
   intervalo             PlanInterval @default(MONTHLY)
   description           String?      @db.Text
   activo                Boolean      @default(true)
-  trialDays             Int          @default(14)
+  trialDays             Int          @default(15)
   stripePriceMensualId  String?      @db.VarChar(255)
   stripePriceAnualId    String?      @db.VarChar(255)
   limietes              PlanLimites[]

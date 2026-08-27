@@ -33,7 +33,7 @@ const faqData = [
   },
   {
     question: '¿Cuánto cuesta y hay prueba gratis?',
-    answer: 'Puedes probar Kredipay 14 días gratis sin tarjeta de crédito. Los planes comienzan desde $39.000/mes.',
+    answer: 'Puedes probar Kredipay 15 días gratis sin tarjeta de crédito. Los planes comienzan desde $39.000/mes.',
   },
 ];
 
