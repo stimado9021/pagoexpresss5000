@@ -48,13 +48,13 @@ export async function createPaymentLink(params: {
 
   const body: Record<string, unknown> = {
     name: params.name,
-    description: params.description,
+    description: params.description || params.name,
     single_use: true,
     collect_shipping: false,
     currency: params.currency || 'COP',
     amount_in_cents: params.amountInCents,
     reference: params.reference,
-    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' '),
+    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
   }
   if (params.redirectUrl) body.redirect_url = params.redirectUrl
 

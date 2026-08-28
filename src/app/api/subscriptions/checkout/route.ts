@@ -10,12 +10,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
   }
 
-  try {
-    const { planId, intervalo, paymentMethod = 'stripe' } = await request.json()
-    if (!planId || !['MONTHLY', 'ANUAL'].includes(intervalo)) {
-      return NextResponse.json({ success: false, message: 'planId e intervalo requeridos' }, { status: 400 })
-    }
+  const { planId, intervalo, paymentMethod = 'stripe' } = await request.json().catch(() => ({}) as Record<string, unknown>)
+  if (!planId || !['MONTHLY', 'ANUAL'].includes(intervalo)) {
+    return NextResponse.json({ success: false, message: 'planId e intervalo requeridos' }, { status: 400 })
+  }
 
+  try {
     const plan = await prisma.plan.findUnique({ where: { id: parseInt(planId) } })
     if (!plan || !plan.activo) {
       return NextResponse.json({ success: false, message: 'Plan no encontrado' }, { status: 404 })
@@ -32,7 +32,8 @@ export async function POST(request: NextRequest) {
       const precio = intervalo === 'ANUAL'
         ? Number(plan.precioAnual ?? plan.precioMensual)
         : Number(plan.precioMensual)
-      const amountInCents = Math.round(precio * 100)
+      const usdToCop = Number(process.env.WOMPI_USD_TO_COP) || 4000
+      const amountInCents = Math.round(precio * usdToCop * 100)
       const reference = buildReference(session.tenantId, plan.id, intervalo)
 
       const link = await createPaymentLink({
@@ -97,10 +98,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, url: checkout.url })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : ''
-    console.error('[CHECKOUT ERROR]', message)
-    const friendly = message.includes('STRIPE_SECRET_KEY')
-      ? 'Falta configurar STRIPE_SECRET_KEY en el .env'
-      : 'Error al iniciar el pago. Verifica tu integración con Stripe.'
+    console.error('[CHECKOUT ERROR]', { paymentMethod, message })
+    let friendly: string
+    if (paymentMethod === 'wompi') {
+      friendly = message.includes('WOMPI_PRIVATE_KEY')
+        ? 'Wompi no está configurado. Revisa las variables WOMPI_* en el .env.'
+        : `No se pudo iniciar el pago con Wompi. ${message || 'Verifica tu integración con Wompi.'}`
+    } else {
+      friendly = message.includes('STRIPE_SECRET_KEY')
+        ? 'Falta configurar STRIPE_SECRET_KEY en el .env'
+        : 'Error al iniciar el pago. Verifica tu integración con Stripe.'
+    }
     return NextResponse.json({ success: false, message: friendly }, { status: 500 })
   }
 }
