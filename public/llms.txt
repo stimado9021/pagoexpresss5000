@@ -17,6 +17,6 @@ Kredipay es una plataforma web diseñada para prestamistas, empresas de crédito
 
 ## Links
 
-- [Kredipay](https://kredipay.vercel.app/)
-- [Iniciar sesión](https://kredipay.vercel.app/login)
-- [Crear mi espacio de trabajo](https://kredipay.vercel.app/#registro)
+- [Kredipay](https://pagoexpress-next.vercel.app/)
+- [Iniciar sesión](https://pagoexpress-next.vercel.app/login)
+- [Crear mi espacio de trabajo](https://pagoexpress-next.vercel.app/#registro)

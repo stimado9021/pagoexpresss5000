@@ -3,7 +3,7 @@ type Intent = {
   response: string
 }
 
-const SITE_URL = 'https://kredipay.vercel.app'
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://pagoexpress-next.vercel.app'
 
 const WELCOME = `¡Hola! 👋 Bienvenido a *Kredipay*.
 
@@ -56,7 +56,7 @@ const PLANES = `📦 *Planes de Kredipay*
 
 const PAGAR_PLAN = `💳 *¿Cómo pagar tu plan?*
 
-1. Ingresa al dashboard de tu empresa (tu subdominio, p. ej. miempresa.kredipay.vercel.app) con tu cuenta de empresario.
+1. Ingresa al dashboard de tu empresa (tu subdominio, p. ej. miempresa.pagoexpress-next.vercel.app) con tu cuenta de empresario.
 2. Entra a *Suscripción* en el menú lateral.
 3. Elige tu plan y la frecuencia (mensual o anual).
 4. Selecciona tu método de pago: tarjeta de crédito o débito (vía Wompi o Stripe).
@@ -101,7 +101,7 @@ const EMPRESA = `🏢 *¿Cómo crear tu empresa en Kredipay?*
 
 1. Entra a ${SITE_URL} y pulsa *Registrarme*.
 2. Completa el formulario: nombre de la empresa, nombre del administrador, correo, subdominio y contraseña.
-3. Tu subdominio quedará así: *tuempresa.kredipay.vercel.app*.
+3. Tu subdominio quedará así: *tuempresa.pagoexpress-next.vercel.app*.
 4. Al registrarte empiezas en el plan *Independiente* con *15 días de prueba gratis*.
 5. Ingresa a tu subdominio con tu correo o cédula y comienza a trabajar.
 

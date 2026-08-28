@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kredipay.vercel.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://pagoexpress-next.vercel.app'),
   title: {
     default: "Kredipay — Software para prestamistas y gestión de préstamos",
     template: "%s | Kredipay",
@@ -98,23 +98,23 @@ export default function RootLayout({
               "@graph": [
                 {
                   "@type": "Organization",
-                  "@id": "https://kredipay.vercel.app/#organization",
+                  "@id": "https://pagoexpress-next.vercel.app/#organization",
                   name: "Kredipay",
-                  url: "https://kredipay.vercel.app/",
-                  logo: "https://kredipay.vercel.app/logo.png",
+                  url: "https://pagoexpress-next.vercel.app/",
+                  logo: "https://pagoexpress-next.vercel.app/logo.png",
                   sameAs: [],
                 },
                 {
                   "@type": "WebSite",
-                  "@id": "https://kredipay.vercel.app/#website",
-                  url: "https://kredipay.vercel.app/",
+                  "@id": "https://pagoexpress-next.vercel.app/#website",
+                  url: "https://pagoexpress-next.vercel.app/",
                   name: "Kredipay",
-                  publisher: { "@id": "https://kredipay.vercel.app/#organization" },
+                  publisher: { "@id": "https://pagoexpress-next.vercel.app/#organization" },
                   inLanguage: "es-CO",
                 },
                 {
                   "@type": "SoftwareApplication",
-                  "@id": "https://kredipay.vercel.app/#software",
+                  "@id": "https://pagoexpress-next.vercel.app/#software",
                   name: "Kredipay",
                   applicationCategory: "BusinessApplication",
                   operatingSystem: "Web",
@@ -125,8 +125,8 @@ export default function RootLayout({
                     lowPrice: "39000",
                     highPrice: "249000",
                   },
-                  url: "https://kredipay.vercel.app/",
-                  publisher: { "@id": "https://kredipay.vercel.app/#organization" },
+                  url: "https://pagoexpress-next.vercel.app/",
+                  publisher: { "@id": "https://pagoexpress-next.vercel.app/#organization" },
                   inLanguage: "es-CO",
                 },
               ],

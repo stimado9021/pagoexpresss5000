@@ -355,7 +355,7 @@ export default function LandingPage() {
                       <span className="h-2.5 w-2.5 rounded-full bg-bone/15" />
                       <span className="h-2.5 w-2.5 rounded-full bg-bone/15" />
                     </div>
-                    <span className="font-mono text-[11px] text-bone/40">app.kredipay.vercel.app/dashboard</span>
+                    <span className="font-mono text-[11px] text-bone/40">app.pagoexpress-next.vercel.app/dashboard</span>
                     <span className="w-12" />
                   </div>
 
@@ -781,7 +781,7 @@ export default function LandingPage() {
                         <input required type="text" id="subdominio" name="subdominio" placeholder="creditosdelvalle"
                           value={form.subdominio} onChange={setField('subdominio')}
                           className="w-full bg-transparent px-4 py-3.5 font-body text-sm text-bone placeholder:text-bone/30 focus:outline-none" />
-                        <span className="flex items-center px-4 font-mono text-sm text-bone/40 bg-graphite-700/50 border-l border-bone/10 whitespace-nowrap">.kredipay.vercel.app</span>
+                        <span className="flex items-center px-4 font-mono text-sm text-bone/40 bg-graphite-700/50 border-l border-bone/10 whitespace-nowrap">.pagoexpress-next.vercel.app</span>
                       </div>
                       {form.subdominio.trim().length >= 3 && (
                         <p className={`mt-2 font-mono text-xs ${subdisponible === false ? 'text-red-400' : subdisponible === true ? 'text-lime' : 'text-bone/40'}`}>

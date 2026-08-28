@@ -87,7 +87,7 @@ export async function POST(request: Request) {
       data: {
         nombre: empresa,
         slug,
-        subdominio: `${slug}.kredipay.vercel.app`,
+        subdominio: `${slug}.${appUrl.replace(/^https?:\/\//, '')}`,
         planId: plan.id,
         status: 'TRIAL',
         trialStartsAt: now,
@@ -147,7 +147,7 @@ export async function POST(request: Request) {
         <table style="width:100%;border-collapse:collapse;margin:0 0 20px;">
           <tr>
             <td style="padding:8px 0;color:#a8a29e;">Subdominio</td>
-            <td style="padding:8px 0;text-align:right;font-family:monospace;">${slug}.kredipay.vercel.app</td>
+            <td style="padding:8px 0;text-align:right;font-family:monospace;">${slug}.${appUrl.replace(/^https?:\/\//, '')}</td>
           </tr>
           <tr>
             <td style="padding:8px 0;color:#a8a29e;">Correo de acceso</td>
