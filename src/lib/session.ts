@@ -15,6 +15,7 @@ export type SessionPayload = {
   nombre: string
   apellido: string
   tenantId?: number
+  tenantSlug?: string
   expiresAt: Date
 }
 
@@ -37,10 +38,15 @@ export async function decrypt(session: string | undefined = '') {
   }
 }
 
-export async function createSession(user: { id: number; cedula: string; rol: string; nombre: string; apellido: string; tenantId?: number | null }) {
+export async function createSession(user: { id: number; cedula: string; rol: string; nombre: string; apellido: string; tenantId?: number | null; tenantSlug?: string | null }) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-  const session = await encrypt({ userId: user.id, cedula: user.cedula, rol: user.rol, nombre: user.nombre, apellido: user.apellido, tenantId: user.tenantId ?? undefined, expiresAt })
+  const session = await encrypt({ userId: user.id, cedula: user.cedula, rol: user.rol, nombre: user.nombre, apellido: user.apellido, tenantId: user.tenantId ?? undefined, tenantSlug: user.tenantSlug ?? undefined, expiresAt })
   const cookieStore = await cookies()
+
+  // Dominio compartido (.midominio.com) para SSO entre el apex y los
+  // subdominios de cada tenant. En localhost/IP se omite (host-only).
+  const { getSessionCookieDomain } = await import('./domains')
+  const domain = getSessionCookieDomain()
 
   cookieStore.set('session', session, {
     httpOnly: true,
@@ -48,6 +54,7 @@ export async function createSession(user: { id: number; cedula: string; rol: str
     expires: expiresAt,
     sameSite: 'lax',
     path: '/',
+    ...(domain ? { domain } : {}),
   })
 }
 

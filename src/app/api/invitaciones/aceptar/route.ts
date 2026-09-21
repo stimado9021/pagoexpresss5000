@@ -32,10 +32,10 @@ export async function POST(request: Request) {
     }
 
     const existing = await prisma.usuario.findFirst({
-      where: { OR: [{ cedula }, { email: invitacion.email }] },
+      where: { tenantId: invitacion.tenantId, OR: [{ cedula }, { email: invitacion.email }] },
     })
     if (existing) {
-      return NextResponse.json({ success: false, message: 'La cédula o el correo ya están registrados' }, { status: 409 })
+      return NextResponse.json({ success: false, message: 'La cédula o el correo ya están registrados en esta empresa' }, { status: 409 })
     }
 
     const hashedPassword = await hashPassword(password)
@@ -59,6 +59,11 @@ export async function POST(request: Request) {
       return user
     })
 
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: invitacion.tenantId },
+      select: { slug: true },
+    })
+
     await createSession({
       id: usuario.id,
       cedula: usuario.cedula,
@@ -66,6 +71,7 @@ export async function POST(request: Request) {
       nombre: usuario.nombre,
       apellido: usuario.apellido,
       tenantId: usuario.tenantId,
+      tenantSlug: tenant?.slug,
     })
 
     return NextResponse.json({

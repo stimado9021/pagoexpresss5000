@@ -16,6 +16,12 @@ async function validateActiveUser(session: SessionPayload): Promise<ApiSession |
     select: { activo: true, rol: true },
   })
   if (!user || user.activo !== 1 || user.rol !== session.rol) return UNAUTHORIZED
+  // Aislamiento por subdominio: la sesión debe pertenecer al tenant del Host.
+  const { checkTenantHostAccess } = await import('./tenant-guard')
+  const access = await checkTenantHostAccess(session)
+  if (!access.ok) {
+    return NextResponse.json({ success: false, message: access.message }, { status: 403 })
+  }
   return session
 }
 

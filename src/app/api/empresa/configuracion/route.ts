@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/session'
+import { checkTenantHostAccess } from '@/lib/tenant-guard'
 
 export async function GET() {
   const session = await getSession()
   if (!session || session.rol !== 'empresario' || !session.tenantId) {
     return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
+  }
+  const access = await checkTenantHostAccess(session)
+  if (!access.ok) {
+    return NextResponse.json({ success: false, message: access.message }, { status: 403 })
   }
 
   try {
@@ -35,6 +40,10 @@ export async function PUT(request: Request) {
   const session = await getSession()
   if (!session || session.rol !== 'empresario' || !session.tenantId) {
     return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
+  }
+  const access = await checkTenantHostAccess(session)
+  if (!access.ok) {
+    return NextResponse.json({ success: false, message: access.message }, { status: 403 })
   }
 
   try {

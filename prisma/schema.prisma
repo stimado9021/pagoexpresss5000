@@ -58,6 +58,7 @@ model Tenant {
   nombre          String         @db.VarChar(200)
   slug            String         @unique @db.VarChar(100)
   subdominio      String         @unique @db.VarChar(100)
+  customDomain    String?        @unique @db.VarChar(255) @map("custom_domain")
   logoUrl         String?        @db.VarChar(500)
   planId          Int?
   status          TenantStatus   @default(TRIAL)
@@ -74,6 +75,7 @@ model Tenant {
   historial          Historial[]
   invitaciones       Invitacion[]
   suscripciones      Suscripcion[]
+  chatSesiones       ChatSesion[]
   configuracion      ConfiguracionTenant?
   plan               Plan?           @relation(fields: [planId], references: [id])
 
@@ -176,7 +178,7 @@ model ConfiguracionTenant {
 
 model Usuario {
   id         Int       @id @default(autoincrement())
-  cedula     String    @unique @db.VarChar(20)
+  cedula     String    @db.VarChar(20)
   nombre     String    @db.VarChar(100)
   apellido   String    @db.VarChar(100)
   telefono   String?   @db.VarChar(20)
@@ -205,6 +207,7 @@ model Usuario {
   @@index([tenantId, rol])
   @@index([tenantId, rol, activo])
   @@index([vendedorId])
+  @@unique([tenantId, cedula])
   @@map("usuarios")
 }
 
@@ -302,10 +305,13 @@ model ChatSesion {
   id        Int            @id @default(autoincrement()) @map("id")
   telefono  String         @unique @db.VarChar(20) @map("telefono")
   estado    String         @default("abierta") @db.VarChar(20) @map("estado")
+  tenantId  Int?           @map("tenant_id")
+  tenant    Tenant?        @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   createdAt DateTime       @default(now()) @map("created_at")
   updatedAt DateTime       @updatedAt @map("updated_at")
   mensajes  ChatMensaje[]
 
+  @@index([tenantId])
   @@map("chat_sesiones")
 }
 

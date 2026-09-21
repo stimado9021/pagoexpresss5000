@@ -1,25 +1,18 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { isReservedSubdomain, normalizeSubdomainSlug } from '@/lib/domains'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const slug = searchParams.get('slug') || ''
 
-  const clean = slug
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9-]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 60)
+  const clean = normalizeSubdomainSlug(slug)
 
   if (clean.length < 3) {
     return NextResponse.json({ success: true, available: false, slug: clean, reason: 'Muy corto' })
   }
 
-  const reserved = ['platform', 'admin', 'api', 'login', 'www', 'app', 'mail', 'soporte', 'demo']
-  if (reserved.includes(clean)) {
+  if (isReservedSubdomain(clean)) {
     return NextResponse.json({ success: true, available: false, slug: clean, reason: 'Reservado' })
   }
 

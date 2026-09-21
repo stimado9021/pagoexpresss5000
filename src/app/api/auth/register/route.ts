@@ -6,6 +6,7 @@ import { rateLimit, getClientIp } from '@/lib/rate-limit'
 import { sendEmail, layoutHtml, appUrl } from '@/lib/mail'
 import { isValidLogoDataUrl } from '@/lib/logo'
 import { generarPasswordAleatoria } from '@/lib/password'
+import { buildTenantLoginUrl, buildTenantUrl, isReservedSubdomain, normalizeSubdomainSlug } from '@/lib/domains'
 
 export async function POST(request: Request) {
   try {
@@ -44,17 +45,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Correo electrónico inválido' }, { status: 400 })
     }
 
-    const slug = subdominio
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9-]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 60)
+    const slug = normalizeSubdomainSlug(subdominio)
 
     if (slug.length < 3) {
       return NextResponse.json({ success: false, message: 'Subdominio inválido' }, { status: 400 })
+    }
+    if (isReservedSubdomain(slug)) {
+      return NextResponse.json({ success: false, message: 'Este subdominio está reservado' }, { status: 400 })
     }
     const existingSlug = await prisma.tenant.findUnique({ where: { slug } })
     if (existingSlug) {
@@ -64,13 +61,7 @@ export async function POST(request: Request) {
       }, { status: 409 })
     }
 
-    const existingEmail = await prisma.usuario.findFirst({ where: { email: correo } })
-    if (existingEmail) {
-      return NextResponse.json({
-        success: false,
-        message: 'Ya existe una cuenta con este correo',
-      }, { status: 409 })
-    }
+    // El correo puede repetirse entre tenants: el login es contextual por subdominio.
 
     const plan = await prisma.plan.findFirst({ where: { slug: 'independiente', activo: true } })
     if (!plan) {
@@ -136,9 +127,12 @@ export async function POST(request: Request) {
       nombre: usuario.nombre,
       apellido: usuario.apellido,
       tenantId: usuario.tenantId,
+      tenantSlug: slug,
     })
 
-    await sendEmail({
+    const espacioUrl = buildTenantUrl(slug)
+
+    const emailResult = await sendEmail({
       to: correo,
       subject: 'Tu espacio en Kredipay está listo',
       html: layoutHtml(`
@@ -147,7 +141,7 @@ export async function POST(request: Request) {
         <table style="width:100%;border-collapse:collapse;margin:0 0 20px;">
           <tr>
             <td style="padding:8px 0;color:#a8a29e;">Subdominio</td>
-            <td style="padding:8px 0;text-align:right;font-family:monospace;">${slug}.${appUrl.replace(/^https?:\/\//, '')}</td>
+            <td style="padding:8px 0;text-align:right;font-family:monospace;">${espacioUrl}</td>
           </tr>
           <tr>
             <td style="padding:8px 0;color:#a8a29e;">Correo de acceso</td>
@@ -158,7 +152,7 @@ export async function POST(request: Request) {
             <td style="padding:8px 0;text-align:right;font-family:monospace;font-weight:700;color:#c9f24c;">${password}</td>
           </tr>
         </table>
-        <a href="${appUrl}/login" style="display:inline-block;background:#c9f24c;color:#022c22;text-decoration:none;font-weight:700;padding:12px 24px;border-radius:999px;">
+        <a href="${buildTenantLoginUrl(slug)}" style="display:inline-block;background:#c9f24c;color:#022c22;text-decoration:none;font-weight:700;padding:12px 24px;border-radius:999px;">
           Ir a mi panel
         </a>
         <p style="margin:20px 0 0;color:#a8a29e;font-size:12px;">Puedes ingresar desde el panel de tu empresa cuando quieras. No es necesario pagar durante el periodo de prueba.</p>
@@ -181,7 +175,10 @@ export async function POST(request: Request) {
         slug: tenant.slug,
         status: tenant.status,
         trialEndsAt: tenant.trialEndsAt,
+        url: espacioUrl,
       },
+      emailSent: emailResult.success,
+      ...(!emailResult.success ? { emailWarning: 'No pudimos enviarte el correo con tu contraseña. Escríbenos para recuperar tu acceso.' } : {}),
     }, { status: 201 })
   } catch (error) {
     console.error('Registration error:', error)

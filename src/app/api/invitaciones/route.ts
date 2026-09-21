@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/session'
-import { sendEmail, layoutHtml, appUrl } from '@/lib/mail'
+import { sendEmail, layoutHtml } from '@/lib/mail'
+import { buildTenantInviteUrl } from '@/lib/domains'
 
 export async function POST(request: Request) {
   const session = await getSession()
@@ -29,9 +30,12 @@ export async function POST(request: Request) {
       }
     }
 
-    const existingUser = await prisma.usuario.findFirst({ where: { email } })
+    // El correo solo colisiona dentro del mismo tenant (puede repetirse entre empresas).
+    const existingUser = session.tenantId
+      ? await prisma.usuario.findFirst({ where: { email, tenantId: session.tenantId } })
+      : await prisma.usuario.findFirst({ where: { email } })
     if (existingUser) {
-      return NextResponse.json({ success: false, message: 'Ya existe un usuario con este correo' }, { status: 409 })
+      return NextResponse.json({ success: false, message: 'Ya existe un usuario con este correo en tu empresa' }, { status: 409 })
     }
 
     const token = crypto.randomUUID()
@@ -50,11 +54,13 @@ export async function POST(request: Request) {
 
     const tenant = await prisma.tenant.findUnique({
       where: { id: session.tenantId! },
-      select: { nombre: true },
+      select: { nombre: true, slug: true },
     })
 
     const rolLabel = rol === 'vendedor' ? 'vendedor' : 'cliente'
-    const acceptUrl = `${appUrl}/aceptar-invitacion?token=${token}`
+    const acceptUrl = tenant?.slug
+      ? buildTenantInviteUrl(tenant.slug, token)
+      : `${process.env.NEXT_PUBLIC_APP_URL || ''}/aceptar-invitacion?token=${token}`
 
     await sendEmail({
       to: email,

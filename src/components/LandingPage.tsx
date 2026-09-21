@@ -47,6 +47,8 @@ export default function LandingPage() {
   const [navScrolled, setNavScrolled] = useState(false);
   const [yearly, setYearly] = useState(false);
   const [formSent, setFormSent] = useState(false);
+  const [tenantUrl, setTenantUrl] = useState('');
+  const [emailWarning, setEmailWarning] = useState('');
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
   const [subdisponible, setSubdisponible] = useState<boolean | null>(null);
@@ -137,6 +139,8 @@ export default function LandingPage() {
       });
       const data = await res.json();
       if (data.success) {
+        if (data.tenant?.url) setTenantUrl(data.tenant.url);
+        if (data.emailSent === false) setEmailWarning(data.emailWarning || 'No pudimos enviarte el correo con tu contraseña.');
         setFormSent(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
@@ -738,8 +742,14 @@ export default function LandingPage() {
                     </div>
                     <h3 className="font-display font-semibold text-xl text-bone">¡Solicitud recibida!</h3>
                     <p className="mt-2 font-body text-sm text-bone/60">Tu espacio de trabajo ya está creado. Te enviamos el acceso por correo.</p>
+                    {emailWarning && (
+                      <p className="mx-auto mt-3 max-w-md rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 font-body text-sm text-amber-200">{emailWarning}</p>
+                    )}
+                    {tenantUrl && (
+                      <p className="mt-3 font-mono text-sm text-lime/80">{tenantUrl.replace(/^https?:\/\//, '')}</p>
+                    )}
                     <a
-                      href="/empresario"
+                      href={tenantUrl ? `${tenantUrl}/empresario` : '/empresario'}
                       className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-lime px-6 py-3 font-display font-semibold text-emerald-950 hover:bg-bone transition-colors"
                     >
                       Ir a mi panel

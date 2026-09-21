@@ -4,24 +4,55 @@ import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { LogIn, User } from 'lucide-react'
+import type { TenantBranding } from './page'
 
-export default function LoginForm() {
+type Space = { slug: string; nombre: string; url: string }
+
+function currentSubdomain(): string {
+  if (typeof window === 'undefined') return ''
+  const parts = window.location.hostname.toLowerCase().split('.')
+  // empresa.midominio.com / empresa.localhost → primer label (no www)
+  if (parts.length >= 3 && parts[0] !== 'www') return parts[0]
+  if (parts.length === 2 && parts[1] === 'localhost') return parts[0] === 'localhost' ? '' : parts[0]
+  return ''
+}
+
+export default function LoginForm({ branding }: { branding: TenantBranding }) {
   const [correo, setCorreo] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [spaces, setSpaces] = useState<Space[]>([])
+  const [otherSpace, setOtherSpace] = useState<Space | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+
+  function goTo(destino: string, tenantUrl?: string) {
+    // Navegación cross-subdominio con recarga completa (la cookie es compartida).
+    if (tenantUrl) {
+      try {
+        if (new URL(tenantUrl).host !== window.location.host) {
+          window.location.href = `${tenantUrl}${destino}`
+          return
+        }
+      } catch {
+        /* sigue con router local */
+      }
+    }
+    router.push(destino)
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
+    setSpaces([])
+    setOtherSpace(null)
     setLoading(true)
 
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: correo.trim(), password }),
+        body: JSON.stringify({ email: correo.trim(), password, subdomain: currentSubdomain() || undefined }),
       })
       const data = await res.json()
 
@@ -33,8 +64,14 @@ export default function LoginForm() {
           cliente: '/cliente',
         }
         const destino = routes[data.user.rol]
-        if (destino) router.push(destino)
+        if (destino) goTo(destino, data.tenant?.url)
         else setError('Rol de usuario no reconocido')
+      } else if (data.needTenant && Array.isArray(data.spaces)) {
+        setSpaces(data.spaces)
+        setError(data.message || 'Elige tu espacio de trabajo')
+      } else if (data.otroEspacio?.url) {
+        setOtherSpace({ slug: data.otroEspacio.slug, nombre: data.otroEspacio.slug, url: data.otroEspacio.url })
+        setError(data.message || 'Esta cuenta pertenece a otro espacio de trabajo')
       } else {
         setError(data.message || 'Credenciales incorrectas')
       }
@@ -49,9 +86,15 @@ export default function LoginForm() {
     <div className="flex min-h-screen items-center justify-center bg-emerald-950 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg shadow-lime/20"><img src="/logo.webp" alt="Kredipay" className="h-10 w-10 object-contain" /></span>
-          <h1 className="text-xl font-bold text-zinc-100 font-display">Kredipay</h1>
-          <p className="mt-1 text-sm text-zinc-400">Cobros rápidos y seguros</p>
+          <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg shadow-lime/20 overflow-hidden">
+            {branding?.logoUrl
+              ? <img src={branding.logoUrl} alt={branding.nombre} className="h-10 w-10 object-contain" />
+              : <img src="/logo.webp" alt="Kredipay" className="h-10 w-10 object-contain" />}
+          </span>
+          <h1 className="text-xl font-bold text-zinc-100 font-display">{branding?.nombre ?? 'Kredipay'}</h1>
+          <p className="mt-1 text-sm text-zinc-400">
+            {branding ? `Espacio de trabajo · ${branding.slug}` : 'Cobros rápidos y seguros'}
+          </p>
         </div>
 
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-sm">
@@ -79,6 +122,29 @@ export default function LoginForm() {
 
             {error && (
               <div className="rounded-lg bg-red-500/15 border border-red-500/30 p-3 text-sm text-red-400">{error}</div>
+            )}
+
+            {spaces.length > 0 && (
+              <div className="space-y-2">
+                {spaces.map((s) => (
+                  <a
+                    key={s.slug}
+                    href={`${s.url}/login`}
+                    className="block rounded-lg border border-lime-500/40 bg-lime-500/10 px-4 py-3 text-sm font-semibold text-lime-300 hover:bg-lime-500/20 text-center"
+                  >
+                    Ir a {s.nombre} →
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {otherSpace && (
+              <a
+                href={`${otherSpace.url}/login`}
+                className="block rounded-lg border border-lime-500/40 bg-lime-500/10 px-4 py-3 text-sm font-semibold text-lime-300 hover:bg-lime-500/20 text-center"
+              >
+                Ir a mi espacio →
+              </a>
             )}
 
             <button type="submit" disabled={loading}

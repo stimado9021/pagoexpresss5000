@@ -12,6 +12,7 @@ vi.mock('@/lib/prisma', () => ({
       findFirst: vi.fn(),
       findUnique: vi.fn(),
       create: vi.fn(),
+      count: vi.fn(),
     },
     prestamo: { findMany: vi.fn() },
   },
@@ -32,8 +33,10 @@ describe('listarClientes (dispatch por consulta / OCP)', () => {
   beforeEach(() => {
     vi.mocked(prisma.usuario.findMany).mockReset()
     vi.mocked(prisma.prestamo.findMany).mockReset()
+    vi.mocked(prisma.usuario.count).mockReset()
     vi.mocked(prisma.usuario.findMany).mockResolvedValue([] as never)
     vi.mocked(prisma.prestamo.findMany).mockResolvedValue([] as never)
+    vi.mocked(prisma.usuario.count).mockResolvedValue(0 as never)
   })
 
   it('vendedor con resumen: solo sus propios clientes', async () => {
@@ -74,15 +77,26 @@ describe('listarClientes (dispatch por consulta / OCP)', () => {
 
 describe('crearCliente', () => {
   beforeEach(() => {
-    vi.mocked(prisma.usuario.findUnique).mockReset()
+    vi.mocked(prisma.usuario.findFirst).mockReset()
     vi.mocked(prisma.usuario.create).mockReset()
+    vi.mocked(prisma.usuario.findFirst).mockResolvedValue(null)
+    vi.mocked(prisma.usuario.create).mockResolvedValue({ id: 11, email: null } as never)
   })
 
   it('cédula duplicada: 400 y no crea', async () => {
-    vi.mocked(prisma.usuario.findUnique).mockResolvedValue({ id: 1 } as never)
+    vi.mocked(prisma.usuario.findFirst).mockResolvedValue({ id: 1 } as never)
     const res = await crearCliente(session('vendedor', { tenantId: 4 }), { nombre: 'Ana', cedula: '1001' })
     expect(res.ok).toBe(false)
     if (!res.ok) expect(res.status).toBe(400)
     expect(prisma.usuario.create).not.toHaveBeenCalled()
+  })
+
+  it('la cédula se busca con scope de tenant', async () => {
+    await crearCliente(session('vendedor', { tenantId: 4 }), { nombre: 'Ana', cedula: '1001' })
+    const call = vi.mocked(prisma.usuario.findFirst).mock.calls[0][0] as {
+      where: { cedula?: string; tenantId?: number }
+    }
+    expect(call.where.cedula).toBe('1001')
+    expect(call.where.tenantId).toBe(4)
   })
 })

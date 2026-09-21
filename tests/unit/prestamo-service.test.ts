@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    prestamo: { findMany: vi.fn() },
+    prestamo: { findMany: vi.fn(), count: vi.fn() },
     usuario: { findFirst: vi.fn() },
   },
 }))
@@ -21,8 +21,10 @@ function session(rol: string, extra: Record<string, unknown> = {}) {
 describe('listarPrestamos (estrategia por rol / OCP)', () => {
   beforeEach(() => {
     vi.mocked(prisma.prestamo.findMany).mockReset()
+    vi.mocked(prisma.prestamo.count).mockReset()
     vi.mocked(prisma.usuario.findFirst).mockReset()
     vi.mocked(prisma.prestamo.findMany).mockResolvedValue([] as never)
+    vi.mocked(prisma.prestamo.count).mockResolvedValue(0 as never)
   })
 
   it('superadmin: consulta global sin filtro de tenant', async () => {

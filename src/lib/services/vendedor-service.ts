@@ -30,9 +30,10 @@ export async function crearVendedor(
     return { ok: false, status: 400, message: 'Nombre y cédula requeridos' }
   }
 
-  const existing = await db.usuario.findUnique({ where: { cedula } })
+  // La cédula solo colisiona dentro del mismo tenant (índice compuesto).
+  const existing = await db.usuario.findFirst({ where: { cedula, tenantId: session.tenantId } })
   if (existing) {
-    return { ok: false, status: 400, message: 'La cédula ya existe' }
+    return { ok: false, status: 400, message: 'La cédula ya existe en tu empresa' }
   }
 
   const password = generarPasswordAleatoria()

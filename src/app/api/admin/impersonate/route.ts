@@ -47,6 +47,11 @@ export async function POST(request: Request) {
       },
     })
 
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { slug: true },
+    })
+
     await createSession({
       id: targetUser.id,
       cedula: targetUser.cedula,
@@ -54,9 +59,11 @@ export async function POST(request: Request) {
       nombre: targetUser.nombre,
       apellido: targetUser.apellido,
       tenantId: targetUser.tenantId,
+      tenantSlug: tenant?.slug,
     })
 
-    return NextResponse.json({ success: true, message: 'Impersonación activada', data: { userId: targetUser.id, rol: targetUser.rol, tenantId: targetUser.tenantId } })
+    const { buildTenantUrl } = await import('@/lib/domains')
+    return NextResponse.json({ success: true, message: 'Impersonación activada', data: { userId: targetUser.id, rol: targetUser.rol, tenantId: targetUser.tenantId, tenantUrl: tenant?.slug ? buildTenantUrl(tenant.slug) : undefined } })
   } catch (error) {
     console.error('[IMPERSONATE ERROR]', error)
     return NextResponse.json({ success: false, message: 'Error al iniciar impersonación' }, { status: 500 })

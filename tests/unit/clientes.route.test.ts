@@ -9,6 +9,7 @@ vi.mock('@/lib/prisma', () => ({
     usuario: {
       findMany: vi.fn(),
       findUnique: vi.fn(),
+      count: vi.fn(),
     },
     prestamo: {
       findMany: vi.fn(),
@@ -53,6 +54,8 @@ describe('GET /api/clientes?vendedor_id= (empresario viendo clientes de su vende
     vi.mocked(prisma.usuario.findMany).mockReset()
     vi.mocked(prisma.usuario.findMany).mockResolvedValue(clientesMock as never)
     vi.mocked(prisma.usuario.findUnique).mockReset()
+    vi.mocked(prisma.usuario.count).mockReset()
+    vi.mocked(prisma.usuario.count).mockResolvedValue(1 as never)
   })
 
   it('regresión: el empresario SÍ puede listar clientes de un vendedor (bug spinner infinito)', async () => {
