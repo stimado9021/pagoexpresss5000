@@ -108,6 +108,11 @@ export async function proxy(request: NextRequest) {
     const session = payload as unknown as SessionClaims
 
     const requestHeaders = new Headers(request.headers)
+    // Los headers x-* los fija este proxy: eliminar los que traiga el cliente
+    // para que no puedan suplantar identidad ni tenant.
+    for (const h of ['x-user-id', 'x-user-rol', 'x-tenant-id', 'x-tenant-slug', 'x-session-tenant-slug', 'x-pathname']) {
+      requestHeaders.delete(h)
+    }
     requestHeaders.set('x-user-id', String(session.userId))
     requestHeaders.set('x-user-rol', session.rol)
     requestHeaders.set('x-pathname', pathname)

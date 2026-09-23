@@ -80,7 +80,17 @@ export async function POST(request: NextRequest) {
     })
   })
 
-  sendWhatsAppText(telefono, botResponse).catch(() => {})
+  // Continuidad por WhatsApp solo para números que ya son clientes:
+  // evita que cualquiera use este endpoint público para enviar mensajes
+  // a terceros (spam / costos a nuestra cuenta).
+  const local = telefono.startsWith('57') ? telefono.slice(2) : telefono
+  const esCliente = await prisma.usuario.findFirst({
+    where: { rol: 'cliente', telefono: { in: [telefono, local] } },
+    select: { id: true },
+  })
+  if (esCliente) {
+    sendWhatsAppText(telefono, botResponse).catch(() => {})
+  }
 
   const mensajes = await getMensajes(sesion.id)
   return NextResponse.json({ success: true, mensajes })

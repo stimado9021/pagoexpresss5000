@@ -49,9 +49,18 @@ describe('registrarPago', () => {
   beforeEach(() => {
     vi.mocked(prisma.$transaction).mockReset()
     vi.mocked(prisma.pago.create).mockReset()
-    vi.mocked(prisma.pago.create).mockResolvedValue({ id: 50 } as never)
     vi.mocked(prisma.prestamo.update).mockReset()
-    vi.mocked(prisma.$transaction).mockResolvedValue([{ id: 50 }] as never)
+    vi.mocked(prisma.pago.create).mockResolvedValue({ id: 50 } as never)
+    vi.mocked(prisma.prestamo.update).mockResolvedValue({} as never)
+    // El servicio escribe via tx dentro de $transaction: ejecutar el
+    // callback con un tx falso que reutiliza los mismos mocks.
+    vi.mocked(prisma.$transaction).mockImplementation(async (cb: unknown) => {
+      const tx = {
+        pago: { create: vi.mocked(prisma.pago.create) },
+        prestamo: { update: vi.mocked(prisma.prestamo.update) },
+      }
+      return (cb as (tx: unknown) => Promise<unknown>)(tx)
+    })
   })
 
   it('regresión: un saldo residual < 1 queda en 0 y el préstamo pasa a pagado', async () => {
@@ -123,7 +132,14 @@ describe('registrarPago: cobertura por día (botón rojo vs amarillo)', () => {
     vi.mocked(prisma.pago.create).mockReset()
     vi.mocked(prisma.$transaction).mockReset()
     vi.mocked(prisma.pago.create).mockResolvedValue({ id: 90 } as never)
-    vi.mocked(prisma.$transaction).mockResolvedValue([{ id: 90 }] as never)
+    vi.mocked(prisma.prestamo.update).mockResolvedValue({} as never)
+    vi.mocked(prisma.$transaction).mockImplementation(async (cb: unknown) => {
+      const tx = {
+        pago: { create: vi.mocked(prisma.pago.create) },
+        prestamo: { update: vi.mocked(prisma.prestamo.update) },
+      }
+      return (cb as (tx: unknown) => Promise<unknown>)(tx)
+    })
   })
 
   it('pagar el día atrasado (rojo) solo cubre ese día y limpia el atraso', async () => {

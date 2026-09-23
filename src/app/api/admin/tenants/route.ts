@@ -48,6 +48,14 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: false, message: 'ID requerido' }, { status: 400 })
   }
 
+  const ESTADOS_VALIDOS = ['TRIAL', 'ACTIVE', 'TRIAL_EXPIRED', 'SUSPENDED', 'CANCELLED']
+  if (status !== undefined && !ESTADOS_VALIDOS.includes(status)) {
+    return NextResponse.json({ success: false, message: 'Estado inválido' }, { status: 400 })
+  }
+  if (planId !== undefined && (!Number.isInteger(planId) || planId <= 0)) {
+    return NextResponse.json({ success: false, message: 'Plan inválido' }, { status: 400 })
+  }
+
   const updateData: Record<string, unknown> = {}
 
   if (status) {
