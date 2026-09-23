@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { jwtVerify } from 'jose'
+import { SignJWT, jwtVerify } from 'jose'
 import {
   buildTenantUrl,
   getRootDomain,
+  getSessionCookieDomain,
   getTenantSlugFromHost,
   isReservedSubdomain,
 } from './lib/domains'
@@ -27,6 +28,34 @@ type SessionClaims = {
   rol: string
   tenantId?: number
   tenantSlug?: string
+}
+
+// Inactividad: 1h sin requests => el JWT expira y se cierra la sesión.
+// Cada request autenticado renueva el JWT + cookie por otra hora.
+const SESSION_SLIDING_MS = 60 * 60 * 1000
+
+async function withRefreshedSession(res: NextResponse, session: SessionClaims) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { exp, iat, nbf, ...claims } = session as unknown as Record<string, unknown>
+    const refreshed = await new SignJWT(claims)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('1h')
+      .sign(encodedKey)
+    const domain = getSessionCookieDomain()
+    res.cookies.set('session', refreshed, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: SESSION_SLIDING_MS / 1000,
+      ...(domain ? { domain } : {}),
+    })
+  } catch {
+    // Si falla el refresh, se sigue con la sesión original.
+  }
+  return res
 }
 
 export async function proxy(request: NextRequest) {
@@ -100,8 +129,11 @@ export async function proxy(request: NextRequest) {
           { status: 403 },
         )
       }
-      return withTenantHeaders(
-        NextResponse.redirect(new URL(`${pathname}${search}`, buildTenantUrl(session.tenantSlug))),
+      return withRefreshedSession(
+        withTenantHeaders(
+          NextResponse.redirect(new URL(`${pathname}${search}`, buildTenantUrl(session.tenantSlug))),
+          session,
+        ),
         session,
       )
     }
@@ -124,9 +156,9 @@ export async function proxy(request: NextRequest) {
     if (pathname === '/login' && roleHome[session.rol]) {
       const home = roleHome[session.rol]
       if (ownBase) {
-        return withTenantHeaders(NextResponse.redirect(new URL(home, ownBase)), session)
+        return withRefreshedSession(withTenantHeaders(NextResponse.redirect(new URL(home, ownBase)), session), session)
       }
-      return withTenantHeaders(NextResponse.redirect(new URL(home, request.url)), session)
+      return withRefreshedSession(withTenantHeaders(NextResponse.redirect(new URL(home, request.url)), session), session)
     }
 
     if (isProtected(pathname)) {
@@ -134,18 +166,21 @@ export async function proxy(request: NextRequest) {
       if (ownBase) {
         // En apex/www (ownBase solo existe ahí): reubicar en el subdominio propio.
         const destino = home && !pathname.startsWith(home) ? home : `${pathname}${search}`
-        return withTenantHeaders(NextResponse.redirect(new URL(destino, ownBase)), session)
+        return withRefreshedSession(withTenantHeaders(NextResponse.redirect(new URL(destino, ownBase)), session), session)
       }
       if (home && pathname.startsWith(home)) {
-        return withTenantHeaders(NextResponse.next({ request: { headers: requestHeaders } }), session)
+        return withRefreshedSession(withTenantHeaders(NextResponse.next({ request: { headers: requestHeaders } }), session), session)
       }
-      return withTenantHeaders(NextResponse.redirect(new URL(home ?? '/login', request.url)), session)
+      return withRefreshedSession(withTenantHeaders(NextResponse.redirect(new URL(home ?? '/login', request.url)), session), session)
     }
 
-    return withTenantHeaders(
-      NextResponse.next({
-        request: { headers: requestHeaders },
-      }),
+    return withRefreshedSession(
+      withTenantHeaders(
+        NextResponse.next({
+          request: { headers: requestHeaders },
+        }),
+        session,
+      ),
       session,
     )
   } catch {
