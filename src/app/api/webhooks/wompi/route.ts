@@ -64,7 +64,9 @@ async function procesarPagoAprobado(
   const precio = intervalo === 'ANUAL'
     ? Number(plan.precioAnual ?? plan.precioMensual)
     : Number(plan.precioMensual)
-  const priceCents = Math.round(precio * 100)
+  // Mismo cálculo que el checkout (precios en USD → COP): evita rechazos falsos.
+  const usdToCop = Number(process.env.WOMPI_USD_TO_COP) || 4000
+  const priceCents = Math.round(precio * usdToCop * 100)
   const amount = txn.amount_in_cents ?? 0
   if (amount < priceCents) {
     console.error('[WOMPI WEBHOOK] Monto insuficiente para el plan:', { planId, priceCents, amount })
