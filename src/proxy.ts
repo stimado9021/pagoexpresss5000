@@ -91,6 +91,13 @@ export async function proxy(request: NextRequest) {
       url.searchParams.set('from', pathname)
       return withTenantHeaders(NextResponse.redirect(url))
     }
+    // El landing público solo vive en el apex: la raíz de un
+    // subdominio-tenant redirige a `https://apex/`.
+    if (tenantSlug && !isReservedSubdomain(tenantSlug) && pathname === '/') {
+      return withTenantHeaders(
+        NextResponse.redirect(new URL('/', `${request.nextUrl.protocol}//${getRootDomain()}`)),
+      )
+    }
     return withTenantHeaders(NextResponse.next())
   }
 
@@ -152,6 +159,19 @@ export async function proxy(request: NextRequest) {
       !tenantSlug && session.rol !== 'superadmin' && session.tenantSlug
         ? buildTenantUrl(session.tenantSlug)
         : null
+
+    // Raíz de subdominio-tenant con sesión: si es del propio espacio
+    // ir a su home; si no, al landing del apex (nunca landing con subdominio).
+    if (tenantSlug && !isReservedSubdomain(tenantSlug) && pathname === '/') {
+      const home = roleHome[session.rol]
+      if (home && (session.rol === 'superadmin' || session.tenantSlug === tenantSlug)) {
+        return withRefreshedSession(withTenantHeaders(NextResponse.redirect(new URL(home, request.url)), session), session)
+      }
+      return withRefreshedSession(
+        withTenantHeaders(NextResponse.redirect(new URL('/', `${request.nextUrl.protocol}//${getRootDomain()}`)), session),
+        session,
+      )
+    }
 
     if (pathname === '/login' && roleHome[session.rol]) {
       const home = roleHome[session.rol]
