@@ -151,6 +151,10 @@ export default function LoginForm({ branding }: { branding: TenantBranding }) {
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-lime-500 px-4 py-3 text-sm font-semibold text-emerald-950 font-display hover:bg-zinc-200 disabled:opacity-50 transition-colors shadow-sm">
               {loading ? 'Ingresando...' : <>Ingresar <LogIn size={15} /></>}
             </button>
+
+            <p className="text-center text-sm">
+              <Link href="/recuperar" className="text-zinc-400 hover:text-lime hover:underline font-medium">¿Olvidaste tu contraseña?</Link>
+            </p>
           </form>
         </div>
 
