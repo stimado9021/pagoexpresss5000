@@ -613,7 +613,7 @@ export default function LandingPage() {
               <h3 className="font-display font-semibold text-xl text-bone">Empresarial</h3>
               <p className="mt-2 font-body text-sm text-bone/55">Para empresas de crédito con equipo de cobro y agentes en campo.</p>
               <div className="mt-6 flex items-baseline gap-1">
-                <span className="font-display font-bold text-4xl text-bone">{price(99)}</span>
+                <span className="font-display font-bold text-4xl text-bone">{price(79)}</span>
                 <span className="font-body text-bone/50 text-sm">/mes</span>
               </div>
               <p className="font-mono text-xs text-bone/40 mt-1">Facturado {yearly ? 'anualmente' : 'mensualmente'}</p>
@@ -632,7 +632,7 @@ export default function LandingPage() {
               <h3 className="font-display font-semibold text-xl text-bone">Corporativo</h3>
               <p className="mt-2 font-body text-sm text-bone/55">Para redes de prestamistas y operaciones de alto volumen.</p>
               <div className="mt-6 flex items-baseline gap-1">
-                <span className="font-display font-bold text-4xl text-bone">{price(249)}</span>
+                <span className="font-display font-bold text-4xl text-bone">{price(99)}</span>
                 <span className="font-body text-bone/50 text-sm">/mes</span>
               </div>
               <p className="font-mono text-xs text-bone/40 mt-1">Facturado {yearly ? 'anualmente' : 'mensualmente'}</p>

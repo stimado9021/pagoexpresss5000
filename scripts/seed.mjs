@@ -56,8 +56,8 @@ async function main() {
       slug: 'empresarial',
       data: {
         nombre: 'Empresarial',
-        precioMensual: 99.00,
-        precioAnual: 990.00,
+        precioMensual: 79.00,
+        precioAnual: 790.00,
         intervalo: 'MONTHLY',
         description: 'Para empresas de crédito con equipo de cobro y agentes en campo.',
         activo: true,
@@ -76,8 +76,8 @@ async function main() {
       slug: 'corporativo',
       data: {
         nombre: 'Corporativo',
-        precioMensual: 249.00,
-        precioAnual: 2490.00,
+        precioMensual: 99.00,
+        precioAnual: 990.00,
         intervalo: 'MONTHLY',
         description: 'Para redes de prestamistas y operaciones de alto volumen.',
         activo: true,
@@ -129,7 +129,7 @@ async function main() {
     console.log('Tenant created:', tenant.nombre, '| id:', tenant.id);
   }
 
-  const existing = await prisma.usuario.findUnique({ where: { cedula: superadminCedula } });
+  const existing = await prisma.usuario.findFirst({ where: { cedula: superadminCedula } });
   if (existing) {
     await prisma.usuario.update({ where: { id: existing.id }, data: { rol: 'superadmin' } });
     console.log(`Superadmin with cedula ${superadminCedula} already exists. Rol -> superadmin`);
