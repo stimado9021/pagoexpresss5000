@@ -118,7 +118,7 @@ async function main() {
   if (!tenant) {
     tenant = await prisma.tenant.create({
       data: {
-        nombre: 'Kredipay Platform',
+        nombre: 'Kreditools Platform',
         slug: 'platform',
         subdominio: 'platform',
         status: 'ACTIVE',
@@ -153,7 +153,7 @@ async function main() {
     await prisma.configuracionTenant.create({
       data: {
         tenantId: tenant.id,
-        nombreEmpresa: 'Kredipay Platform',
+        nombreEmpresa: 'Kreditools Platform',
       },
     });
     console.log('Platform config created');

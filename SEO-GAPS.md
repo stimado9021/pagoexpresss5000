@@ -1,4 +1,4 @@
-# Auditoría SEO - Kredipay
+# Auditoría SEO - Kreditools
 
 ## Estado actual (lo que ya está bien)
 
@@ -29,7 +29,7 @@
 
 ### 2. 🔴 Riesgo de URL (fallback mismatch)
 
-**Qué es:** Verificar que el `.env` tenga `NEXT_PUBLIC_SITE_URL=https://pagoexpress-next.vercel.app` y que los fallbacks en el código coincidan.
+**Qué es:** Verificar que el `.env` tenga `NEXT_PUBLIC_SITE_URL=https://kreditools.shop` y que los fallbacks en el código coincidan.
 
 **Qué hacer:** Cambiar todos los fallbacks en el código para que usen la variable de entorno correctamente, o actualizar el fallback al dominio correcto.
 
@@ -74,9 +74,9 @@
 **Ejemplo:**
 ```json
 "sameAs": [
-  "https://www.instagram.com/kredipay",
-  "https://www.facebook.com/kredipay",
-  "https://linkedin.com/company/kredipay"
+  "https://www.instagram.com/kreditools",
+  "https://www.facebook.com/kreditools",
+  "https://linkedin.com/company/kreditools"
 ]
 ```
 

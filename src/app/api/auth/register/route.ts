@@ -134,7 +134,7 @@ export async function POST(request: Request) {
 
     const emailResult = await sendEmail({
       to: correo,
-      subject: 'Tu espacio en Kredipay está listo',
+      subject: 'Tu espacio en Kreditools está listo',
       html: layoutHtml(`
         <h1 style="font-size:20px;margin:0 0 12px;">¡Bienvenido, ${adminNombre}!</h1>
         <p style="margin:0 0 16px;">Tu empresa <strong>${empresa}</strong> ya está creada con 15 días de prueba gratis.</p>

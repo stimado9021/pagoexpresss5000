@@ -89,9 +89,9 @@ export default function LoginForm({ branding }: { branding: TenantBranding }) {
           <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg shadow-lime/20 overflow-hidden">
             {branding?.logoUrl
               ? <img src={branding.logoUrl} alt={branding.nombre} className="h-10 w-10 object-contain" />
-              : <img src="/logo.webp" alt="Kredipay" className="h-10 w-10 object-contain" />}
+              : <img src="/logo.webp" alt="Kreditools" className="h-10 w-10 object-contain" />}
           </span>
-          <h1 className="text-xl font-bold text-zinc-100 font-display">{branding?.nombre ?? 'Kredipay'}</h1>
+          <h1 className="text-xl font-bold text-zinc-100 font-display">{branding?.nombre ?? 'Kreditools'}</h1>
           <p className="mt-1 text-sm text-zinc-400">
             {branding ? `Espacio de trabajo · ${branding.slug}` : 'Cobros rápidos y seguros'}
           </p>
@@ -155,7 +155,7 @@ export default function LoginForm({ branding }: { branding: TenantBranding }) {
         </div>
 
         <p className="mt-6 text-center text-xs text-zinc-400">
-          &copy; 2026 Kredipay &bull; Gestión de Préstamos
+          &copy; 2026 Kreditools &bull; Gestión de Préstamos
         </p>
 
         <p className="mt-4 text-center text-sm text-zinc-500">

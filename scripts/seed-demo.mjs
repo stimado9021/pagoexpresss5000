@@ -179,7 +179,7 @@ async function main() {
       data: {
         nombre: nombreEmpresa,
         slug,
-        subdominio: `${slug}.pagoexpress-next.vercel.app`,
+        subdominio: `${slug}.kreditools.shop`,
         planId: plan.id,
         status: 'ACTIVE',
         trialStartsAt: FECHA_CREACION,

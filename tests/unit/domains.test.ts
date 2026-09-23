@@ -29,13 +29,13 @@ describe('domains (multi-tenant por subdominio)', () => {
   })
 
   it('extrae el slug del tenant bajo la raíz configurada', () => {
-    process.env.NEXT_PUBLIC_APP_URL = 'https://kredipay.example.com'
+    process.env.NEXT_PUBLIC_APP_URL = 'https://kreditools.example.com'
     delete process.env.NEXT_PUBLIC_ROOT_DOMAIN
-    expect(getTenantSlugFromHostname('creditosdelvalle.kredipay.example.com')).toBe('creditosdelvalle')
-    expect(getTenantSlugFromHostname('kredipay.example.com')).toBeNull()
-    expect(getTenantSlugFromHostname('www.kredipay.example.com')).toBeNull()
+    expect(getTenantSlugFromHostname('creditosdelvalle.kreditools.example.com')).toBe('creditosdelvalle')
+    expect(getTenantSlugFromHostname('kreditools.example.com')).toBeNull()
+    expect(getTenantSlugFromHostname('www.kreditools.example.com')).toBeNull()
     expect(getTenantSlugFromHostname('otro-dominio.com')).toBeNull()
-    expect(getTenantSlugFromHostname('a.b.kredipay.example.com')).toBeNull()
+    expect(getTenantSlugFromHostname('a.b.kreditools.example.com')).toBeNull()
     expect(getTenantSlugFromHostname('192.168.1.10')).toBeNull()
   })
 
@@ -47,16 +47,16 @@ describe('domains (multi-tenant por subdominio)', () => {
   })
 
   it('construye URLs del tenant', () => {
-    process.env.NEXT_PUBLIC_APP_URL = 'https://kredipay.example.com'
+    process.env.NEXT_PUBLIC_APP_URL = 'https://kreditools.example.com'
     delete process.env.NEXT_PUBLIC_ROOT_DOMAIN
-    expect(buildTenantUrl('creditosdelvalle')).toBe('https://creditosdelvalle.kredipay.example.com')
+    expect(buildTenantUrl('creditosdelvalle')).toBe('https://creditosdelvalle.kreditools.example.com')
   })
 
   it('calcula el dominio de cookie compartida', () => {
-    process.env.NEXT_PUBLIC_APP_URL = 'https://kredipay.example.com'
+    process.env.NEXT_PUBLIC_APP_URL = 'https://kreditools.example.com'
     delete process.env.NEXT_PUBLIC_ROOT_DOMAIN
     delete process.env.SESSION_COOKIE_DOMAIN
-    expect(getSessionCookieDomain()).toBe('.kredipay.example.com')
+    expect(getSessionCookieDomain()).toBe('.kreditools.example.com')
 
     process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000'
     expect(getSessionCookieDomain()).toBeUndefined()

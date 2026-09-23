@@ -46,7 +46,7 @@ function callPost(body: unknown, ip = '192.0.2.1', forwardedHost?: string) {
 
 describe('POST /api/auth/login', () => {
   beforeEach(() => {
-    process.env.NEXT_PUBLIC_APP_URL = 'https://pagoexpress-next.vercel.app'
+    process.env.NEXT_PUBLIC_APP_URL = 'https://kreditools.shop'
     delete process.env.NEXT_PUBLIC_ROOT_DOMAIN
     vi.mocked(prisma.usuario.findMany).mockReset()
     vi.mocked(prisma.tenant.findUnique).mockReset()
@@ -127,7 +127,7 @@ describe('POST /api/auth/login', () => {
     const res = await callPost(
       { email: 'juan@example.com', password: 'clave-segura-123' },
       '192.0.2.107',
-      'otro.pagoexpress-next.vercel.app',
+      'otro.kreditools.shop',
     )
     expect(res.status).toBe(403)
     expect((await res.json()).message).toBe('Esta cuenta pertenece a otro espacio de trabajo')

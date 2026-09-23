@@ -16,7 +16,7 @@ const money = n => `$${n.toLocaleString('es-CO')}`
 
 const comprobante = [
   '┌─────────────────────────────┐',
-  '│       KREDIPAY           │',
+  '│       KREDITOOLS           │',
   '│   Comprobante de Pago       │',
   '└─────────────────────────────┘',
   '',
@@ -33,7 +33,7 @@ const comprobante = [
 
 const recordatorio = [
   '┌─────────────────────────────┐',
-  '│       KREDIPAY           │',
+  '│       KREDITOOLS           │',
   '│   ⚠ Recordatorio de Pago   │',
   '└─────────────────────────────┘',
   '',

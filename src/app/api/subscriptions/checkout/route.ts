@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       const reference = buildReference(session.tenantId, plan.id, intervalo)
 
       const link = await createPaymentLink({
-        name: `Suscripción Kredipay - Plan ${plan.nombre}`,
+        name: `Suscripción Kreditools - Plan ${plan.nombre}`,
         description: `Plan ${plan.nombre} (${intervalo === 'ANUAL' ? 'anual' : 'mensual'}) para ${session.tenantId}`,
         amountInCents,
         reference,

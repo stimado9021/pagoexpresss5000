@@ -14,14 +14,14 @@ async function typeLogin(page: Page, cedula: string, password: string) {
   await pwInput.pressSequentially(password)
 }
 
-test.describe('Login Kredipay', () => {
+test.describe('Login Kreditools', () => {
   test('muestra el formulario de acceso', async ({ page }) => {
     await page.goto('/login', { waitUntil: 'networkidle' })
-    await expect(page.getByRole('heading', { name: 'Kredipay' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Kreditools' })).toBeVisible()
     await expect(page.getByText('Cédula o correo')).toBeVisible()
     await expect(page.getByText('Contraseña')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Ingresar' })).toBeVisible()
-    await expect(page.locator('img[alt="Kredipay"]')).toBeVisible()
+    await expect(page.locator('img[alt="Kreditools"]')).toBeVisible()
     await expect(page.getByRole('link', { name: '← Volver al inicio' })).toBeVisible()
   })
 

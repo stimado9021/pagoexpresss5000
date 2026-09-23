@@ -103,7 +103,7 @@ export function formatReceipt(data: {
   const money = (n: number) => `$${n.toLocaleString('es-CO')}`
   return [
     '┌─────────────────────────────┐',
-    '│       KREDIPAY           │',
+    '│       KREDITOOLS           │',
     '│   Comprobante de Pago       │',
     '└─────────────────────────────┘',
     '',
@@ -134,7 +134,7 @@ export function formatNuevoPrestamo(data: {
   const money = (n: number) => `$${n.toLocaleString('es-CO')}`
   const lines = [
     '┌─────────────────────────────┐',
-    '│       KREDIPAY           │',
+    '│       KREDITOOLS           │',
     data.esConsolidacion ? '│   📋 Consolidación        │' : '│   ✅ Nuevo Préstamo       │',
     '└─────────────────────────────┘',
     '',
@@ -166,7 +166,7 @@ export function formatRecordatorio(data: {
   const money = (n: number) => `$${n.toLocaleString('es-CO')}`
   const lines = [
     '┌─────────────────────────────┐',
-    '│       KREDIPAY           │',
+    '│       KREDITOOLS           │',
     data.diasAtraso > 0 ? '│   ⚠ Recordatorio de Pago   │' : '│   📅 Aviso de Cuota        │',
     '└─────────────────────────────┘',
     '',
