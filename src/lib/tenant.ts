@@ -43,7 +43,7 @@ export async function checkTenantLimit(tenantId: number, recurso: string): Promi
 
   const whereClause: { tenantId: number; rol?: string | { in: string[] } } = { tenantId }
   if (recurso === 'MAX_VENDEDORES') {
-    whereClause.rol = { in: ['vendedor', 'empresario'] }
+    whereClause.rol = 'vendedor'
   } else if (recurso === 'MAX_CLIENTES') {
     whereClause.rol = 'cliente'
   }

@@ -122,7 +122,7 @@ async function checkVendedorLimit(tenantId: number, db: DbClient): Promise<{ ok:
   const limit = result?.limits?.['MAX_VENDEDORES'] ?? 2
   if (limit === -1) return { ok: true }
   const count = await db.usuario.count({
-    where: { tenantId, rol: { in: ['vendedor', 'empresario'] } },
+    where: { tenantId, rol: 'vendedor' },
   })
   if (count >= limit) {
     return { ok: false, message: `Límite de ${limit} vendedores alcanzado. Actualiza tu plan.` }
