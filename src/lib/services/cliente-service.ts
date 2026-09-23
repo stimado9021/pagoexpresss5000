@@ -23,7 +23,7 @@ export async function crearCliente(
   session: ApiSession,
   datos: Record<string, unknown>,
   db: DbClient = prisma
-): Promise<Resultado<{ id: number }>> {
+): Promise<Resultado<{ id: number; tempPassword: string; emailSent: boolean; email?: string | null }>> {
   if (session.rol !== 'superadmin' && session.tenantId) {
     const { checkTenantLimit, checkTenantActive } = await import('@/lib/tenant')
     const active = await checkTenantActive(session.tenantId)
@@ -80,17 +80,22 @@ export async function crearCliente(
     },
   })
 
+  let emailSent = false
   if (usuario.email) {
-    await sendCredenciales({
+    const mailResult = await sendCredenciales({
       to: usuario.email,
       nombre: `${usuario.nombre} ${usuario.apellido}`.trim(),
       correo: usuario.email,
       password,
       rol: 'Cliente',
     })
+    emailSent = mailResult.success
+    if (!emailSent) {
+      console.warn('[CLIENTE] No se pudo enviar credenciales a', usuario.email, mailResult.message)
+    }
   }
 
-  return { ok: true, message: 'Cliente creado correctamente', data: { id: usuario.id }, status: 201 }
+  return { ok: true, message: emailSent ? 'Cliente creado. Credenciales enviadas por correo.' : 'Cliente creado. Copia la contraseña temporal para entregarla al cliente.', data: { id: usuario.id, tempPassword: password, emailSent, email: usuario.email }, status: 201 }
 }
 
 export async function actualizarCliente(

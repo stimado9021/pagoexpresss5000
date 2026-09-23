@@ -4,7 +4,7 @@ import { Resend } from 'resend'
 const apiKey = process.env.RESEND_API_KEY
 const resend = apiKey ? new Resend(apiKey) : null
 
-const from = process.env.EMAIL_FROM || 'Kredipay <onboarding@resend.dev>'
+const from = process.env.EMAIL_FROM || 'Kredipay <noreply@kreditools.shop>'
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
 export async function sendEmail({

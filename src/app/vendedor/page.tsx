@@ -545,6 +545,7 @@ function ClientesView({
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState({ cedula: '', nombre: '', apellido: '', telefono: '', email: '', direccion: '' })
   const [formMsg, setFormMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [createdCreds, setCreatedCreds] = useState<{ password: string; emailSent: boolean; email?: string | null } | null>(null)
   const [saving, setSaving] = useState(false)
   const [buscar, setBuscar] = useState('')
   const [detailLoading, setDetailLoading] = useState(false)
@@ -570,6 +571,7 @@ function ClientesView({
     e.preventDefault()
     setSaving(true)
     setFormMsg(null)
+    setCreatedCreds(null)
     const res = await fetch('/api/clientes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -577,10 +579,16 @@ function ClientesView({
     })
     const data = await res.json()
     if (data.success) {
-      setForm({ cedula: '', nombre: '', apellido: '', telefono: '', email: '', direccion: '' })
+      const creds = data.data as { tempPassword?: string; emailSent?: boolean; email?: string | null } | undefined
+      if (creds?.tempPassword) {
+        setCreatedCreds({ password: creds.tempPassword, emailSent: !!creds.emailSent, email: creds.email ?? form.email ?? null })
+        setFormMsg({ ok: true, text: data.message || 'Cliente creado' })
+      } else {
+        setForm({ cedula: '', nombre: '', apellido: '', telefono: '', email: '', direccion: '' })
+        setShowModal(false)
+        setFormMsg(null)
+      }
       await cargarClientes()
-      setShowModal(false)
-      setFormMsg(null)
     } else {
       setFormMsg({ ok: false, text: data.message })
     }
@@ -741,7 +749,7 @@ function ClientesView({
           <h2 className="text-base font-semibold text-bone">Mis clientes</h2>
           <p className="mt-0.5 text-sm text-bone/60">Gestiona tus clientes y sus préstamos</p>
         </div>
-        <button onClick={() => { setShowModal(true); setFormMsg(null); setForm({ cedula: '', nombre: '', apellido: '', telefono: '', email: '', direccion: '' }) }} className="flex items-center gap-1.5 rounded-lg bg-lime px-3.5 py-1.5 text-sm font-medium text-emerald-950 font-display hover:bg-bone transition-colors shadow-sm">
+        <button onClick={() => { setShowModal(true); setFormMsg(null); setCreatedCreds(null); setForm({ cedula: '', nombre: '', apellido: '', telefono: '', email: '', direccion: '' }) }} className="flex items-center gap-1.5 rounded-lg bg-lime px-3.5 py-1.5 text-sm font-medium text-emerald-950 font-display hover:bg-bone transition-colors shadow-sm">
           <Plus size={15} /> Nuevo cliente
         </button>
       </div>
@@ -1151,13 +1159,49 @@ function ClientesView({
       {/* ── Modal: Nuevo Cliente ── */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => { setShowModal(false); setFormMsg(null) }} />
+          <div className="absolute inset-0 bg-black/40" onClick={() => { setShowModal(false); setFormMsg(null); setCreatedCreds(null) }} />
           <div className="relative mx-4 w-full max-w-lg rounded-2xl bg-graphite-900 shadow-2xl">
             <div className="flex items-center justify-between border-b border-bone/10 px-6 py-4">
               <h3 className="text-sm font-semibold text-bone">Crear nuevo cliente</h3>
-              <button onClick={() => { setShowModal(false); setFormMsg(null) }} className="rounded-lg p-1 text-bone/60 hover:bg-emerald-950 hover:text-bone transition-colors"><X size={18} /></button>
+              <button onClick={() => { setShowModal(false); setFormMsg(null); setCreatedCreds(null) }} className="rounded-lg p-1 text-bone/60 hover:bg-emerald-950 hover:text-bone transition-colors"><X size={18} /></button>
             </div>
+            {createdCreds ? (
+              <div className="p-6 space-y-4">
+                <div className="rounded-xl border border-lime/30 bg-lime/5 p-4">
+                  <p className="text-sm font-semibold text-lime">Cliente creado</p>
+                  <p className="mt-1 text-xs text-bone/60">La clave se genera automáticamente. No hay campo para escribirla manualmente.</p>
+                  <div className="mt-3 rounded-lg bg-black/30 p-3">
+                    <p className="text-[11px] uppercase tracking-wider text-bone/60">Contraseña temporal</p>
+                    <div className="mt-1 flex items-center justify-between gap-2">
+                      <code className="font-mono text-lg font-bold text-lime">{createdCreds.password}</code>
+                      <button
+                        type="button"
+                        onClick={() => navigator.clipboard?.writeText(createdCreds.password)}
+                        className="rounded-lg border border-bone/10 px-2.5 py-1.5 text-xs text-bone hover:bg-emerald-950"
+                      >
+                        Copiar
+                      </button>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs text-bone/60">
+                    {createdCreds.email
+                      ? createdCreds.emailSent
+                        ? `Correo con credenciales enviado a ${createdCreds.email}.`
+                        : `No se pudo enviar el correo a ${createdCreds.email}. Entrégala por WhatsApp.`
+                      : 'Sin email registrado: entrega la contraseña directamente al cliente.'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setShowModal(false); setCreatedCreds(null); setFormMsg(null); setForm({ cedula: '', nombre: '', apellido: '', telefono: '', email: '', direccion: '' }) }}
+                  className="w-full rounded-lg bg-lime px-4 py-2.5 text-sm font-medium text-emerald-950 font-display hover:bg-bone transition-colors"
+                >
+                  Cerrar
+                </button>
+              </div>
+            ) : (
             <form onSubmit={handleCreateCliente} className="p-6 space-y-4">
+              <p className="rounded-lg bg-black/30 p-2.5 text-xs text-bone/60">La clave de acceso se genera sola y se envía por correo. No necesitas escribirla.</p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-bone/60">Cédula *</label>
@@ -1184,8 +1228,7 @@ function ClientesView({
                   <input placeholder="Dirección" className="w-full rounded-lg border border-bone/10 px-3 py-2.5 text-sm text-bone placeholder:text-bone/30 outline-none focus:border-lime focus:ring-2 focus:ring-lime/20" value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} />
                 </div>
               </div>
-              <p className="text-[11px] text-bone/60">La contraseña del cliente será su cédula.</p>
-              {formMsg && (
+              {formMsg && !createdCreds && (
                 <div className={`rounded-lg p-3 text-sm ${formMsg.ok ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
                   {formMsg.text}
                 </div>
@@ -1199,6 +1242,7 @@ function ClientesView({
                 </button>
               </div>
             </form>
+            )}
           </div>
         </div>
       )}

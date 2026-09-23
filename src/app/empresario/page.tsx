@@ -98,6 +98,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [form, setForm] = useState({ nombre: '', apellido: '', cedula: '', telefono: '', direccion: '', email: '' })
   const [formMsg, setFormMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [createdCreds, setCreatedCreds] = useState<{ password: string; emailSent: boolean; email?: string | null } | null>(null)
   const [dashVendedorId, setDashVendedorId] = useState<number | null>(null)
   const [dashClientes, setDashClientes] = useState<Cliente[] | null>(null)
   const [modalCliente, setModalCliente] = useState<ClienteDetalle | null>(null)
@@ -156,6 +157,7 @@ export default function AdminPage() {
   async function handleCreateVendedor(e: FormEvent) {
     e.preventDefault()
     setFormMsg(null)
+    setCreatedCreds(null)
     const res = await fetch('/api/vendedores', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -163,9 +165,14 @@ export default function AdminPage() {
     })
     const data = await res.json()
     if (data.success) {
-      setForm({ nombre: '', apellido: '', cedula: '', telefono: '', direccion: '', email: '' })
-      setFormMsg(null)
-      setShowVendedorModal(false)
+      const creds = data.data as { tempPassword?: string; emailSent?: boolean; email?: string | null } | undefined
+      if (creds?.tempPassword) {
+        setCreatedCreds({ password: creds.tempPassword, emailSent: !!creds.emailSent, email: creds.email ?? form.email ?? null })
+        setFormMsg({ ok: true, text: data.message || 'Vendedor creado' })
+      } else {
+        setForm({ nombre: '', apellido: '', cedula: '', telefono: '', direccion: '', email: '' })
+        setShowVendedorModal(false)
+      }
       await cargarDatos()
     } else {
       setFormMsg({ ok: false, text: data.message })
@@ -515,7 +522,7 @@ export default function AdminPage() {
                     className="hidden sm:flex items-center gap-1.5 rounded-lg border border-zinc-800 px-3.5 py-1.5 text-sm font-medium text-zinc-400 hover:bg-emerald-950 transition-colors">
                     <FileText size={15} /> Reporte Clientes
                   </a>
-                  <button onClick={() => { setShowVendedorModal(true); setFormMsg(null); setForm({ nombre: '', apellido: '', cedula: '', telefono: '', direccion: '', email: '' }) }} className="flex flex-1 sm:flex-none items-center justify-center gap-1.5 rounded-lg bg-lime px-3.5 py-1.5 text-sm font-medium text-emerald-950 font-display hover:bg-zinc-100 transition-colors shadow-sm">
+                  <button onClick={() => { setShowVendedorModal(true); setFormMsg(null); setCreatedCreds(null); setForm({ nombre: '', apellido: '', cedula: '', telefono: '', direccion: '', email: '' }) }} className="flex flex-1 sm:flex-none items-center justify-center gap-1.5 rounded-lg bg-lime px-3.5 py-1.5 text-sm font-medium text-emerald-950 font-display hover:bg-zinc-100 transition-colors shadow-sm">
                     <Plus size={15} /> Agregar
                   </button>
                 </div>
@@ -588,15 +595,51 @@ export default function AdminPage() {
       {/* ── Modal Crear Vendedor ── */}
       {showVendedorModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { setShowVendedorModal(false); setFormMsg(null) }} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { setShowVendedorModal(false); setFormMsg(null); setCreatedCreds(null) }} />
           <div className="relative bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-lg">
             <div className="flex items-center justify-between border-b border-zinc-800 px-6 py-4">
               <h3 className="text-sm font-semibold text-zinc-100">Crear nuevo vendedor</h3>
-              <button onClick={() => { setShowVendedorModal(false); setFormMsg(null) }} className="rounded-lg p-1.5 text-zinc-400 hover:bg-emerald-950 transition-colors">
+              <button onClick={() => { setShowVendedorModal(false); setFormMsg(null); setCreatedCreds(null) }} className="rounded-lg p-1.5 text-zinc-400 hover:bg-emerald-950 transition-colors">
                 <X size={20} />
               </button>
             </div>
+            {createdCreds ? (
+              <div className="p-6 space-y-4">
+                <div className="rounded-xl border border-lime/30 bg-lime/5 p-4">
+                  <p className="flex items-center gap-1.5 text-sm font-semibold text-lime"><CheckCircle2 size={16} /> Vendedor creado</p>
+                  <p className="mt-1 text-xs text-zinc-400">La contraseña se genera automáticamente. No hay campo para escribirla manualmente.</p>
+                  <div className="mt-3 rounded-lg bg-zinc-800 p-3">
+                    <p className="text-[11px] uppercase tracking-wider text-zinc-400">Contraseña temporal</p>
+                    <div className="mt-1 flex items-center justify-between gap-2">
+                      <code className="font-mono text-lg font-bold text-lime">{createdCreds.password}</code>
+                      <button
+                        type="button"
+                        onClick={() => navigator.clipboard?.writeText(createdCreds.password)}
+                        className="rounded-lg border border-zinc-700 px-2.5 py-1.5 text-xs text-zinc-200 hover:bg-zinc-700"
+                      >
+                        Copiar
+                      </button>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs text-zinc-400">
+                    {createdCreds.email
+                      ? createdCreds.emailSent
+                        ? `Correo con credenciales enviado a ${createdCreds.email}.`
+                        : `No se pudo enviar el correo a ${createdCreds.email}. Entrégala por WhatsApp.`
+                      : 'Sin email registrado: entrega la contraseña directamente al vendedor.'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setShowVendedorModal(false); setCreatedCreds(null); setFormMsg(null); setForm({ nombre: '', apellido: '', cedula: '', telefono: '', direccion: '', email: '' }) }}
+                  className="w-full rounded-lg bg-lime px-4 py-2.5 text-sm font-medium text-emerald-950 font-display hover:bg-zinc-100 transition-colors"
+                >
+                  Cerrar
+                </button>
+              </div>
+            ) : (
             <form onSubmit={handleCreateVendedor} className="p-6 space-y-4">
+              <p className="rounded-lg bg-zinc-800/80 p-2.5 text-xs text-zinc-400">La clave de acceso se genera sola y se envía por correo. No necesitas escribirla.</p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-zinc-400">Nombre *</label>
@@ -632,6 +675,7 @@ export default function AdminPage() {
                 </div>
               )}
             </form>
+            )}
           </div>
         </div>
       )}

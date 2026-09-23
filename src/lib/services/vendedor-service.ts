@@ -11,7 +11,7 @@ export async function crearVendedor(
   session: ApiSession,
   data: Record<string, unknown>,
   db: DbClient = prisma
-): Promise<Resultado<{ id: number }>> {
+): Promise<Resultado<{ id: number; tempPassword: string; emailSent: boolean; email?: string | null }>> {
   if (session.rol === 'empresario') {
     const { checkTenantActive } = await import('@/lib/tenant')
     const active = await checkTenantActive(session.tenantId!)
@@ -53,17 +53,22 @@ export async function crearVendedor(
     },
   })
 
+  let emailSent = false
   if (vendedor.email) {
-    await sendCredenciales({
+    const mailResult = await sendCredenciales({
       to: vendedor.email,
       nombre: `${vendedor.nombre} ${vendedor.apellido}`.trim(),
       correo: vendedor.email,
       password,
       rol: 'Vendedor',
     })
+    emailSent = mailResult.success
+    if (!emailSent) {
+      console.warn('[VENDEDOR] No se pudo enviar credenciales a', vendedor.email, mailResult.message)
+    }
   }
 
-  return { ok: true, message: 'Vendedor creado', data: { id: vendedor.id }, status: 201 }
+  return { ok: true, message: emailSent ? 'Vendedor creado. Credenciales enviadas por correo.' : 'Vendedor creado. Copia la contraseña temporal para entregarla al vendedor.', data: { id: vendedor.id, tempPassword: password, emailSent, email: vendedor.email }, status: 201 }
 }
 
 export async function listarVendedores(
