@@ -35,12 +35,6 @@ const Check = () => (
 const WHATSAPP_NUMBER = '573247716650';
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola, quiero información sobre Kreditools.')}`;
 
-const WhatsAppIcon = ({ size = 18 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.26 8.26 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 4.54 0 8.24 3.7 8.24 8.24s-3.7 8.24-8.24 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.29z" />
-  </svg>
-);
-
 /* ─── Main Component ────────────────────────────────────────────────────────── */
 export default function LandingPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -329,9 +323,12 @@ export default function LandingPage() {
                 <a href="#planes" className="inline-flex items-center justify-center gap-2 rounded-full border border-bone/20 px-7 py-4 font-display font-semibold text-bone hover:border-bone/50 transition-colors">
                   Ver planes y precios
                 </a>
-                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-[#25D366]/40 px-7 py-4 font-display font-semibold text-[#25D366] hover:bg-[#25D366]/10 transition-colors">
-                  <WhatsAppIcon size={18} />
-                  Escríbenos por WhatsApp
+                <a href="#video" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-bone/20 px-7 py-4 font-display font-semibold text-bone hover:border-bone/50 transition-colors">
+                  <svg width={18} height={18} viewBox="0 0 64 64" fill="none">
+                    <circle cx="32" cy="32" r="30" fill="#14b8a6"/>
+                    <path d="M32 8 L32 24 M36 12 L56 24 M40 12 L24 24 M44 12 L24 24" stroke="#ffffff" strokeWidth="4" strokeLinecap="round"/>
+                  </svg>
+                  Mira el video
                 </a>
               </div>
 
@@ -836,7 +833,7 @@ export default function LandingPage() {
                     <label className="mt-5 flex items-start gap-3 cursor-pointer">
                       <input required type="checkbox" className="mt-1 h-4 w-4 rounded border-bone/30 bg-graphite-800 accent-lime" />
                       <span className="font-body text-xs text-bone/50 leading-relaxed">
-                        Acepto los <a href="#" className="text-lime hover:underline">Términos de servicio</a> y la <Link href="/politica-de-datos" className="text-lime hover:underline">Política de privacidad</Link> de Kreditools.
+                        Acepto los <Link href="/terminos" className="text-lime hover:underline">Términos de servicio</Link> y la <Link href="/politica-de-datos" className="text-lime hover:underline">Política de privacidad</Link> de Kreditools.
                       </span>
                     </label>
                     {formError && (
@@ -946,7 +943,7 @@ export default function LandingPage() {
             <div className="lg:col-span-2">
               <h4 className="font-display font-semibold text-sm text-bone mb-4">Legal</h4>
               <ul className="space-y-3 font-body text-sm text-bone/50">
-                {[['/politica-de-datos','Política de privacidad'],['#','Términos de servicio'],['/politica-de-datos','Tratamiento de datos']].map(([href, label]) => (
+                {[['/politica-de-datos','Política de privacidad'],['/terminos','Términos de servicio'],['/politica-de-datos','Tratamiento de datos']].map(([href, label]) => (
                   <li key={label}><Link href={href} className="hover:text-lime transition-colors">{label}</Link></li>
                 ))}
               </ul>
@@ -957,7 +954,7 @@ export default function LandingPage() {
               <ul className="space-y-3 font-body text-sm text-bone/50">
                 <li className="flex items-center gap-2">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 4H20V18H4V4Z" stroke="currentColor" strokeWidth="1.6" /><path d="M4 6L12 13L20 6" stroke="currentColor" strokeWidth="1.6" /></svg>
-                  soporte@kreditools.shop
+                  quinteroenrrique321@gmail.com
                 </li>
                 <li className="flex items-center gap-2">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8C8 13.6 10.4 16 13.2 17.4L15.4 15.2C15.7 14.9 16.1 14.8 16.5 14.9C17.7 15.3 19 15.5 20.3 15.5C20.9 15.5 21.3 16 21.3 16.5V20C21.3 20.6 20.9 21 20.3 21C10.7 21 3 13.3 3 3.7C3 3.1 3.4 2.7 4 2.7H7.5C8 2.7 8.5 3.1 8.5 3.7C8.5 5 8.7 6.3 9.1 7.5C9.2 7.9 9.1 8.3 8.8 8.6L6.6 10.8Z" stroke="currentColor" strokeWidth="1.6" /></svg>
