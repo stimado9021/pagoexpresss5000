@@ -6,14 +6,18 @@ export const ROOT_DOMAIN = (process.env.NEXT_PUBLIC_ROOT_DOMAIN?.trim() || DEFAU
   .replace(/\/$/, '')
   .toLowerCase()
 
-function normalizeOrigin(raw: string): { origin: string; hostname: string } | null {
+function normalizeOrigin(raw: string): URL | null {
   try {
     const url = new URL(raw.trim())
     if (url.protocol !== 'https:' && url.protocol !== 'http:') return null
-    return { origin: url.origin, hostname: url.hostname.toLowerCase() }
+    return url
   } catch {
     return null
   }
+}
+
+function hostBelongsToRoot(hostname: string): boolean {
+  return hostname === ROOT_DOMAIN || hostname.endsWith(`.${ROOT_DOMAIN}`)
 }
 
 /**
@@ -25,10 +29,9 @@ function normalizeOrigin(raw: string): { origin: string; hostname: string } | nu
  */
 export function getSiteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || ''
-  const parsed = raw ? normalizeOrigin(raw) : null
-  if (!parsed) return `https://${DEFAULT_ROOT_DOMAIN}`
-  const { origin, hostname } = parsed
-  if (hostname === ROOT_DOMAIN || hostname.endsWith(`.${ROOT_DOMAIN}`)) return origin
+  const url = raw ? normalizeOrigin(raw) : null
+  if (!url) return `https://${DEFAULT_ROOT_DOMAIN}`
+  if (hostBelongsToRoot(url.hostname.toLowerCase())) return url.origin
   return `https://${DEFAULT_ROOT_DOMAIN}`
 }
 
