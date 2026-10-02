@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Sora, Inter, JetBrains_Mono } from "next/font/google";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const sora = Sora({
@@ -18,7 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kreditools.shop'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Kreditools — Software para prestamistas y gestión de préstamos",
     template: "%s | Kreditools",
