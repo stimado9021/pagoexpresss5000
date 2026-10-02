@@ -1,8 +1,5 @@
 import type { Metadata } from 'next';
 import LandingPage from '@/components/LandingPage';
-import StaticContent from '@/components/StaticContent';
-
-export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
   title: 'Software para prestamistas y gestión de préstamos',
@@ -57,7 +54,6 @@ export default function Home() {
           }),
         }}
       />
-      <StaticContent />
       <LandingPage />
     </>
   );
