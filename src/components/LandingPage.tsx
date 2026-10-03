@@ -247,6 +247,7 @@ export default function LandingPage() {
               <a href="#planes" className="hover:text-lime transition-colors">Planes</a>
               <a href="#oferta" className="hover:text-lime transition-colors">Oferta</a>
               <a href="#registro" className="hover:text-lime transition-colors">Registro</a>
+              <Link href="/blog" className="hover:text-lime transition-colors">Blog</Link>
             </nav>
 
             <div className="hidden lg:flex items-center gap-4">
@@ -934,8 +935,12 @@ export default function LandingPage() {
             <div className="lg:col-span-2">
               <h4 className="font-display font-semibold text-sm text-bone mb-4">Producto</h4>
               <ul className="space-y-3 font-body text-sm text-bone/50">
-                {[['#beneficios','Beneficios'],['#planes','Planes y precios'],['#faq','Preguntas frecuentes'],['#oferta','Oferta de lanzamiento'],['#registro','Crear espacio']].map(([href, label]) => (
-                  <li key={href}><a href={href} className="hover:text-lime transition-colors">{label}</a></li>
+                {[['#beneficios','Beneficios'],['#planes','Planes y precios'],['#faq','Preguntas frecuentes'],['#oferta','Oferta de lanzamiento'],['/blog','Blog de cobranza'],['#registro','Crear espacio']].map(([href, label]) => (
+                  <li key={href}>
+                    {href.startsWith('/')
+                      ? <Link href={href} className="hover:text-lime transition-colors">{label}</Link>
+                      : <a href={href} className="hover:text-lime transition-colors">{label}</a>}
+                  </li>
                 ))}
               </ul>
             </div>
