@@ -32,20 +32,22 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-body">
       {/* Hero Section */}
-      <div className="relative py-20 px-6 text-center bg-gradient-to-b from-emerald-900/40 via-zinc-950 to-zinc-950 border-b border-lime/20">
+      <div className="relative py-24 px-6 text-center bg-gradient-to-b from-emerald-900/40 via-zinc-950 to-zinc-950 border-b border-lime/20">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none"></div>
-        <div className="relative max-w-3xl mx-auto">
-          <div className="flex justify-center mb-8">
-            <img src="/kreditools.jpg" alt="Kreditools Logo" className="h-20 w-20 object-contain rounded-2xl shadow-2xl shadow-lime/20 border-2 border-lime/30 p-1 bg-zinc-900" />
+        <div className="relative max-w-4xl mx-auto">
+          <div className="flex justify-center mb-10">
+            <h2 className="text-5xl md:text-7xl font-display font-black text-white tracking-tighter uppercase italic">
+              Kredi<span className="text-lime">tools</span>
+            </h2>
           </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime/10 text-lime text-xs font-medium mb-6 border border-lime/20 animate-pulse">
             <BookOpen size={14} />
             <span className="uppercase tracking-widest">Centro de Conocimiento</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight tracking-tight">
+          <h1 className="text-5xl md:text-8xl font-display font-bold text-white mb-8 leading-tight tracking-tight">
             Domina el arte de la <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-emerald-400">Gestión de Préstamos</span>
           </h1>
-          <p className="text-zinc-400 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-zinc-400 text-xl mb-8 max-w-2xl mx-auto leading-relaxed">
             Estrategias reales para optimizar tu cartera, reducir la mora y escalar tu negocio financiero con la tecnología de Kreditools.
           </p>
         </div>
