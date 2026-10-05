@@ -237,7 +237,7 @@ export default function LandingPage() {
 
             <a href="#top" className="flex items-center gap-2.5">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
-                  <img src="/logo.webp" alt="Kreditools" className="h-8 w-8 object-contain" />
+                   <img src="/kreditools.jpg" alt="Kreditools" className="h-8 w-8 object-contain" />
               </span>
               <span className="font-display font-bold text-lg tracking-tight text-bone">Kreditools</span>
             </a>
@@ -925,7 +925,7 @@ export default function LandingPage() {
             <div className="col-span-2 lg:col-span-4">
               <a href="#top" className="flex items-center gap-2.5 mb-4">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
-                <img src="/logo.webp" alt="Kreditools" className="h-8 w-8 object-contain" />
+                 <img src="/kreditools.jpg" alt="Kreditools" className="h-8 w-8 object-contain" />
                 </span>
                 <span className="font-display font-bold text-lg text-bone">Kreditools</span>
               </a>

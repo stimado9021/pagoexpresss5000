@@ -1,5 +1,7 @@
 import 'server-only'
 import { prisma } from './prisma'
+import { sendEmail, layoutHtml } from './mail'
+import { buildTenantUrl } from './domains'
 
 export type NotificationEvent =
   | 'trial_welcome'
@@ -46,13 +48,25 @@ export async function sendTrialReminders() {
 
   for (const tenant of expiringTenants) {
     for (const user of tenant.usuarios) {
+      const daysRemaining = Math.ceil(
+        (tenant.trialEndsAt.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+      )
       await createNotification(tenant.id, user.id, 'trial_3days', {
         tenantId: tenant.id,
         trialEndsAt: tenant.trialEndsAt,
-        daysRemaining: Math.ceil(
-          (tenant.trialEndsAt.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-        ),
+        daysRemaining,
       })
+      if (user.email) {
+        await sendEmail({
+          to: user.email,
+          subject: `Tu prueba de Kreditools vence en ${daysRemaining} días`,
+          html: layoutHtml(`
+            <h1 style="font-size:20px;margin:0 0 12px;">Hola, ${user.nombre}.</h1>
+            <p style="margin:0 0 16px;">Tu periodo de prueba de <strong>${tenant.nombre}</strong> vence en <strong>${daysRemaining} días</strong>. Al vencer, tu empresa, vendedores y clientes quedarán bloqueados hasta que actives una suscripción.</p>
+            <a href="${buildTenantUrl(tenant.slug)}/empresario/billing" style="display:inline-block;background:#c9f24c;color:#022c22;text-decoration:none;font-weight:700;padding:12px 24px;border-radius:999px;">Ver planes y pagar</a>
+          `),
+        })
+      }
     }
   }
 
@@ -73,6 +87,17 @@ export async function sendTrialReminders() {
       await createNotification(tenant.id, user.id, 'trial_expired', {
         tenantId: tenant.id,
       })
+      if (user.email) {
+        await sendEmail({
+          to: user.email,
+          subject: 'Tu prueba de Kreditools venció: activa tu plan',
+          html: layoutHtml(`
+            <h1 style="font-size:20px;margin:0 0 12px;">Hola, ${user.nombre}.</h1>
+            <p style="margin:0 0 16px;">El periodo de prueba de <strong>${tenant.nombre}</strong> terminó. Tu empresa, vendedores y clientes están bloqueados hasta que actives una suscripción. Tus datos están a salvo.</p>
+            <a href="${buildTenantUrl(tenant.slug)}/empresario/billing" style="display:inline-block;background:#c9f24c;color:#022c22;text-decoration:none;font-weight:700;padding:12px 24px;border-radius:999px;">Activar mi plan</a>
+          `),
+        })
+      }
     }
   }
 }

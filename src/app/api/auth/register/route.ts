@@ -112,12 +112,28 @@ export async function POST(request: Request) {
         nombre: adminNombre,
         apellido: adminApellido || '',
         email: correo,
+        emailVerified: false,
         telefono: telefono || null,
         rol: 'empresario',
         activo: 1,
         password: hashedPassword,
         tenantId: tenant.id,
       },
+    })
+
+    const { generateVerificationToken } = await import('@/lib/email-verification')
+    const verificationToken = generateVerificationToken(correo)
+    const verificationLink = `${appUrl}/verificar-email?token=${encodeURIComponent(verificationToken)}`
+
+    await sendEmail({
+      to: correo,
+      subject: 'Verifica tu correo en KrediTools',
+      html: layoutHtml(`
+        <h1 style="font-size:20px;margin:0 0 12px;">¡Bienvenido a KrediTools!</h1>
+        <p style="margin:0 0 16px;">Verifica tu correo para activar tu cuenta:</p>
+        <a href="${verificationLink}" style="display:inline-block;background:#c9f24c;color:#022c22;text-decoration:none;font-weight:700;padding:12px 24px;border-radius:999px;">Verificar mi correo</a>
+        <p style="margin:20px 0 0;color:#a8a29e;font-size:12px;">Si no creaste esta cuenta, ignora este correo.</p>
+      `),
     })
 
     await createSession({

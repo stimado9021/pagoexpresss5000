@@ -8,6 +8,15 @@ export async function POST(request: Request) {
 
   try {
     const data = await request.json()
+    if (!data || typeof data !== 'object') {
+      return NextResponse.json({ success: false, message: 'Datos inválidos' }, { status: 400 })
+    }
+    if (!data.cliente_id || typeof data.cliente_id !== 'number') {
+      return NextResponse.json({ success: false, message: 'cliente_id es requerido' }, { status: 400 })
+    }
+    if (!data.monto || typeof data.monto !== 'number' || data.monto <= 0) {
+      return NextResponse.json({ success: false, message: 'monto debe ser un número positivo' }, { status: 400 })
+    }
     return apiResponse(await crearPrestamo(session, data))
   } catch (error) {
     console.error('[PRESTAMOS POST ERROR]', error)
@@ -25,9 +34,11 @@ export async function GET(request: Request) {
   const offset = Math.max(parseInt(searchParams.get('offset') || '0'), 0)
 
   try {
-    return apiResponse(
+    const response = apiResponse(
       await listarPrestamos(session, { clienteId: clienteId ? parseInt(clienteId) : undefined, limit, offset })
     )
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
+    return response
   } catch {
     return NextResponse.json({ success: false, message: 'Error del servidor' }, { status: 500 })
   }

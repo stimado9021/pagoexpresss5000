@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   icons: {
-    icon: "/logo.png",
+    icon: "/kreditools.jpg",
   },
   category: "software",
 };
@@ -102,7 +102,7 @@ export default function RootLayout({
                   "@id": "https://kreditools.shop/#organization",
                   name: "Kreditools",
                   url: "https://kreditools.shop/",
-                  logo: "https://kreditools.shop/logo.png",
+                   logo: "https://kreditools.shop/kreditools.jpg",
                   sameAs: [],
                 },
                 {

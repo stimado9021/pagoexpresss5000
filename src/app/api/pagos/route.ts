@@ -21,10 +21,21 @@ export async function POST(request: Request) {
     if (tenantError) return tenantError
 
     const data = await request.json()
+    if (!data || typeof data !== 'object') {
+      return NextResponse.json({ success: false, message: 'Datos inválidos' }, { status: 400 })
+    }
+    const prestamoId = parseInt(data.prestamo_id)
+    const monto = Number(data.monto)
+    if (!prestamoId || isNaN(prestamoId)) {
+      return NextResponse.json({ success: false, message: 'prestamo_id es requerido' }, { status: 400 })
+    }
+    if (!monto || isNaN(monto) || monto <= 0) {
+      return NextResponse.json({ success: false, message: 'monto debe ser un número positivo' }, { status: 400 })
+    }
     return apiResponse(
       await registrarPago({
-        prestamoId: parseInt(data.prestamo_id),
-        monto: Number(data.monto),
+        prestamoId,
+        monto,
         vendedorId: session.userId,
         tenantId: session.tenantId,
         observaciones: data.observaciones ?? null,
@@ -101,7 +112,7 @@ export async function GET(request: Request) {
   const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50'), 1), 200)
 
   try {
-    return apiResponse(
+    const response = apiResponse(
       await listarPagos({
         rol: session.rol,
         userId: session.userId,
@@ -110,6 +121,8 @@ export async function GET(request: Request) {
         limit,
       })
     )
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
+    return response
   } catch (error) {
     console.error('[PAGOS GET ERROR]', error)
     return NextResponse.json({ success: false, message: 'Error del servidor' }, { status: 500 })

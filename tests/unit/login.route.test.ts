@@ -84,6 +84,27 @@ describe('POST /api/auth/login', () => {
     expect((await res.json()).message).toBe('Usuario inactivo')
   })
 
+  it('bloquea login de vendedor si su empresa está vencida', async () => {
+    vi.mocked(prisma.usuario.findMany).mockResolvedValue([user({ id: 3, rol: 'vendedor', tenantId: 4 })])
+    vi.mocked(prisma.tenant.findUnique).mockImplementation((async (args: unknown) => {
+      const where = (args as { where: { id?: number } }).where
+      if (where.id === 4) return { slug: 'mitenant', status: 'TRIAL_EXPIRED', trialEndsAt: new Date(Date.now() - 1000) } as never
+      return null
+    }) as never)
+    const res = await callPost({ email: 'juan@example.com', password: 'clave-segura-123' }, '192.0.2.200')
+    expect(res.status).toBe(403)
+    expect((await res.json()).message).toContain('suspendió el servicio')
+    expect(createSession).not.toHaveBeenCalled()
+  })
+
+  it('permite login de empresario con empresa vencida (entra a pagar)', async () => {
+    vi.mocked(prisma.usuario.findMany).mockResolvedValue([user({ id: 7, rol: 'empresario', tenantId: 4 })])
+    vi.mocked(prisma.tenant.findUnique).mockResolvedValue({ slug: 'mitenant', status: 'TRIAL_EXPIRED', trialEndsAt: new Date(Date.now() - 1000) } as never)
+    const res = await callPost({ email: 'juan@example.com', password: 'clave-segura-123' }, '192.0.2.201')
+    expect(res.status).toBe(200)
+    expect(createSession).toHaveBeenCalled()
+  })
+
   it('inicia sesión correctamente y crea la sesión con tenantSlug', async () => {
     vi.mocked(prisma.usuario.findMany).mockResolvedValue([
       user({ id: 7, cedula: '52004483', rol: 'empresario', tenantId: 4 }),

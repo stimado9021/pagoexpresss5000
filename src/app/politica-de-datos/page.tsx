@@ -8,12 +8,12 @@ export const metadata: Metadata = {
 };
 
 const datosResponsable = {
-  empresa: '[Razón social de la empresa]',
-  nit: '[NIT 000.000.000-0]',
-  direccion: '[Dirección de domicilio]',
-  ciudad: '[Ciudad, Colombia]',
-  correo: '[correo@tuempresa.com]',
-  telefono: '[Teléfono de contacto]',
+  empresa: 'Rafael Enrique Orozco Quintero',
+  nit: '1140911464-2',
+  direccion: 'CL 44 5 B 116 BRR Buenos Aires',
+  ciudad: 'Barranquilla, Colombia',
+  correo: 'quinteroenrrique321@gmail.com',
+  telefono: '3247716650',
 };
 
 const secciones: Array<{ titulo: string; contenido: string[] }> = [

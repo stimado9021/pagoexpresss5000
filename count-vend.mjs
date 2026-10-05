@@ -1,0 +1,15 @@
+import "dotenv/config";
+import { PrismaClient } from "@prisma/client";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+const url=new URL(process.env.DATABASE_URL);
+const a=new PrismaMariaDb({host:url.hostname,port:parseInt(url.port||"3306"),user:url.username,password:url.password,database:url.pathname.replace("/",""),ssl:{rejectUnauthorized:false}});
+const p=new PrismaClient({adapter:a});
+const total=await p.usuario.count({where:{rol:"vendedor"}});
+console.log("total vendedores:",total);
+const byTenant=await p.usuario.groupBy({by:['tenantId'], where:{rol:"vendedor"}, _count:{_all:true}});
+console.log(byTenant);
+const tenants=await p.tenant.findMany({select:{id:true,nombre:true,slug:true}});
+console.log(tenants);
+const all=await p.usuario.findMany({where:{rol:"vendedor"}, select:{id:true,cedula:true,nombre:true,apellido:true,tenantId:true,activo:true}});
+console.log(JSON.stringify(all,null,2));
+await p.$disconnect();

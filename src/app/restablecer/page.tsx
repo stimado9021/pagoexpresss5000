@@ -51,7 +51,7 @@ export default function RestablecerPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg shadow-lime/20 overflow-hidden">
-            <img src="/logo.webp" alt="Kreditools" className="h-10 w-10 object-contain" />
+             <img src="/kreditools.jpg" alt="Kreditools" className="h-10 w-10 object-contain" />
           </span>
           <h1 className="text-xl font-bold text-zinc-100 font-display">Nueva contraseña</h1>
           <p className="mt-1 text-sm text-zinc-400">Elige una clave de al menos 8 caracteres</p>

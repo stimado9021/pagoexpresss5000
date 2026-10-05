@@ -1,6 +1,7 @@
 import 'server-only'
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
+import crypto from 'crypto'
 
 // Sesión de 1 hora por inactividad (deslizante: el proxy la renueva
 // en cada request autenticado; 1h sin actividad => expira).
@@ -25,7 +26,8 @@ export type SessionPayload = {
 }
 
 export async function encrypt(payload: SessionPayload) {
-  return new SignJWT(payload as unknown as Record<string, unknown>)
+  const jti = crypto.randomUUID()
+  return new SignJWT({ ...payload, jti } as unknown as Record<string, unknown>)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(SESSION_DURATION_JWT)
@@ -37,6 +39,11 @@ export async function decrypt(session: string | undefined = '') {
     const { payload } = await jwtVerify(session, encodedKey, {
       algorithms: ['HS256'],
     })
+    const jti = payload.jti as string | undefined
+    if (jti) {
+      const { isTokenBlacklisted } = await import('./jwt-blacklist')
+      if (isTokenBlacklisted(jti)) return null
+    }
     return payload as unknown as SessionPayload
   } catch {
     return null
@@ -55,10 +62,10 @@ export async function createSession(user: { id: number; cedula: string; rol: str
 
   cookieStore.set('session', session, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
     expires: expiresAt,
     maxAge: SESSION_DURATION_MS / 1000,
-    sameSite: 'lax',
+    sameSite: 'strict',
     path: '/',
     ...(domain ? { domain } : {}),
   })
@@ -68,8 +75,20 @@ export async function deleteSession() {
   const cookieStore = await cookies()
   const { getSessionCookieDomain } = await import('./domains')
   const domain = getSessionCookieDomain()
-  // Borrar con el mismo path/domain con el que se creó (si no, en prod
-  // con dominio compartido `.kreditools.shop` la cookie no se limpia).
+
+  const sessionCookie = cookieStore.get('session')?.value
+  if (sessionCookie) {
+    try {
+      const { payload } = await jwtVerify(sessionCookie, encodedKey, { algorithms: ['HS256'] })
+      const jti = payload.jti as string | undefined
+      if (jti) {
+        const { blacklistToken } = await import('./jwt-blacklist')
+        blacklistToken(jti)
+      }
+    } catch {
+    }
+  }
+
   try {
     cookieStore.delete({ name: 'session', path: '/', ...(domain ? { domain } : {}) } as never)
   } catch {

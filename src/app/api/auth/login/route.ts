@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createSession } from '@/lib/session'
-import { rateLimit, getClientIp } from '@/lib/rate-limit'
+import { rateLimit, getClientIp, isAccountLocked, recordFailedAttempt, resetFailedAttempts, getLockoutRemainingMs } from '@/lib/rate-limit'
 import { buildTenantUrl, normalizeSubdomainSlug } from '@/lib/domains'
 import { resolveTenantByHost } from '@/lib/tenant-guard'
 import bcrypt from 'bcryptjs'
@@ -38,6 +38,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Correo y contraseña requeridos' }, { status: 400 })
     }
 
+    const accountKey = `login:${query}`
+    if (isAccountLocked(accountKey)) {
+      const remainingSec = Math.ceil(getLockoutRemainingMs(accountKey) / 1000)
+      return NextResponse.json({ success: false, message: `Cuenta bloqueada temporalmente. Intenta en ${remainingSec} segundos.` }, { status: 429 })
+    }
+
     // Contexto de espacio de trabajo: subdominio del Host o el que envía el cliente.
     const explicitSlug = normalizeSubdomainSlug(String(subdomain ?? ''))
     let tenantCtx: { id: number; slug: string; nombre: string } | null = null
@@ -59,12 +65,19 @@ export async function POST(request: Request) {
     })) as Candidate[]
 
     if (candidates.length === 0) {
+      const { logSecurityEvent } = await import('@/lib/security-log')
+      await logSecurityEvent('AUTH_FAILURE', { email: query, ip, reason: 'user_not_found' })
+      recordFailedAttempt(accountKey)
       return NextResponse.json({ success: false, message: 'Credenciales incorrectas' }, { status: 401 })
     }
 
     const valid: Candidate[] = []
     for (const c of candidates) {
       if (await bcrypt.compare(password, c.password)) valid.push(c)
+    }
+
+    if (valid.length === 0) {
+      recordFailedAttempt(accountKey)
     }
 
     if (tenantCtx) {
@@ -116,11 +129,30 @@ export async function POST(request: Request) {
 }
 
 async function loginOk(user: Candidate) {
+  resetFailedAttempts(`login:${user.email}`)
+
   if (!user.activo) {
     return NextResponse.json({ success: false, message: 'Usuario inactivo' }, { status: 403 })
   }
 
   const slug = await tenantSlugOf(user.tenantId)
+
+  // Empresa bloqueada (trial vencido, suspendida o cancelada): vendedores y
+  // clientes no entran hasta que se pague. El empresario sí entra para pagar
+  // (su layout lo lleva a facturación) y el superadmin siempre entra.
+  if (user.tenantId && (user.rol === 'vendedor' || user.rol === 'cliente')) {
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: user.tenantId },
+      select: { status: true, trialEndsAt: true },
+    })
+    const vencido = tenant?.status === 'TRIAL' && tenant.trialEndsAt < new Date()
+    if (tenant && (['TRIAL_EXPIRED', 'SUSPENDED', 'CANCELLED'].includes(tenant.status) || vencido)) {
+      return NextResponse.json(
+        { success: false, message: 'Tu empresa suspendió el servicio. Pide a tu administrador que active la suscripción.' },
+        { status: 403 },
+      )
+    }
+  }
 
   await createSession({
     id: user.id,

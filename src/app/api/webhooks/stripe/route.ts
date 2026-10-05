@@ -36,12 +36,9 @@ export async function POST(request: NextRequest) {
     if (webhookSecret) {
       const stripe = getStripe()
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
-    } else if (process.env.NODE_ENV === 'production') {
+    } else {
       console.error('[STRIPE WEBHOOK] STRIPE_WEBHOOK_SECRET no está configurada. Rechazando evento.')
       return NextResponse.json({ success: false, message: 'Webhook no configurado' }, { status: 500 })
-    } else {
-      console.warn('[STRIPE WEBHOOK] Sin STRIPE_WEBHOOK_SECRET, aceptando eventos en modo desarrollo')
-      event = JSON.parse(body) as Stripe.Event
     }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Firma inválida'

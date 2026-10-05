@@ -1,0 +1,354 @@
+
+> pagoexpress-next@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.17:3000
+- Environments: .env
+✓ Ready in 942ms
+
+ POST /api/pagos 401 in 688ms (next.js: 642ms, application-code: 46ms)
+ GET /vendedor 200 in 1264ms (next.js: 689ms, application-code: 575ms)
+ GET /api/dashboard 200 in 3.1s (next.js: 220ms, application-code: 2.9s)
+ POST /api/pagos 200 in 3.8s (next.js: 14ms, application-code: 3.8s)
+ GET /vendedor 200 in 125ms (next.js: 13ms, application-code: 112ms)
+ GET /api/dashboard 200 in 1255ms (next.js: 7ms, application-code: 1248ms)
+✓ Compiled in 715ms
+✓ Compiled in 141ms
+✓ Compiled in 236ms
+✓ Compiled in 279ms
+ GET /vendedor 200 in 1113ms (next.js: 673ms, application-code: 439ms)
+ GET /api/dashboard 200 in 1455ms (next.js: 148ms, application-code: 1308ms)
+ POST /api/pagos 200 in 3.7s (next.js: 100ms, application-code: 3.6s)
+ GET /vendedor 200 in 116ms (next.js: 18ms, application-code: 98ms)
+ GET /api/dashboard 200 in 1261ms (next.js: 8ms, application-code: 1252ms)
+ POST /api/pagos 200 in 3.5s (next.js: 8ms, application-code: 3.5s)
+ GET /vendedor 200 in 98ms (next.js: 9ms, application-code: 89ms)
+ GET /api/dashboard 200 in 1251ms (next.js: 10ms, application-code: 1242ms)
+ POST /api/auth/logout 200 in 875ms (next.js: 740ms, application-code: 135ms)
+ GET /login 200 in 474ms (next.js: 239ms, application-code: 235ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET / 200 in 154ms (next.js: 103ms, application-code: 51ms)
+ GET /api/public/stats 200 in 774ms (next.js: 137ms, application-code: 637ms)
+ GET /api/public/stats 200 in 462ms (next.js: 11ms, application-code: 451ms)
+ GET / 200 in 741ms (next.js: 288ms, application-code: 453ms)
+ GET /api/public/stats 200 in 583ms (next.js: 105ms, application-code: 478ms)
+✓ Compiled in 1779ms
+ GET / 200 in 276ms (next.js: 185ms, application-code: 90ms)
+ GET / 200 in 284ms (next.js: 11ms, application-code: 274ms)
+ GET /api/public/stats 200 in 963ms (next.js: 85ms, application-code: 877ms)
+ GET / 200 in 135ms (next.js: 9ms, application-code: 125ms)
+ GET /api/public/stats 200 in 554ms (next.js: 9ms, application-code: 546ms)
+ GET / 200 in 640ms (next.js: 137ms, application-code: 503ms)
+ GET /api/public/stats 200 in 598ms (next.js: 17ms, application-code: 581ms)
+ GET / 200 in 377ms (next.js: 56ms, application-code: 321ms)
+ GET /api/public/stats 200 in 522ms (next.js: 13ms, application-code: 509ms)
+ GET / 200 in 233ms (next.js: 11ms, application-code: 222ms)
+ GET /api/public/stats 200 in 475ms (next.js: 12ms, application-code: 462ms)
+ GET / 200 in 416ms (next.js: 264ms, application-code: 152ms)
+ GET / 200 in 828ms (next.js: 463ms, application-code: 365ms)
+ GET /login 200 in 481ms (next.js: 280ms, application-code: 201ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /login 200 in 911ms (next.js: 632ms, application-code: 279ms)
+ GET /login 200 in 305ms (next.js: 178ms, application-code: 127ms)
+ POST /api/auth/login 200 in 2.2s (next.js: 1079ms, application-code: 1135ms)
+ GET /vendedor 200 in 583ms (next.js: 361ms, application-code: 222ms)
+ GET /api/dashboard 200 in 1386ms (next.js: 87ms, application-code: 1298ms)
+ GET /api/dashboard 200 in 1260ms (next.js: 8ms, application-code: 1252ms)
+ GET /vendedor 200 in 352ms (next.js: 11ms, application-code: 341ms)
+ GET /api/dashboard 200 in 1306ms (next.js: 10ms, application-code: 1296ms)
+ GET /api/clientes?resumen=true 200 in 1900ms (next.js: 238ms, application-code: 1662ms)
+✓ Compiled in 2.5s
+⨯ ./src/app/vendedor/page.tsx:503:11
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  [90m501 |[0m               </div>
+  [90m502 |[0m             )
+[31m[1m>[0m [90m503 |[0m           })}
+  [90m    |[0m           [31m[1m^[0m
+  [90m504 |[0m         </div>
+  [90m505 |[0m       )}
+  [90m506 |[0m     </>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/vendedor/page.tsx [Client Component Browser]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/vendedor/page.tsx [Client Component SSR]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+
+
+./src/app/vendedor/page.tsx:503:13
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  [90m501 |[0m               </div>
+  [90m502 |[0m             )
+[31m[1m>[0m [90m503 |[0m           })}
+  [90m    |[0m             [31m[1m^[0m
+  [90m504 |[0m         </div>
+  [90m505 |[0m       )}
+  [90m506 |[0m     </>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/vendedor/page.tsx [Client Component Browser]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/vendedor/page.tsx [Client Component SSR]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+
+ GET /vendedor 500 in 2.9s (next.js: 2.3s, application-code: 682ms)
+⨯ ./src/app/vendedor/page.tsx:503:11
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  [90m501 |[0m               </div>
+  [90m502 |[0m             )
+[31m[1m>[0m [90m503 |[0m           })}
+  [90m    |[0m           [31m[1m^[0m
+  [90m504 |[0m         </div>
+  [90m505 |[0m       )}
+  [90m506 |[0m     </>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/vendedor/page.tsx [Client Component Browser]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/vendedor/page.tsx [Client Component SSR]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+
+
+./src/app/vendedor/page.tsx:503:13
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  [90m501 |[0m               </div>
+  [90m502 |[0m             )
+[31m[1m>[0m [90m503 |[0m           })}
+  [90m    |[0m             [31m[1m^[0m
+  [90m504 |[0m         </div>
+  [90m505 |[0m       )}
+  [90m506 |[0m     </>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/vendedor/page.tsx [Client Component Browser]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/vendedor/page.tsx [Client Component SSR]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+
+ GET /vendedor 500 in 71ms (next.js: 38ms, application-code: 33ms)
+⨯ ./src/app/vendedor/page.tsx:503:11
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  [90m501 |[0m               </div>
+  [90m502 |[0m             )
+[31m[1m>[0m [90m503 |[0m           })}
+  [90m    |[0m           [31m[1m^[0m
+  [90m504 |[0m         </div>
+  [90m505 |[0m       )}
+  [90m506 |[0m     </>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/vendedor/page.tsx [Client Component Browser]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/vendedor/page.tsx [Client Component SSR]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+
+
+./src/app/vendedor/page.tsx:503:13
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  [90m501 |[0m               </div>
+  [90m502 |[0m             )
+[31m[1m>[0m [90m503 |[0m           })}
+  [90m    |[0m             [31m[1m^[0m
+  [90m504 |[0m         </div>
+  [90m505 |[0m       )}
+  [90m506 |[0m     </>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/vendedor/page.tsx [Client Component Browser]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/vendedor/page.tsx [Client Component SSR]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+
+ GET /vendedor 500 in 72ms (next.js: 41ms, application-code: 31ms)
+⨯ ./src/app/vendedor/page.tsx:503:11
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  [90m501 |[0m               </div>
+  [90m502 |[0m             )
+[31m[1m>[0m [90m503 |[0m           })}
+  [90m    |[0m           [31m[1m^[0m
+  [90m504 |[0m         </div>
+  [90m505 |[0m       )}
+  [90m506 |[0m     </>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/vendedor/page.tsx [Client Component Browser]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/vendedor/page.tsx [Client Component SSR]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+
+
+./src/app/vendedor/page.tsx:503:13
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  [90m501 |[0m               </div>
+  [90m502 |[0m             )
+[31m[1m>[0m [90m503 |[0m           })}
+  [90m    |[0m             [31m[1m^[0m
+  [90m504 |[0m         </div>
+  [90m505 |[0m       )}
+  [90m506 |[0m     </>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/vendedor/page.tsx [Client Component Browser]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/vendedor/page.tsx [Client Component SSR]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+
+ GET /vendedor 500 in 62ms (next.js: 36ms, application-code: 26ms)
+[browser] Uncaught Error: ./src/app/vendedor/page.tsx:503:13
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  501 |               </div>
+  502 |             )
+> 503 |           })}
+      |             ^
+  504 |         </div>
+  505 |       )}
+  506 |     </>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/vendedor/page.tsx [Client Component Browser]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/vendedor/page.tsx [Client Component SSR]
+    ./src/app/vendedor/page.tsx [Server Component]
+
+
+    at <unknown> (Error: ./src/app/vendedor/page.tsx:503:13)
+    at <unknown> (Error: (./src/app/vendedor/page.tsx:503:13)
+ GET /vendedor 200 in 3.2s (next.js: 1377ms, application-code: 1794ms)
+ GET /vendedor 200 in 277ms (next.js: 19ms, application-code: 258ms)
+ GET /api/dashboard 200 in 4.2s (next.js: 252ms, application-code: 4.0s)
+ GET /vendedor 200 in 384ms (next.js: 76ms, application-code: 308ms)
+ GET /api/dashboard 200 in 1337ms (next.js: 18ms, application-code: 1319ms)
+ GET /api/clientes?resumen=true 200 in 3.0s (next.js: 129ms, application-code: 2.8s)
+ GET /api/clientes?id=14 200 in 2.5s (next.js: 8ms, application-code: 2.5s)
+ POST /api/pagos 200 in 4.8s (next.js: 239ms, application-code: 4.6s)
+ GET /api/clientes?resumen=true 200 in 1790ms (next.js: 11ms, application-code: 1779ms)
+ GET /api/clientes?id=14 200 in 2.6s (next.js: 8ms, application-code: 2.6s)
+✓ Compiled in 497ms
+ GET /vendedor 200 in 331ms (next.js: 228ms, application-code: 103ms)
+✓ Compiled in 113ms
+ GET /vendedor 200 in 166ms (next.js: 102ms, application-code: 64ms)
+✓ Compiled in 598ms
+ GET /vendedor 200 in 191ms (next.js: 133ms, application-code: 58ms)
+✓ Compiled in 1886ms
+ GET /vendedor 200 in 395ms (next.js: 156ms, application-code: 240ms)
+ GET /vendedor 200 in 173ms (next.js: 91ms, application-code: 82ms)
+ GET /vendedor 200 in 40ms (next.js: 10ms, application-code: 30ms)
+✓ Compiled in 166ms
+ GET /vendedor 200 in 170ms (next.js: 122ms, application-code: 48ms)
+✓ Compiled in 132ms
+ GET /vendedor 200 in 166ms (next.js: 118ms, application-code: 48ms)
+✓ Compiled in 142ms
+ GET /vendedor 200 in 190ms (next.js: 122ms, application-code: 69ms)
+ GET /vendedor 200 in 298ms (next.js: 13ms, application-code: 285ms)
+ GET /api/dashboard 200 in 2.1s (next.js: 150ms, application-code: 1986ms)
+ POST /api/pagos 200 in 5.4s (next.js: 82ms, application-code: 5.3s)
+ GET /vendedor 200 in 120ms (next.js: 11ms, application-code: 109ms)
+ GET /api/dashboard 200 in 1256ms (next.js: 6ms, application-code: 1249ms)
+ POST /api/pagos 200 in 4.0s (next.js: 14ms, application-code: 4.0s)
+ GET /vendedor 200 in 109ms (next.js: 12ms, application-code: 97ms)
+ GET /api/dashboard 200 in 1263ms (next.js: 13ms, application-code: 1250ms)
+ GET /vendedor 200 in 102ms (next.js: 10ms, application-code: 93ms)
+ GET /api/dashboard 200 in 1276ms (next.js: 9ms, application-code: 1267ms)
+ POST /api/pagos 200 in 3.5s (next.js: 11ms, application-code: 3.5s)
+ GET /vendedor 200 in 103ms (next.js: 8ms, application-code: 94ms)
+ GET /api/dashboard 200 in 1246ms (next.js: 10ms, application-code: 1236ms)
+✓ Compiled in 511ms
+ GET /vendedor 200 in 713ms (next.js: 432ms, application-code: 281ms)
+✓ Compiled in 210ms
+ GET /vendedor 200 in 254ms (next.js: 174ms, application-code: 80ms)
+✓ Compiled in 278ms
+ GET /vendedor 200 in 256ms (next.js: 180ms, application-code: 75ms)
+✓ Compiled in 181ms
+ GET /vendedor 200 in 246ms (next.js: 177ms, application-code: 69ms)
+✓ Compiled in 217ms
+ GET /vendedor 200 in 282ms (next.js: 191ms, application-code: 92ms)
+✓ Compiled in 289ms
+ GET /vendedor 200 in 293ms (next.js: 196ms, application-code: 97ms)
+✓ Compiled in 251ms
+ GET /vendedor 200 in 609ms (next.js: 216ms, application-code: 393ms)
+ GET /api/dashboard 200 in 2.7s (next.js: 156ms, application-code: 2.5s)
+ GET /api/clientes?resumen=true 200 in 1794ms (next.js: 148ms, application-code: 1645ms)
+ GET /api/clientes?id=14 200 in 1664ms (next.js: 12ms, application-code: 1652ms)
+ POST /api/pagos 200 in 5.3s (next.js: 93ms, application-code: 5.2s)
+ GET /api/clientes?resumen=true 200 in 1675ms (next.js: 8ms, application-code: 1667ms)
+ GET /api/clientes?id=14 200 in 1702ms (next.js: 9ms, application-code: 1693ms)
+ GET /api/clientes?id=16 200 in 2.6s (next.js: 11ms, application-code: 2.6s)
+ GET /api/clientes?id=16 200 in 2.2s (next.js: 9ms, application-code: 2.2s)
+ POST /api/pagos 200 in 5.4s (next.js: 11ms, application-code: 5.4s)
+ GET /api/clientes?resumen=true 200 in 2.6s (next.js: 10ms, application-code: 2.6s)
+ GET /api/clientes?id=16 200 in 2.5s (next.js: 6ms, application-code: 2.5s)
+ GET /api/configuracion 401 in 509ms (next.js: 476ms, application-code: 33ms)
+ GET /api/configuracion 401 in 39ms (next.js: 7ms, application-code: 31ms)
+ GET /api/clientes?resumen=true 200 in 2.5s (next.js: 23ms, application-code: 2.4s)
+ POST /api/auth/logout 200 in 123ms (next.js: 85ms, application-code: 38ms)
+ POST /api/auth/logout 200 in 25ms (next.js: 10ms, application-code: 15ms)
+ GET /api/dashboard 200 in 2.1s (next.js: 17ms, application-code: 2.1s)
+ GET /login 200 in 521ms (next.js: 153ms, application-code: 369ms)
+ GET /login 200 in 144ms (next.js: 38ms, application-code: 106ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ POST /api/auth/login 401 in 1733ms (next.js: 99ms, application-code: 1634ms)
+ POST /api/auth/login 401 in 2.4s (next.js: 469ms, application-code: 1920ms)
+ POST /api/auth/login 200 in 923ms (next.js: 12ms, application-code: 911ms)
+ GET /vendedor 200 in 294ms (next.js: 38ms, application-code: 256ms)
+ GET /api/dashboard 200 in 2.0s (next.js: 17ms, application-code: 1992ms)
+ GET /api/dashboard 200 in 1924ms (next.js: 7ms, application-code: 1917ms)
+ GET /api/clientes?resumen=true 200 in 1838ms (next.js: 29ms, application-code: 1808ms)
+ GET /api/clientes?id=25 200 in 2.1s (next.js: 14ms, application-code: 2.1s)
+ POST /api/pagos 200 in 5.4s (next.js: 22ms, application-code: 5.3s)
+ GET /api/clientes?resumen=true 200 in 1669ms (next.js: 20ms, application-code: 1650ms)
+ GET /api/clientes?id=25 200 in 1711ms (next.js: 21ms, application-code: 1691ms)

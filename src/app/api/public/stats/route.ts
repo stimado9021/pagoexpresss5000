@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getSession } from '@/lib/session'
 
 export async function GET() {
+  const session = await getSession()
+  if (!session) {
+    return NextResponse.json({ success: false, message: 'No autorizado' }, { status: 401 })
+  }
   const now = new Date()
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
 
@@ -61,7 +66,7 @@ export async function GET() {
     }
   })
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     success: true,
     data: {
       carteraActiva: carteraTotal,
@@ -76,4 +81,6 @@ export async function GET() {
       cobrosPorDia: dias,
     },
   })
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
+  return response
 }

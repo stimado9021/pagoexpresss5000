@@ -89,7 +89,7 @@ export default function LoginForm({ branding }: { branding: TenantBranding }) {
           <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg shadow-lime/20 overflow-hidden">
             {branding?.logoUrl
               ? <img src={branding.logoUrl} alt={branding.nombre} className="h-10 w-10 object-contain" />
-              : <img src="/logo.webp" alt="Kreditools" className="h-10 w-10 object-contain" />}
+                             : <img src="/kreditools.jpg" alt="Kreditools" className="h-10 w-10 object-contain" />}
           </span>
           <h1 className="text-xl font-bold text-zinc-100 font-display">{branding?.nombre ?? 'Kreditools'}</h1>
           <p className="mt-1 text-sm text-zinc-400">

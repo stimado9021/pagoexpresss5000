@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guion Video Demo — Kreditools</title>
+<style>
+  :root {
+    --emerald-950: #00241f;
+    --emerald-900: #013a31;
+    --emerald-800: #025a4a;
+    --graphite-900: #101614;
+    --graphite-800: #1a2320;
+    --bone: #f5f0e6;
+    --lime: #d4f000;
+    --muted: #9aa7a0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--emerald-950);
+    color: var(--bone);
+    line-height: 1.6;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--emerald-900), var(--emerald-950));
+    border-bottom: 1px solid rgba(212, 240, 0, 0.15);
+    padding: 48px 24px 32px;
+    text-align: center;
+  }
+  header .logo {
+    display: inline-flex; align-items: center; gap: 10px;
+    margin-bottom: 18px;
+  }
+  header .logo img {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #fff; padding: 4px; object-fit: contain;
+  }
+  header .logo span { font-weight: 800; font-size: 20px; letter-spacing: 0.5px; }
+  header h1 { font-size: 30px; font-weight: 800; margin-bottom: 8px; }
+  header p { color: var(--muted); font-size: 15px; max-width: 640px; margin: 0 auto; }
+  .badges { margin-top: 16px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .badge {
+    background: rgba(212, 240, 0, 0.12);
+    color: var(--lime);
+    border: 1px solid rgba(212, 240, 0, 0.3);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .toc {
+    max-width: 960px; margin: 32px auto 8px; padding: 0 24px;
+  }
+  .toc h2 {
+    font-size: 14px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--lime); margin-bottom: 14px;
+  }
+  .toc ol { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+  .toc a {
+    display: flex; align-items: baseline; gap: 10px;
+    color: var(--bone); text-decoration: none;
+    background: var(--graphite-900);
+    border: 1px solid rgba(245, 240, 230, 0.08);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    transition: border-color .2s, color .2s;
+  }
+  .toc a:hover { border-color: rgba(212, 240, 0, 0.5); color: var(--lime); }
+  .toc .num { color: var(--lime); font-weight: 700; font-size: 12px; }
+
+  main { max-width: 960px; margin: 0 auto; padding: 24px 24px 80px; }
+
+  .scene {
+    background: var(--graphite-900);
+    border: 1px solid rgba(245, 240, 230, 0.08);
+    border-left: 4px solid var(--lime);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+    scroll-margin-top: 20px;
+  }
+  .scene-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+  .scene-num {
+    background: var(--lime); color: var(--emerald-950);
+    font-weight: 800; font-size: 13px;
+    border-radius: 8px; padding: 4px 10px;
+  }
+  .scene-title { font-size: 19px; font-weight: 700; }
+  .scene-dur {
+    margin-left: auto; font-size: 12px; color: var(--muted);
+    background: rgba(245,240,230,0.06); border-radius: 6px; padding: 3px 9px;
+  }
+  .block { margin-top: 14px; }
+  .block h3 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--lime); margin-bottom: 6px;
+  }
+  .block p { color: var(--bone); font-size: 15px; }
+  .block ul { padding-left: 20px; }
+  .block li { font-size: 14px; color: var(--bone); margin-bottom: 6px; }
+  .block .kbd {
+    display: inline-block;
+    background: rgba(212, 240, 0, 0.1);
+    border: 1px solid rgba(212, 240, 0, 0.35);
+    color: var(--lime);
+    border-radius: 5px;
+    padding: 0 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .quote {
+    border-left: 3px solid rgba(245,240,230,0.2);
+    padding-left: 14px; font-style: italic; color: #e8e3d8;
+  }
+
+  .btn-print {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--lime); color: var(--emerald-950);
+    border: none; border-radius: 999px;
+    padding: 12px 22px; font-size: 14px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transition: transform .15s, background .2s;
+  }
+  .btn-print:hover { background: #e4ff33; transform: translateY(-2px); }
+
+  footer { text-align: center; padding: 32px 24px 90px; color: var(--muted); font-size: 13px; }
+  footer strong { color: var(--lime); }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 24px; }
+    .scene-dur { margin-left: 0; }
+  }
+
+  @media print {
+    body { background: #fff; color: #111; }
+    header { background: var(--emerald-950); color: var(--bone); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .scene { background: #fff; border: 1px solid #ddd; border-left: 4px solid var(--lime); break-inside: avoid; }
+    .toc a, .scene-head, .block h3 { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .btn-print { display: none; }
+    .toc { margin-top: 20px; }
+    .toc ol { grid-template-columns: repeat(2, 1fr); }
+    footer { color: #666; padding-bottom: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <img src="/logo.webp" alt="Kreditools">
+    <span>Kreditools</span>
+  </div>
+  <h1>Guion Video Demo</h1>
+  <p>Guion completo para grabar un video que recorre todas las secciones de Kreditools: desde la creación de una empresa hasta los préstamos y pagos.</p>
+  <div class="badges">
+    <span class="badge">Duración estimada: 8–9 min</span>
+    <span class="badge">Formato: pantalla completa + voz en off</span>
+    <span class="badge">Idioma: Español</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>Índice de escenas</h2>
+  <ol>
+    <li><a href="#escena-1"><span class="num">01</span> Portada / Intro</a></li>
+    <li><a href="#escena-2"><span class="num">02</span> Página principal (Landing)</a></li>
+    <li><a href="#escena-3"><span class="num">03</span> Crear una empresa</a></li>
+    <li><a href="#escena-4"><span class="num">04</span> Login</a></li>
+    <li><a href="#escena-5"><span class="num">05</span> Dashboard del Empresario</a></li>
+    <li><a href="#escena-6"><span class="num">06</span> Configuración del sistema</a></li>
+    <li><a href="#escena-7"><span class="num">07</span> Crear un vendedor</a></li>
+    <li><a href="#escena-8"><span class="num">08</span> Panel del Vendedor: Dashboard</a></li>
+    <li><a href="#escena-9"><span class="num">09</span> Crear clientes y generar préstamos</a></li>
+    <li><a href="#escena-10"><span class="num">10</span> Registrar pagos y abonos</a></li>
+    <li><a href="#escena-11"><span class="num">11</span> Vista del Cliente</a></li>
+    <li><a href="#escena-12"><span class="num">12</span> Notificaciones automáticas</a></li>
+    <li><a href="#escena-13"><span class="num">13</span> Panel de Kreditools (Superadmin)</a></li>
+    <li><a href="#escena-14"><span class="num">14</span> Cierre</a></li>
+  </ol>
+</nav>
+
+<main>
+
+  <section class="scene" id="escena-1">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 1</span>
+      <span class="scene-title">Portada / Intro</span>
+      <span class="scene-dur">0:00 – 0:15</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Logo de Kreditools + eslogan sobre fondo verde oscuro. Título: <strong>"Kreditools — Tu sistema de préstamos digitales"</strong>.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"Kreditools es una plataforma completa para administrar tus préstamos de dinero. Con Kreditools puedes controlar a tus vendedores, tus clientes, sus préstamos y los pagos diarios, todo desde un solo lugar. Hoy te voy a mostrar cómo funciona de principio a fin."</p>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-2">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 2</span>
+      <span class="scene-title">Página principal (Landing)</span>
+      <span class="scene-dur">0:15 – 0:50</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Scroll lento por la página de inicio.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"Empezamos en la página principal de Kreditools. Aquí puedes conocer los beneficios de la plataforma: el registro de empresas y vendedores, el control de préstamos, los cobros diarios y las notificaciones automáticas. También encuentras los planes disponibles y la oferta de lanzamiento. En la parte inferior, el formulario de registro de tu empresa, y a un lado el chat en vivo con atención al cliente."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul>
+        <li>Mostrar secciones <span class="kbd">Beneficios</span>, <span class="kbd">Planes</span>, <span class="kbd">Oferta</span> y <span class="kbd">FAQ</span>.</li>
+        <li>Abrir el widget de chat y escribir un mensaje.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-3">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 3</span>
+      <span class="scene-title">Crear una empresa</span>
+      <span class="scene-dur">0:50 – 1:50</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Desplazarse al formulario <strong>"Crea tu espacio en Kreditools"</strong>.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"Para empezar, creamos la empresa. Diligenciamos el nombre de la empresa, los datos del administrador, el subdominio — que es la dirección única de la empresa — y una contraseña. También podemos subir el logo de la empresa, así quedará personalizado en todo el sistema."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul>
+        <li>Llenar el formulario: Empresa <span class="kbd">Préstamos Rápidos</span>, admin, correo, subdominio <span class="kbd">prestamos-rapidos</span>, contraseña.</li>
+        <li>Subir el logo (mostrar vista previa).</li>
+        <li>Clic en <span class="kbd">Comenzar</span> / crear.</li>
+        <li>Mostrar el mensaje de éxito y el inicio de sesión automático.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-4">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 4</span>
+      <span class="scene-title">Login</span>
+      <span class="scene-dur">1:50 – 2:05</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Pantalla de inicio de sesión.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"Si ya tienes una cuenta, simplemente ingresas con tu correo y contraseña. El sistema te lleva directamente a tu panel según tu rol: empresario, vendedor o cliente."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul><li>Escribir credenciales y entrar.</li></ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-5">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 5</span>
+      <span class="scene-title">Dashboard del Empresario</span>
+      <span class="scene-dur">2:05 – 2:50</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Vista de <strong>"Resumen"</strong> del empresario.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"Este es el panel del empresario. En el resumen vemos las estadísticas generales: el número de vendedores, el total de dinero colocado en préstamos y los préstamos atrasados. Más abajo, el detalle de cada vendedor y sus indicadores. En el menú lateral tenemos las secciones: Resumen, Vendedores, Suscripción, Configuración y Auditoría."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul>
+        <li>Recorrer con el mouse el menú lateral y señalar cada sección.</li>
+        <li>Mostrar los reportes exportables.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-6">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 6</span>
+      <span class="scene-title">Configuración del sistema</span>
+      <span class="scene-dur">2:50 – 3:35</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Ir a <span class="kbd">Configuración</span>.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"En Configuración, el empresario define los parámetros de la empresa. Aquí se sube el logo, se define la tasa de interés — por ejemplo 20% — y la cuota diaria mínima que pagará cada cliente."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul>
+        <li>Mostrar el logo cargado.</li>
+        <li>Cambiar la tasa de interés a <span class="kbd">20%</span>.</li>
+        <li>Colocar cuota diaria mínima de <span class="kbd">$5.000</span>.</li>
+        <li>Guardar y mostrar el mensaje <span class="kbd">Configuración guardada</span>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-7">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 7</span>
+      <span class="scene-title">Crear un vendedor</span>
+      <span class="scene-dur">3:35 – 4:20</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Sección <span class="kbd">Vendedores</span> → botón <span class="kbd">Nuevo vendedor</span>.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"Ahora creamos el primer vendedor de la empresa. Llenamos su cédula, nombre, apellido, teléfono y correo. Con esos datos ya puede ingresar al sistema."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul>
+        <li>Clic en <span class="kbd">Nuevo vendedor</span>.</li>
+        <li>Llenar modal: Vendedor <span class="kbd">Carlos Pérez</span>.</li>
+        <li>Guardar y mostrar que aparece en la lista de vendedores.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-8">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 8</span>
+      <span class="scene-title">Panel del Vendedor: Dashboard</span>
+      <span class="scene-dur">4:20 – 5:00</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Ingresar como el vendedor creado. Panel con menú: <span class="kbd">Dashboard</span>, <span class="kbd">Clientes</span>, <span class="kbd">Préstamos</span>, <span class="kbd">Pagos</span>.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"El vendedor tiene su propio panel. Aquí ve sus indicadores: préstamos activos, dinero prestado, clientes atrasados y el total a cobrar hoy. Cada préstamo muestra su estado y su cuota diaria."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul><li>Recorrer el menú del vendedor.</li></ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-9">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 9</span>
+      <span class="scene-title">Crear clientes y generar préstamos</span>
+      <span class="scene-dur">5:00 – 6:15</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Sección <span class="kbd">Clientes</span> → botón <span class="kbd">Nuevo cliente</span>.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"El vendedor registra a sus clientes con sus datos personales."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul><li>Crear cliente <span class="kbd">María Gómez</span>.</li></ul>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"Después, desde el detalle del cliente, genera el préstamo. Colocamos el monto solicitado — por ejemplo $100.000. El sistema calcula automáticamente el interés, el total a pagar y, con la cuota diaria mínima, el plazo en días y la fecha de fin."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul>
+        <li>Abrir detalle de María Gómez → <span class="kbd">Nuevo préstamo</span>.</li>
+        <li>Ingresar <span class="kbd">$100.000</span>.</li>
+        <li>Mostrar el cálculo: interés 20% = $120.000 total, cuota diaria $5.000, plazo X días.</li>
+        <li>Confirmar y mostrar el préstamo activo con su cuota diaria.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-10">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 10</span>
+      <span class="scene-title">Registrar pagos y abonos</span>
+      <span class="scene-dur">6:15 – 7:00</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Sección <span class="kbd">Pagos</span> del vendedor (o botón de cobro en el detalle del cliente).</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"Cuando el cliente paga, el vendedor registra el pago. Puede cobrar la cuota de hoy o un abono a un saldo atrasado. El sistema actualiza los días pagados y el estado del préstamo al instante."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul>
+        <li>Seleccionar <span class="kbd">Pago de hoy</span> y registrar.</li>
+        <li>Mostrar cómo se actualiza el saldo y los días cubiertos.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-11">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 11</span>
+      <span class="scene-title">Vista del Cliente</span>
+      <span class="scene-dur">7:00 – 7:40</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Ingresar como el cliente María Gómez.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"El cliente también tiene su propia vista. Ve el estado de su préstamo, el monto total, la cuota diaria, los días pagados y si está al día o atrasado. Incluso puede ponerse al día desde aquí."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul>
+        <li>Mostrar la tarjeta del préstamo de María y el indicador de estado.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-12">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 12</span>
+      <span class="scene-title">Notificaciones automáticas</span>
+      <span class="scene-dur">7:40 – 8:05</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Ejemplo de mensaje de WhatsApp / recordatorio.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"Kreditools además envía recordatorios automáticos: cuando se acerca la cuota diaria, cuando hay atrasos y confirmaciones de pago, directo al WhatsApp del cliente."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul>
+        <li>Mostrar un chat de ejemplo con el mensaje de recordatorio generado por el sistema.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-13">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 13</span>
+      <span class="scene-title">Panel de Kreditools (Superadmin)</span>
+      <span class="scene-dur">8:05 – 8:40</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Ingresar al panel del administrador (superadmin) con la lista de empresas.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"Finalmente, el equipo de Kreditools tiene un panel donde ve todas las empresas registradas: su estado, fecha de registro y plan. Puede activar, suspender o revisar el detalle de cada empresa."</p>
+    </div>
+    <div class="block">
+      <h3>Acciones en pantalla</h3>
+      <ul>
+        <li>Mostrar la lista, abrir el detalle de <span class="kbd">Préstamos Rápidos</span> y mostrar sus estadísticas y configuración.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="scene" id="escena-14">
+    <div class="scene-head">
+      <span class="scene-num">ESCENA 14</span>
+      <span class="scene-title">Cierre</span>
+      <span class="scene-dur">8:40 – 8:55</span>
+    </div>
+    <div class="block">
+      <h3>Pantalla</h3>
+      <p>Logo de Kreditools + datos de contacto / CTA.</p>
+    </div>
+    <div class="block">
+      <h3>Voz en off</h3>
+      <p class="quote">"Eso es todo. Kreditools te da todo lo que necesitas para manejar tus préstamos de forma simple, digital y automática. Crea tu empresa, registra tu equipo y empieza hoy mismo."</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <strong>Kreditools</strong> — Guion para video demo de producto · Escenas 01–14 · Versión 1.0
+</footer>
+
+<button class="btn-print" onclick="window.print()">Imprimir / PDF</button>
+
+</body>
+</html>

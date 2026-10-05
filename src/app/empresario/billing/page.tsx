@@ -300,7 +300,7 @@ function BillingContent() {
 
         <div className="mt-10 pb-6 text-center">
           <button onClick={() => router.push('/empresario')} className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-100 transition-colors">
-            <CreditCard size={15} /> ¿Preguntas sobre facturación? soporte@kreditools.shop
+            <CreditCard size={15} /> ¿Preguntas sobre facturación? quinteroenrrique321@gmail.com
           </button>
         </div>
       </div>

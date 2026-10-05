@@ -6,6 +6,296 @@ datasource db {
   provider = "mysql"
 }
 
+model Configuracion {
+  id                Int      @id @default(autoincrement())
+  tasaInteres       Decimal  @default(20.000000000000000000000000000000) @map("tasa_interes")
+  cuotaDiariaMinima Decimal? @default(0.000000000000000000000000000000) @map("cuota_diaria_minima")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracion")
+}
+
+model Tenant {
+  id            Int                  @id @default(autoincrement())
+  nombre        String               @db.VarChar(200)
+  slug          String               @unique @db.VarChar(100)
+  subdominio    String               @unique @db.VarChar(100)
+  logoUrl       String?              @db.VarChar(500)
+  planId        Int?
+  status        TenantStatus         @default(TRIAL)
+  trialStartsAt DateTime
+  trialEndsAt   DateTime
+  planStartsAt  DateTime?
+  planExpiresAt DateTime?
+  createdAt     DateTime             @default(now()) @map("created_at")
+  updatedAt     DateTime             @updatedAt @map("updated_at")
+  customDomain  String?              @unique @map("custom_domain") @db.VarChar(255)
+  chatSesiones  ChatSesion[]
+  configuracion ConfiguracionTenant?
+  historial     Historial[]
+  invitaciones  Invitacion[]
+  pagos         Pago[]
+  prestamos     Prestamo[]
+  suscripciones Suscripcion?
+  plan          Plan?                @relation(fields: [planId], references: [id])
+  usuarios      Usuario[]
+
+  @@index([slug])
+  @@index([subdominio])
+  @@index([planId])
+  @@index([status])
+  @@map("tenants")
+}
+
+model Plan {
+  id                   Int           @id @default(autoincrement())
+  nombre               String        @db.VarChar(100)
+  slug                 String        @unique @db.VarChar(50)
+  precioMensual        Decimal       @db.Decimal(10, 2)
+  precioAnual          Decimal?      @db.Decimal(10, 2)
+  intervalo            PlanInterval  @default(MONTHLY)
+  description          String?       @db.Text
+  activo               Boolean       @default(true)
+  trialDays            Int           @default(15)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  stripePriceAnualId   String?       @db.VarChar(255)
+  stripePriceMensualId String?       @db.VarChar(255)
+  limietes             PlanLimites[]
+  suscripciones        Suscripcion[]
+  tenants              Tenant[]
+
+  @@map("planes")
+}
+
+enum PlanRecurso {
+  MAX_VENDEDORES
+  MAX_CLIENTES
+  MAX_PRESTAMOS
+  REPORTES_AVANZADOS
+  API_ACCESS
+  CUSTOM_BRANDING
+}
+
+model PlanLimites {
+  id        Int         @id @default(autoincrement())
+  planId    Int
+  recurso   PlanRecurso
+  valor     Int
+  createdAt DateTime    @default(now())
+  plan      Plan        @relation(fields: [planId], references: [id])
+
+  @@unique([planId, recurso])
+  @@map("plan_limites")
+}
+
+model Suscripcion {
+  id                   Int               @id @default(autoincrement())
+  tenantId             Int               @unique @map("tenant_id")
+  planId               Int
+  stripeCustomerId     String?           @db.VarChar(255)
+  wompiCustomerId      String?           @db.VarChar(255)
+  estado               SuscripcionStatus @default(PENDING)
+  cicloActual          Int               @default(1)
+  renovacionProxima    DateTime?
+  pagadoHasta          DateTime?
+  createdAt            DateTime          @default(now()) @map("created_at")
+  updatedAt            DateTime          @updatedAt @map("updated_at")
+  intervalo            PlanInterval      @default(MONTHLY)
+  stripePriceId        String?           @db.VarChar(255)
+  stripeSubscriptionId String?           @db.VarChar(255)
+  plan                 Plan              @relation(fields: [planId], references: [id])
+  tenant               Tenant            @relation(fields: [tenantId], references: [id])
+
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+  @@index([wompiCustomerId])
+  @@index([planId], map: "suscripciones_planId_fkey")
+  @@map("suscripciones")
+}
+
+model Invitacion {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  email       String   @db.VarChar(255)
+  rol         String   @db.VarChar(20)
+  token       String   @unique @db.VarChar(255)
+  invitadoPor Int      @map("invitado_por")
+  aceptada    Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([token])
+  @@map("invitaciones")
+}
+
+model ConfiguracionTenant {
+  id                         Int      @id @default(autoincrement())
+  tenantId                   Int      @unique @map("tenant_id")
+  tasaInteres                Decimal  @default(20.000000000000000000000000000000) @map("tasa_interes")
+  cuotaDiariaMin             Decimal  @default(0.000000000000000000000000000000) @map("cuota_diaria_minima")
+  nombreEmpresa              String?  @map("nombre_empresa") @db.VarChar(200)
+  logoUrl                    String?  @db.LongText
+  notificaciones             String?  @db.Text
+  createdAt                  DateTime @default(now()) @map("created_at")
+  updatedAt                  DateTime @updatedAt @map("updated_at")
+  porcentajeComisionVendedor Decimal  @default(0.00) @map("porcentaje_comision_vendedor") @db.Decimal(5, 2)
+  tenant                     Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@map("configuracion_tenant")
+}
+
+model Usuario {
+  id               Int         @id @default(autoincrement())
+  cedula           String      @db.VarChar(20)
+  nombre           String      @db.VarChar(100)
+  apellido         String      @db.VarChar(100)
+  telefono         String?     @db.VarChar(20)
+  email            String?     @db.VarChar(100)
+  direccion        String?     @db.Text
+  rol              String      @db.VarChar(20)
+  password         String      @db.VarChar(255)
+  activo           Int         @default(1)
+  vendedorId       Int?        @map("vendedor_id")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+  tenantId         Int?        @map("tenant_id")
+  historial        Historial[]
+  pagos            Pago[]
+  prestamosCliente Prestamo[]  @relation("ClientePrestamos")
+  prestamosCreados Prestamo[]  @relation("VendedorPrestamos")
+  tenant           Tenant?     @relation(fields: [tenantId], references: [id])
+  vendedor         Usuario?    @relation("VendedorClientes", fields: [vendedorId], references: [id])
+  clientes         Usuario[]   @relation("VendedorClientes")
+
+  @@unique([tenantId, cedula], map: "usuarios_tenant_cedula_key")
+  @@index([cedula])
+  @@index([rol])
+  @@index([nombre, apellido])
+  @@index([tenantId])
+  @@index([tenantId, rol], map: "idx_usuarios_tenant_rol")
+  @@index([tenantId, rol, activo], map: "idx_usuarios_tenant_rol_activo")
+  @@index([vendedorId], map: "usuarios_vendedor_id_fkey")
+  @@map("usuarios")
+}
+
+model Prestamo {
+  id               Int       @id @default(autoincrement())
+  clienteId        Int       @map("cliente_id")
+  vendedorId       Int       @map("vendedor_id")
+  montoSolicitado  Decimal   @map("monto_solicitado")
+  tasaInteres      Decimal   @map("tasa_interes")
+  interesTotal     Decimal   @map("interes_total")
+  montoTotal       Decimal   @map("monto_total")
+  cuotaDiaria      Decimal   @map("cuota_diaria")
+  diasPlazo        Int       @map("dias_plazo")
+  montoPagado      Decimal   @default(0.000000000000000000000000000000) @map("monto_pagado")
+  saldoPendiente   Decimal   @map("saldo_pendiente")
+  estado           String    @default("activo") @db.VarChar(20)
+  fechaInicio      DateTime  @map("fecha_inicio")
+  fechaFinEsperada DateTime  @map("fecha_fin_esperada")
+  fechaUltimoPago  DateTime? @map("fecha_ultimo_pago")
+  diasPagados      Int       @default(0) @map("dias_pagados")
+  diasAtrasados    Int       @default(0) @map("dias_atrasados")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  tenantId         Int       @map("tenant_id")
+  pagos            Pago[]
+  cliente          Usuario   @relation("ClientePrestamos", fields: [clienteId], references: [id])
+  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  vendedor         Usuario   @relation("VendedorPrestamos", fields: [vendedorId], references: [id])
+
+  @@index([tenantId])
+  @@index([clienteId])
+  @@index([vendedorId])
+  @@index([estado])
+  @@index([fechaInicio])
+  @@index([tenantId, estado], map: "idx_prestamos_tenant_estado")
+  @@index([tenantId, estado, createdAt], map: "idx_prestamos_tenant_estado_created")
+  @@index([tenantId, vendedorId], map: "idx_prestamos_tenant_vendedor")
+  @@index([vendedorId, estado], map: "idx_prestamos_vendedor_estado")
+  @@map("prestamos")
+}
+
+model Pago {
+  id             Int      @id @default(autoincrement())
+  prestamoId     Int      @map("prestamo_id")
+  vendedorId     Int      @map("vendedor_id")
+  fechaPago      DateTime @map("fecha_pago")
+  fechaEsperada  DateTime @map("fecha_esperada")
+  monto          Decimal
+  diasCubiertos  Int      @default(1) @map("dias_cubiertos")
+  esPagoAtrasado Int      @default(0) @map("es_pago_atrasado")
+  diasAtraso     Int      @default(0) @map("dias_atraso")
+  observaciones  String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+  tenantId       Int      @map("tenant_id")
+  prestamo       Prestamo @relation(fields: [prestamoId], references: [id])
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  vendedor       Usuario  @relation(fields: [vendedorId], references: [id])
+
+  @@index([tenantId])
+  @@index([prestamoId])
+  @@index([fechaPago])
+  @@index([fechaEsperada])
+  @@index([tenantId, createdAt], map: "idx_pagos_tenant_created")
+  @@index([tenantId, prestamoId], map: "idx_pagos_tenant_prestamo")
+  @@index([tenantId, vendedorId, fechaPago], map: "idx_pagos_tenant_vendedor_fecha")
+  @@index([vendedorId, fechaPago], map: "idx_pagos_vendedor_fecha")
+  @@map("pagos")
+}
+
+model Historial {
+  id            Int      @id @default(autoincrement())
+  usuarioId     Int      @map("usuario_id")
+  accion        String   @db.VarChar(100)
+  tablaAfectada String?  @map("tabla_afectada") @db.VarChar(50)
+  registroId    Int?     @map("registro_id")
+  detalles      String?  @db.Text
+  ipAddress     String?  @map("ip_address") @db.VarChar(45)
+  createdAt     DateTime @default(now()) @map("created_at")
+  tenantId      Int      @map("tenant_id")
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  usuario       Usuario  @relation(fields: [usuarioId], references: [id])
+
+  @@index([usuarioId])
+  @@index([tenantId])
+  @@index([createdAt])
+  @@index([tenantId, accion], map: "idx_historial_tenant_accion")
+  @@index([tenantId, createdAt], map: "idx_historial_tenant_created")
+  @@map("historial")
+}
+
+model ChatSesion {
+  id        Int           @id @default(autoincrement()) @map("id")
+  telefono  String        @unique @map("telefono") @db.VarChar(20)
+  estado    String        @default("abierta") @map("estado") @db.VarChar(20)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+  tenantId  Int?          @map("tenant_id")
+  mensajes  ChatMensaje[]
+  tenant    Tenant?       @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@map("chat_sesiones")
+}
+
+model ChatMensaje {
+  id        Int        @id @default(autoincrement()) @map("id")
+  sesionId  Int        @map("sesion_id")
+  direccion String     @map("direccion") @db.VarChar(10)
+  texto     String     @map("texto") @db.Text
+  createdAt DateTime   @default(now()) @map("created_at")
+  sesion    ChatSesion @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+
+  @@index([sesionId])
+  @@index([createdAt])
+  @@map("chat_mensajes")
+}
+
 enum TenantStatus {
   TRIAL
   ACTIVE
@@ -27,303 +317,15 @@ enum SuscripcionStatus {
   PAST_DUE
 }
 
-enum PlanRecurso {
-  MAX_VENDEDORES
-  MAX_CLIENTES
-  MAX_PRESTAMOS
-  REPORTES_AVANZADOS
-  API_ACCESS
-  CUSTOM_BRANDING
-}
+model Articulo {
+  id        Int      @id @default(autoincrement())
+  titulo    String   @db.VarChar(255)
+  slug      String   @unique @db.VarChar(255)
+  contenido String   @db.Text
+  resumen   String?  @db.VarChar(500)
+  imagenUrl String?  @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-enum InviteStatus {
-  PENDING
-  ACCEPTED
-  EXPIRED
-  CANCELLED
-}
-
-model Configuracion {
-  id                Int      @id @default(autoincrement())
-  tasaInteres       Decimal  @default(20.00) @map("tasa_interes")
-  cuotaDiariaMinima Decimal? @default(0) @map("cuota_diaria_minima")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
-
-  @@map("configuracion")
-}
-
-model Tenant {
-  id              Int            @id @default(autoincrement())
-  nombre          String         @db.VarChar(200)
-  slug            String         @unique @db.VarChar(100)
-  subdominio      String         @unique @db.VarChar(100)
-  customDomain    String?        @unique @db.VarChar(255) @map("custom_domain")
-  logoUrl         String?        @db.VarChar(500)
-  planId          Int?
-  status          TenantStatus   @default(TRIAL)
-  trialStartsAt   DateTime
-  trialEndsAt     DateTime
-  planStartsAt    DateTime?
-  planExpiresAt   DateTime?
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime       @updatedAt @map("updated_at")
-
-  usuarios           Usuario[]
-  prestamos          Prestamo[]
-  pagos              Pago[]
-  historial          Historial[]
-  invitaciones       Invitacion[]
-  suscripciones      Suscripcion[]
-  chatSesiones       ChatSesion[]
-  configuracion      ConfiguracionTenant?
-  plan               Plan?           @relation(fields: [planId], references: [id])
-
-  @@index([slug])
-  @@index([subdominio])
-  @@index([planId])
-  @@index([status])
-  @@map("tenants")
-}
-
-model Plan {
-  id                    Int          @id @default(autoincrement())
-  nombre                String       @db.VarChar(100)
-  slug                  String       @unique @db.VarChar(50)
-  precioMensual         Decimal      @db.Decimal(10,2)
-  precioAnual           Decimal?     @db.Decimal(10,2)
-  intervalo             PlanInterval @default(MONTHLY)
-  description           String?      @db.Text
-  activo                Boolean      @default(true)
-  trialDays             Int          @default(15)
-  stripePriceMensualId  String?      @db.VarChar(255)
-  stripePriceAnualId    String?      @db.VarChar(255)
-  limietes              PlanLimites[]
-  tenants               Tenant[]
-  suscripciones         Suscripcion[]
-  createdAt             DateTime     @default(now())
-  updatedAt             DateTime     @updatedAt
-
-  @@map("planes")
-}
-
-model PlanLimites {
-  id       Int          @id @default(autoincrement())
-  planId   Int
-  plan     Plan         @relation(fields: [planId], references: [id])
-  recurso  PlanRecurso
-  valor    Int
-  createdAt DateTime    @default(now())
-
-  @@unique([planId, recurso])
-  @@map("plan_limites")
-}
-
-model Suscripcion {
-  id                   Int                @id @default(autoincrement())
-  tenantId             Int                @unique @map("tenant_id")
-  tenant               Tenant             @relation(fields: [tenantId], references: [id])
-  planId               Int
-  plan                 Plan               @relation(fields: [planId], references: [id])
-  stripeCustomerId     String?            @db.VarChar(255)
-  stripeSubscriptionId String?            @db.VarChar(255)
-  stripePriceId        String?            @db.VarChar(255)
-  intervalo            PlanInterval       @default(MONTHLY)
-  wompiCustomerId      String?            @db.VarChar(255)
-  estado               SuscripcionStatus  @default(PENDING)
-  cicloActual          Int                @default(1)
-  renovacionProxima    DateTime?
-  pagadoHasta          DateTime?
-  createdAt            DateTime           @default(now()) @map("created_at")
-  updatedAt            DateTime           @updatedAt @map("updated_at")
-
-  @@index([stripeCustomerId])
-  @@index([stripeSubscriptionId])
-  @@index([wompiCustomerId])
-  @@map("suscripciones")
-}
-
-model Invitacion {
-  id          Int            @id @default(autoincrement())
-  tenantId    Int            @map("tenant_id")
-  tenant      Tenant         @relation(fields: [tenantId], references: [id])
-  email       String         @db.VarChar(255)
-  rol         String         @db.VarChar(20)
-  token       String         @unique @db.VarChar(255)
-  invitadoPor Int            @map("invitado_por")
-  aceptada    Boolean        @default(false)
-  expiresAt   DateTime
-  createdAt   DateTime       @default(now())
-
-  @@index([tenantId])
-  @@index([token])
-  @@map("invitaciones")
-}
-
-model ConfiguracionTenant {
-  id                          Int      @id @default(autoincrement())
-  tenantId                    Int      @unique @map("tenant_id")
-  tenant                      Tenant   @relation(fields: [tenantId], references: [id])
-  tasaInteres                 Decimal  @default(20.00) @map("tasa_interes")
-  cuotaDiariaMin              Decimal  @default(0) @map("cuota_diaria_minima")
-  porcentajeComisionVendedor  Decimal  @default(0) @map("porcentaje_comision_vendedor")
-  nombreEmpresa               String?  @db.VarChar(200) @map("nombre_empresa")
-  logoUrl                     String?  @db.LongText
-  notificaciones              String?  @db.Text
-  createdAt                   DateTime @default(now()) @map("created_at")
-  updatedAt                   DateTime @updatedAt @map("updated_at")
-
-  @@map("configuracion_tenant")
-}
-
-model Usuario {
-  id         Int       @id @default(autoincrement())
-  cedula     String    @db.VarChar(20)
-  nombre     String    @db.VarChar(100)
-  apellido   String    @db.VarChar(100)
-  telefono   String?   @db.VarChar(20)
-  email      String?   @db.VarChar(100)
-  direccion  String?   @db.Text
-  rol        String    @db.VarChar(20)
-  password   String    @db.VarChar(255)
-  activo     Int       @default(1)
-  vendedorId Int?      @map("vendedor_id")
-  tenantId   Int?      @map("tenant_id")
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
-
-  tenant      Tenant?      @relation(fields: [tenantId], references: [id])
-  vendedor    Usuario?     @relation("VendedorClientes", fields: [vendedorId], references: [id])
-  clientes    Usuario[]    @relation("VendedorClientes")
-  prestamosCreados    Prestamo[] @relation("VendedorPrestamos")
-  prestamosCliente    Prestamo[] @relation("ClientePrestamos")
-  pagos       Pago[]
-  historial   Historial[]
-
-   @@index([cedula])
-  @@index([rol])
-  @@index([nombre, apellido])
-  @@index([tenantId])
-  @@index([tenantId, rol])
-  @@index([tenantId, rol, activo])
-  @@index([vendedorId])
-  @@unique([tenantId, cedula])
-  @@map("usuarios")
-}
-
-model Prestamo {
-  id                  Int      @id @default(autoincrement())
-  tenantId            Int      @map("tenant_id")
-  clienteId           Int      @map("cliente_id")
-  vendedorId          Int      @map("vendedor_id")
-  montoSolicitado    Decimal  @map("monto_solicitado")
-  tasaInteres        Decimal  @map("tasa_interes")
-  interesTotal       Decimal  @map("interes_total")
-  montoTotal         Decimal  @map("monto_total")
-  cuotaDiaria        Decimal  @map("cuota_diaria")
-  diasPlazo          Int      @map("dias_plazo")
-  montoPagado        Decimal  @default(0) @map("monto_pagado")
-  saldoPendiente     Decimal  @map("saldo_pendiente")
-  estado             String   @default("activo") @db.VarChar(20)
-  fechaInicio        DateTime @map("fecha_inicio")
-  fechaFinEsperada   DateTime @map("fecha_fin_esperada")
-  fechaUltimoPago    DateTime? @map("fecha_ultimo_pago")
-  diasPagados        Int      @default(0) @map("dias_pagados")
-  diasAtrasados      Int      @default(0) @map("dias_atrasados")
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
-
-  tenant  Tenant @relation(fields: [tenantId], references: [id])
-  cliente  Usuario @relation("ClientePrestamos", fields: [clienteId], references: [id])
-  vendedor Usuario @relation("VendedorPrestamos", fields: [vendedorId], references: [id])
-  pagos    Pago[]
-
-  @@index([tenantId])
-  @@index([clienteId])
-  @@index([vendedorId])
-  @@index([estado])
-  @@index([fechaInicio])
-  @@index([tenantId, estado])
-  @@index([tenantId, estado, createdAt])
-  @@index([tenantId, vendedorId])
-  @@index([vendedorId, estado])
-  @@map("prestamos")
-}
-
-model Pago {
-  id             Int      @id @default(autoincrement())
-  tenantId       Int      @map("tenant_id")
-  prestamoId     Int      @map("prestamo_id")
-  vendedorId     Int      @map("vendedor_id")
-  fechaPago      DateTime @map("fecha_pago")
-  fechaEsperada  DateTime @map("fecha_esperada")
-  monto          Decimal  @db.Decimal(10, 2)
-  diasCubiertos  Int      @default(1) @map("dias_cubiertos")
-  esPagoAtrasado Int      @default(0) @map("es_pago_atrasado")
-  diasAtraso     Int      @default(0) @map("dias_atraso")
-  observaciones  String?  @db.Text
-  createdAt      DateTime @default(now()) @map("created_at")
-
-  tenant  Tenant @relation(fields: [tenantId], references: [id])
-  prestamo Prestamo @relation(fields: [prestamoId], references: [id])
-  vendedor Usuario  @relation(fields: [vendedorId], references: [id])
-
-  @@index([tenantId])
-  @@index([prestamoId])
-  @@index([fechaPago])
-  @@index([fechaEsperada])
-  @@index([tenantId, vendedorId, fechaPago])
-  @@index([tenantId, prestamoId])
-  @@index([vendedorId, fechaPago])
-  @@index([tenantId, createdAt])
-  @@map("pagos")
-}
-
-model Historial {
-  id             Int      @id @default(autoincrement())
-  usuarioId      Int      @map("usuario_id")
-  tenantId       Int      @map("tenant_id")
-  accion         String   @db.VarChar(100)
-  tablaAfectada  String?  @db.VarChar(50) @map("tabla_afectada")
-  registroId     Int?     @map("registro_id")
-  detalles       String?  @db.Text
-  ipAddress      String?  @db.VarChar(45) @map("ip_address")
-  createdAt      DateTime @default(now()) @map("created_at")
-
-  usuario Usuario @relation(fields: [usuarioId], references: [id])
-  tenant  Tenant  @relation(fields: [tenantId], references: [id])
-
-  @@index([usuarioId])
-  @@index([tenantId])
-  @@index([createdAt])
-  @@index([tenantId, createdAt])
-  @@index([tenantId, accion])
-  @@map("historial")
-}
-
-model ChatSesion {
-  id        Int            @id @default(autoincrement()) @map("id")
-  telefono  String         @unique @db.VarChar(20) @map("telefono")
-  estado    String         @default("abierta") @db.VarChar(20) @map("estado")
-  tenantId  Int?           @map("tenant_id")
-  tenant    Tenant?        @relation(fields: [tenantId], references: [id], onDelete: SetNull)
-  createdAt DateTime       @default(now()) @map("created_at")
-  updatedAt DateTime       @updatedAt @map("updated_at")
-  mensajes  ChatMensaje[]
-
-  @@index([tenantId])
-  @@map("chat_sesiones")
-}
-
-model ChatMensaje {
-  id        Int         @id @default(autoincrement()) @map("id")
-  sesionId  Int         @map("sesion_id")
-  direccion String      @db.VarChar(10) @map("direccion")
-  texto     String      @db.Text @map("texto")
-  createdAt DateTime    @default(now()) @map("created_at")
-  sesion    ChatSesion  @relation(fields: [sesionId], references: [id], onDelete: Cascade)
-
-  @@index([sesionId])
-  @@index([createdAt])
-  @@map("chat_mensajes")
+  @@map("articulos")
 }

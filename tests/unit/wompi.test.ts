@@ -70,9 +70,9 @@ describe('verifyEventSignature', () => {
     expect(ok).toBe(false)
   })
 
-  it('acepta eventos sin validar si no hay events key configurada (modo desarrollo)', () => {
+  it('rechaza eventos sin events key configurada (seguridad)', () => {
     delete process.env.WOMPI_EVENTS_KEY
     const ok = verifyEventSignature({ data, timestamp })
-    expect(ok).toBe(true)
+    expect(ok).toBe(false)
   })
 })

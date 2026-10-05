@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guion Video Marketing — KrediTools</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0B3D2E;
+    color: #F4F7F3;
+    line-height: 1.7;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  header {
+    text-align: center;
+    padding: 3rem 0;
+    border-bottom: 1px solid rgba(244,247,243,0.1);
+    margin-bottom: 2rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(201,242,76,0.1);
+    border: 1px solid rgba(201,242,76,0.3);
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #C9F24C;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+
+  h1 span { color: #C9F24C; }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: rgba(244,247,243,0.65);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .meta {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(244,247,243,0.45);
+  }
+
+  .meta span { display: flex; align-items: center; gap: 0.4rem; }
+
+  nav.toc {
+    background: #16191A;
+    border: 1px solid rgba(244,247,243,0.1);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  nav.toc h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: #C9F24C;
+  }
+
+  nav.toc ol {
+    list-style: none;
+    counter-reset: scene;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 0.5rem;
+  }
+
+  nav.toc li {
+    counter-increment: scene;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    color: rgba(244,247,243,0.7);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  nav.toc li:hover { background: rgba(244,247,243,0.05); }
+
+  nav.toc li::before {
+    content: counter(scene, decimal-leading-zero);
+    font-family: 'JetBrains Mono', monospace;
+    color: #C9F24C;
+    margin-right: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .scene {
+    background: #16191A;
+    border: 1px solid rgba(244,247,243,0.1);
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+
+  .scene-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(244,247,243,0.08);
+    background: rgba(244,247,243,0.02);
+  }
+
+  .scene-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #C9F24C;
+    background: rgba(201,242,76,0.1);
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.4rem;
+  }
+
+  .scene-duration {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(244,247,243,0.45);
+  }
+
+  .scene-body {
+    padding: 1.5rem;
+  }
+
+  .scene-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .scene-title span { color: #C9F24C; }
+
+  .column {
+    margin-bottom: 1.25rem;
+  }
+
+  .column:last-child { margin-bottom: 0; }
+
+  .column-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #C9F24C;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .column-label::before {
+    content: '';
+    width: 12px;
+    height: 2px;
+    background: #C9F24C;
+    display: inline-block;
+  }
+
+  .column p {
+    font-size: 0.95rem;
+    color: rgba(244,247,243,0.8);
+    line-height: 1.7;
+  }
+
+  .column ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .column ul li {
+    font-size: 0.9rem;
+    color: rgba(244,247,243,0.7);
+    padding: 0.3rem 0;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  .column ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: #C9F24C;
+  }
+
+  .tip-box {
+    background: rgba(201,242,76,0.06);
+    border-left: 3px solid #C9F24C;
+    padding: 1rem 1.25rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+    margin-top: 1.25rem;
+  }
+
+  .tip-box strong {
+    color: #C9F24C;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .tip-box p {
+    font-size: 0.85rem;
+    color: rgba(244,247,243,0.6);
+    line-height: 1.6;
+  }
+
+  footer {
+    text-align: center;
+    padding: 3rem 0;
+    border-top: 1px solid rgba(244,247,243,0.1);
+    margin-top: 3rem;
+  }
+
+  footer p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(244,247,243,0.35);
+  }
+
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .container { padding: 0; max-width: 100%; }
+    header { border-color: #ddd; }
+    h1 { color: #0B3D2E; }
+    h1 span { color: #1A8563; }
+    .badge { background: #f0f9e8; border-color: #1A8563; color: #1A8563; }
+    nav.toc { background: #f9f9f9; border-color: #ddd; }
+    nav.toc h2 { color: #1A8563; }
+    nav.toc li { color: #555; }
+    nav.toc li::before { color: #1A8563; }
+    .scene { background: #f9f9f9; border-color: #ddd; }
+    .scene-header { background: #f0f0f0; border-color: #ddd; }
+    .scene-number { background: #f0f9e8; color: #1A8563; }
+    .scene-duration { color: #999; }
+    .scene-title { color: #0B3D2E; }
+    .scene-title span { color: #1A8563; }
+    .column-label { color: #1A8563; }
+    .column-label::before { background: #1A8563; }
+    .column p { color: #444; }
+    .column ul li { color: #555; }
+    .column ul li::before { color: #1A8563; }
+    .tip-box { background: #f0f9e8; border-color: #1A8563; }
+    .tip-box strong { color: #1A8563; }
+    .tip-box p { color: #666; }
+    footer { border-color: #ddd; }
+    footer p { color: #999; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <div class="badge">
+    <span style="width:6px;height:6px;background:#C9F24C;border-radius:50%;display:inline-block;"></span>
+    GUION DE VIDEO · MARKETING
+  </div>
+  <h1>Video de <span>Marketing</span><br>KrediTools</h1>
+  <p class="subtitle">Guion completo para video promocional orientado a conversión. Dirigido a prestamistas y empresas de crédito en Colombia.</p>
+  <div class="meta">
+    <span>⏱ Duración: 3:30 – 4:00 min</span>
+    <span>🎯 Objetivo: Registros (Trial)</span>
+    <span>📱 Formato: 16:9 / 9:16</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>Índice de escenas</h2>
+  <ol>
+    <li><a href="#escena-01" style="color:inherit;text-decoration:none;">Gancho — El Problema</a></li>
+    <li><a href="#escena-02" style="color:inherit;text-decoration:none;">La Solución — KrediTools</a></li>
+    <li><a href="#escena-03" style="color:inherit;text-decoration:none;">Dashboard del Empresario</a></li>
+    <li><a href="#escena-04" style="color:inherit;text-decoration:none;">Gestión de Vendedores</a></li>
+    <li><a href="#escena-05" style="color:inherit;text-decoration:none;">Préstamos en 30 Segundos</a></li>
+    <li><a href="#escena-06" style="color:inherit;text-decoration:none;">Cobros y Pagos</a></li>
+    <li><a href="#escena-07" style="color:inherit;text-decoration:none;">Vista del Cliente</a></li>
+    <li><a href="#escena-08" style="color:inherit;text-decoration:none;">WhatsApp Automático</a></li>
+    <li><a href="#escena-09" style="color:inherit;text-decoration:none;">Planes y Precios</a></li>
+    <li><a href="#escena-10" style="color:inherit;text-decoration:none;">Llamado a la Acción</a></li>
+  </ol>
+</nav>
+
+<!-- ESCENA 01 -->
+<div class="scene" id="escena-01">
+  <div class="scene-header">
+    <span class="scene-number">ESCENA 01</span>
+    <span class="scene-duration">0:00 – 0:20</span>
+  </div>
+  <div class="scene-body">
+    <h3 class="scene-title">Gancho — <span>El Problema</span></h3>
+
+    <div class="column">
+      <div class="column-label">Video / Pantalla</div>
+      <p>Mostrar escenas rápidas de un prestamista trabajando con hojas de cálculo, cuadernos, múltiples WhatsApp abiertos, y papelitos con cuentas. Ritmo acelerado, cortes cada 1-2 segundos. Texto en pantalla: <strong>"¿Tu cartera ya no cabe en Excel?"</strong></p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Voz en off</div>
+      <p><em>"Llevar el control de tus préstamos no debería sentirse como un rompecabezas. Anotas cuotas en un cuaderno, mandas cien WhatsApp al día, y cuando quieres saber quién te debe... toca empezar a contar."</em></p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Texto en pantalla</div>
+      <ul>
+        <li>40% del tiempo se pierde en cobros manuales</li>
+        <li>La mora sube por falta de seguimiento</li>
+        <li>Cada error cuesta dinero</li>
+      </ul>
+    </div>
+
+    <div class="tip-box">
+      <strong>Tip de producción</strong>
+      <p>Usar música con ritmo creciente. El tono debe transmitir urgencia y frustración. Colores fríos o desaturados en esta escena para contrastar con la siguiente.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ESCENA 02 -->
+<div class="scene" id="escena-02">
+  <div class="scene-header">
+    <span class="scene-number">ESCENA 02</span>
+    <span class="scene-duration">0:20 – 0:40</span>
+  </div>
+  <div class="scene-body">
+    <h3 class="scene-title">La Solución — <span>KrediTools</span></h3>
+
+    <div class="column">
+      <div class="column-label">Video / Pantalla</div>
+      <p>Transición dramática (flash o corte seco). Aparece el logo de KrediTools con animación. Luego mostrar el dashboard real del sistema, limpio y profesional. La música cambia a algo moderno y confiado.</p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Voz en off</div>
+      <p><em>"KrediTools es el sistema todo-en-uno que te permite gestionar tu cartera de préstamos sin complicaciones. Cobros, clientes, vendedores, reportes... todo desde un solo panel, disponible en tu computador y en tu celular."</em></p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Texto en pantalla</div>
+      <ul>
+        <li>Control total de tu cartera</li>
+        <li>Acceso desde cualquier dispositivo</li>
+        <li>Diseño moderno y fácil de usar</li>
+      </ul>
+    </div>
+
+    <div class="tip-box">
+      <strong>Tip de producción</strong>
+      <p>Mostrar el dashboard con datos realistas pero genéricos. La transición de "caos" a "orden" debe ser visualmente impactante.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ESCENA 03 -->
+<div class="scene" id="escena-03">
+  <div class="scene-header">
+    <span class="scene-number">ESCENA 03</span>
+    <span class="scene-duration">0:40 – 1:15</span>
+  </div>
+  <div class="scene-body">
+    <h3 class="scene-title">Dashboard del <span>Empresario</span></h3>
+
+    <div class="column">
+      <div class="column-label">Video / Pantalla</div>
+      <p>Screen recording real del panel del empresario (/empresario). Mostrar:</p>
+      <ul>
+        <li>Resumen general: vendedores activos, colocación total, préstamos activos</li>
+        <li>Clientes en mora destacados en rojo</li>
+        <li>Comisiones del mes</li>
+        <li>Gráfica de rendimiento</li>
+      </ul>
+      <p>Cursor moviéndose fluidamente. Zoom en los números clave.</p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Voz en off</div>
+      <p><em>"Como dueño, tienes una vista completa de tu operación. Sabes cuánto has colocado, cuántos préstamos están activos, cuáles clientes están atrasados y cuánto debes pagar a tus vendedores. Todo en tiempo real, sin calcular nada."</em></p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Texto en pantalla</div>
+      <ul>
+        <li>Vista 360° de tu negocio</li>
+        <li>Mora identificada al instante</li>
+        <li>Comisiones calculadas automáticamente</li>
+      </ul>
+    </div>
+
+    <div class="tip-box">
+      <strong>Tip de producción</strong>
+      <p>Grabar en pantalla real, no en mockups. La autenticidad genera confianza. Velocidad normal, no acelerar demasiado.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ESCENA 04 -->
+<div class="scene" id="escena-04">
+  <div class="scene-header">
+    <span class="scene-number">ESCENA 04</span>
+    <span class="scene-duration">1:15 – 1:45</span>
+  </div>
+  <div class="scene-body">
+    <h3 class="scene-title">Gestión de <span>Vendedores</span></h3>
+
+    <div class="column">
+      <div class="column-label">Video / Pantalla</div>
+      <p>Mostrar la sección de vendedores del panel:</p>
+      <ul>
+        <li>Lista de vendedores con sus estadísticas (activos, recuperado, pendiente)</li>
+        <li>Crear un nuevo vendedor (mostrar formulario simple: nombre, cédula, teléfono)</li>
+        <li>Asignar clientes a cada vendedor</li>
+        <li>Ver comisiones individuales</li>
+      </ul>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Voz en off</div>
+      <p><em>"Crea tus vendedores en segundos y asígnales su cartera. Cada uno ve solo sus clientes, y tú ves el rendimiento de todos. Las comisiones se calculan solas."</em></p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Texto en pantalla</div>
+      <ul>
+        <li>Creación de vendedores en 10 segundos</li>
+        <li>Carteras asignadas e independientes</li>
+        <li>Comisiones automáticas</li>
+      </ul>
+    </div>
+
+    <div class="tip-box">
+      <strong>Tip de producción</strong>
+      <p>Enfatizar la simplicidad del formulario de creación. Si el vendedor ve "solo 4 campos", la percepción es "esto es fácil".</p>
+    </div>
+  </div>
+</div>
+
+<!-- ESCENA 05 -->
+<div class="scene" id="escena-05">
+  <div class="scene-header">
+    <span class="scene-number">ESCENA 05</span>
+    <span class="scene-duration">1:45 – 2:20</span>
+  </div>
+  <div class="scene-body">
+    <h3 class="scene-title">Préstamos en <span>30 Segundos</span></h3>
+
+    <div class="column">
+      <div class="column-label">Video / Pantalla</div>
+      <p>Screen recording del panel del vendedor creando un préstamo:</p>
+      <ul>
+        <li>Seleccionar cliente (existente o crear uno nuevo en línea)</li>
+        <li>Ingresar monto solicitado: $500.000</li>
+        <li>El sistema calcula automáticamente: interés (20%), monto total ($600.000), cuota diaria, plazo en días</li>
+        <li>Mostrar el resumen del préstamo antes de confirmar</li>
+        <li>Botón "Crear préstamo" → confirmación</li>
+      </ul>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Voz en off</div>
+      <p><em>"Crear un préstamo toma menos de 30 segundos. El sistema calcula el interés, la cuota diaria y el plazo automáticamente. Sin fórmulas, sin errores, sin perder tiempo."</em></p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Texto en pantalla</div>
+      <ul>
+        <li>Cálculo automático de intereses</li>
+        <li>Sin fórmulas ni calculadora</li>
+        <li>Confirmación por WhatsApp instantánea</li>
+      </ul>
+    </div>
+
+    <div class="tip-box">
+      <strong>Tip de producción</strong>
+      <p>El momento "wow" del video. Mostrar el cálculo automático con una animación sutil (números que se llenan solos). El espectador debe pensar: "eso me tomaría 5 minutos en Excel".</p>
+    </div>
+  </div>
+</div>
+
+<!-- ESCENA 06 -->
+<div class="scene" id="escena-06">
+  <div class="scene-header">
+    <span class="scene-number">ESCENA 06</span>
+    <span class="scene-duration">2:20 – 2:50</span>
+  </div>
+  <div class="scene-body">
+    <h3 class="scene-title">Cobros y <span>Pagos</span></h3>
+
+    <div class="column">
+      <div class="column-label">Video / Pantalla</div>
+      <p>Mostrar el flujo de cobro en el panel del vendedor:</p>
+      <ul>
+        <li>Dashboard con botones de cobro rápido ("Cobrar hoy", "Abonar días atrasados")</li>
+        <li>Seleccionar cliente en mora</li>
+        <li>Registrar pago: ingresar monto ($15.000) → el sistema calcula días cubiertos</li>
+        <li>Pago parcial: abonar lo que el cliente pueda pagar</li>
+        <li>Actualización instantánea del saldo y progreso</li>
+      </ul>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Voz en off</div>
+      <p><em>"Cuando un cliente paga, registras el monto y el sistema hace el resto: calcula los días cubiertos, actualiza el saldo, y si hay atrasos, los cubre primero. Incluso puedes registrar pagos parciales sin quebrarte la cabeza."</em></p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Texto en pantalla</div>
+      <ul>
+        <li>Cobro rápido con un clic</li>
+        <li>Pagos parciales sin complicaciones</li>
+        <li>Saldo actualizado al instante</li>
+      </ul>
+    </div>
+
+    <div class="tip-box">
+      <strong>Tip de producción</strong>
+      <p>Mostrar la transición de "cliente en mora" a "pago registrado" con un cambio visual claro (rojo → verde). Esto refuerza la sensación de control.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ESCENA 07 -->
+<div class="scene" id="escena-07">
+  <div class="scene-header">
+    <span class="scene-number">ESCENA 07</span>
+    <span class="scene-duration">2:50 – 3:10</span>
+  </div>
+  <div class="scene-body">
+    <h3 class="scene-title">Vista del <span>Cliente</span></h3>
+
+    <div class="column">
+      <div class="column-label">Video / Pantalla</div>
+      <p>Cambiar a la perspectiva del cliente (/cliente):</p>
+      <ul>
+        <li>Mostrar sus préstamos activos con barra de progreso</li>
+        <li>Detalle del préstamo: monto, interés, cuota diaria, días restantes</li>
+        <li>Historial de pagos</li>
+        <li>Alertas de mora (si aplica)</li>
+      </ul>
+      <p>Mostrar en pantalla de celular para enfatizar accesibilidad.</p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Voz en off</div>
+      <p><em>"Tus clientes también tienen su propio portal. Pueden ver cuánto les falta, cuál es su próxima cuota y su historial de pagos. Esto reduce las llamadas de '¿cuánto debo?' y mejora la experiencia."</em></p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Texto en pantalla</div>
+      <ul>
+        <li>Portal del cliente 24/7</li>
+        <li>Reduce consultas innecesarias</li>
+        <li>Genera confianza y transparencia</li>
+      </ul>
+    </div>
+
+    <div class="tip-box">
+      <strong>Tip de producción</strong>
+      <p>Grabar en un celular real o emulador. Los prestamistas colombianos usan el celular como herramienta principal de trabajo.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ESCENA 08 -->
+<div class="scene" id="escena-08">
+  <div class="scene-header">
+    <span class="scene-number">ESCENA 08</span>
+    <span class="scene-duration">3:10 – 3:30</span>
+  </div>
+  <div class="scene-body">
+    <h3 class="scene-title">WhatsApp <span>Automático</span></h3>
+
+    <div class="column">
+      <div class="column-label">Video / Pantalla</div>
+      <p>Mostrar notificaciones de WhatsApp en un celular:</p>
+      <ul>
+        <li>Cliente recibe confirmación de préstamo creado</li>
+        <li>Recordatorio automático de cuota (día de pago)</li>
+        <li>Alerta de atraso severo (3+ días)</li>
+        <li>Comprobante de pago registrado</li>
+      </ul>
+      <p>Animación de mensajes llegando en secuencia.</p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Voz en off</div>
+      <p><em>"Y como si fuera poco, KrediTools habla con tus clientes por ti. Les manda recordatorios de cuota, confirma pagos y alerta sobre atrasos. Todo automático por WhatsApp."</em></p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Texto en pantalla</div>
+      <ul>
+        <li>Recordatorios automáticos</li>
+        <li>Comprobantes de pago</li>
+        <li>Cero mensajes manuales</li>
+      </ul>
+    </div>
+
+    <div class="tip-box">
+      <strong>Tip de producción</strong>
+      <p>Los mensajes de WhatsApp deben verse reales (formato, tildes, emojis sutiles). Si el espectador reconoce el formato, conecta mentalmente con su día a día.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ESCENA 09 -->
+<div class="scene" id="escena-09">
+  <div class="scene-header">
+    <span class="scene-number">ESCENA 09</span>
+    <span class="scene-duration">3:30 – 3:45</span>
+  </div>
+  <div class="scene-body">
+    <h3 class="scene-title">Planes y <span>Precios</span></h3>
+
+    <div class="column">
+      <div class="column-label">Video / Pantalla</div>
+      <p>Mostrar la sección de planes de la landing (o una versión limpia):</p>
+      <ul>
+        <li><strong>Independiente:</strong> $39.000/mes — hasta 25 clientes, 4 vendedores</li>
+        <li><strong>Empresarial:</strong> $79.000/mes — hasta 50 clientes, 8 vendedores ★ Más popular</li>
+        <li><strong>Corporativo:</strong> $99.000/mes — ilimitado</li>
+      </ul>
+      <p>Transición suave entre planes, deteniéndose en el plan Empresarial.</p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Voz en off</div>
+      <p><em>"Y lo mejor: empiezas gratis. 15 días de prueba sin tarjeta de crédito. Si te quedas, los planes empiezan desde $39.000 pesos al mes. Menos de lo que te cuesta un almuerzo."</em></p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Texto en pantalla</div>
+      <ul>
+        <li>15 días gratis</li>
+        <li>Sin tarjeta de crédito</li>
+        <li>Desde $39.000/mes</li>
+      </ul>
+    </div>
+
+    <div class="tip-box">
+      <strong>Tip de producción</strong>
+      <p>No leer todos los planes. Mencionar solo el precio del plan popular (Empresarial) y el hecho de que hay un trial gratis. El CTA es lo importante aquí.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ESCENA 10 -->
+<div class="scene" id="escena-10">
+  <div class="scene-header">
+    <span class="scene-number">ESCENA 10</span>
+    <span class="scene-duration">3:45 – 4:00</span>
+  </div>
+  <div class="scene-body">
+    <h3 class="scene-title">Llamado a la <span>Acción</span></h3>
+
+    <div class="column">
+      <div class="column-label">Video / Pantalla</div>
+      <p>Transición a la landing page de KrediTools. Mostrar el formulario de registro (nombre empresa, correo, teléfono, subdominio). Cursor llenando el formulario rápidamente. Botón "Crear mi espacio de trabajo" siendo presionado.</p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Voz en off</div>
+      <p><em>"Deja de perder tiempo con métodos que ya no funcionan. Crea tu espacio en KrediTools hoy y empieza tu prueba gratuita. Tu futuro agradecimiento te lo va a agradecer."</em></p>
+    </div>
+
+    <div class="column">
+      <div class="column-label">Texto en pantalla</div>
+      <ul>
+        <li>kreditools.shop</li>
+        <li>"15 días gratis · Sin tarjeta"</li>
+        <li>Logo de KrediTools</li>
+      </ul>
+    </div>
+
+    <div class="tip-box">
+      <strong>Tip de producción</strong>
+      <p>El CTA final debe ser claro y urgente. Música que sube y termina en un acorde limpio. El video no debe terminar con fade out — terminar en el logo con el CTA visible.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 KrediTools · Guion de video marketing · Uso interno</p>
+  <p style="margin-top:0.5rem;">Duración total estimada: 3:30 – 4:00 minutos · 10 escenas</p>
+</footer>
+
+</div>
+
+</body>
+</html>

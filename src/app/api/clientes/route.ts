@@ -13,7 +13,9 @@ export async function GET(request: Request) {
     if (value) query[key as keyof ClienteQuery] = value
   }
 
-  return apiResponse(await listarClientes(session, query))
+  const response = apiResponse(await listarClientes(session, query))
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
+  return response
 }
 
 export async function POST(request: Request) {
@@ -22,6 +24,12 @@ export async function POST(request: Request) {
 
   try {
     const datos = await request.json()
+    if (!datos || typeof datos !== 'object') {
+      return NextResponse.json({ success: false, message: 'Datos inválidos' }, { status: 400 })
+    }
+    if (!datos.nombre || typeof datos.nombre !== 'string') {
+      return NextResponse.json({ success: false, message: 'Nombre es requerido' }, { status: 400 })
+    }
     return apiResponse(await crearCliente(session, datos))
   } catch (error) {
     console.error('[CLIENTES POST ERROR]', error)

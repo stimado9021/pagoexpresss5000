@@ -1,0 +1,10 @@
+import "dotenv/config";
+import { PrismaClient } from "@prisma/client";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+const url=new URL(process.env.DATABASE_URL);
+const a=new PrismaMariaDb({host:url.hostname,port:parseInt(url.port||"3306"),user:url.username,password:url.password,database:url.pathname.replace("/",""),ssl:{rejectUnauthorized:false}});
+const p=new PrismaClient({adapter:a});
+console.log("prestamos", await p.prestamo.count({where:{tenantId:11}}));
+console.log("pagos", await p.pago.count({where:{tenantId:11}}));
+console.log("clientes", await p.usuario.count({where:{tenantId:11, rol:"cliente"}}));
+await p.$disconnect();
