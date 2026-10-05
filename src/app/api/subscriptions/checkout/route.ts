@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Tenant no encontrado' }, { status: 404 })
     }
 
-    const suscripcion = tenant.suscripciones[0]
+    const suscripcion = tenant.suscripciones ?? null
     const stripe = getStripe()
 
     const trialEndUnix = tenant.status === 'TRIAL' && tenant.trialEndsAt > new Date()
