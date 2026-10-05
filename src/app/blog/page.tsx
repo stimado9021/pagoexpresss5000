@@ -32,53 +32,62 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-body">
       {/* Hero Section */}
-      <div className="relative py-20 px-6 text-center bg-gradient-to-b from-emerald-900/20 to-zinc-950 border-b border-zinc-800">
-        <div className="max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime/10 text-lime text-xs font-medium mb-6 border border-lime/20">
-            <BookOpen size={14} />
-            <span>Centro de Conocimiento Kreditools</span>
+      <div className="relative py-20 px-6 text-center bg-gradient-to-b from-emerald-900/40 via-zinc-950 to-zinc-950 border-b border-lime/20">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none"></div>
+        <div className="relative max-w-3xl mx-auto">
+          <div className="flex justify-center mb-8">
+            <img src="/kreditools.jpg" alt="Kreditools Logo" className="h-20 w-20 object-contain rounded-2xl shadow-2xl shadow-lime/20 border-2 border-lime/30 p-1 bg-zinc-900" />
           </div>
-          <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-6 leading-tight">
-            Domina el arte de la <span className="text-lime">Gestión de Préstamos</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime/10 text-lime text-xs font-medium mb-6 border border-lime/20 animate-pulse">
+            <BookOpen size={14} />
+            <span className="uppercase tracking-widest">Centro de Conocimiento</span>
+          </div>
+          <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight tracking-tight">
+            Domina el arte de la <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-emerald-400">Gestión de Préstamos</span>
           </h1>
-          <p className="text-zinc-400 text-lg mb-8">
-            Consejos, estrategias y guías para optimizar tu cartera de créditos y escalar tu negocio financiero con tecnología de vanguardia.
+          <p className="text-zinc-400 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+            Estrategias reales para optimizar tu cartera, reducir la mora y escalar tu negocio financiero con la tecnología de Kreditools.
           </p>
         </div>
       </div>
 
       {/* Blog Grid */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="max-w-7xl mx-auto px-6 py-20">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-800 border-t-lime" />
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-zinc-800 border-t-lime" />
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {articulos.map((art: any) => (
-                <article key={art.id} className="group flex flex-col rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden hover:border-lime/50 transition-all duration-300 hover:-translate-y-1">
+                <article key={art.id} className="group flex flex-col rounded-3xl border border-zinc-800 bg-zinc-900/40 overflow-hidden hover:border-lime/50 transition-all duration-500 hover:shadow-2xl hover:shadow-lime/10 hover:-translate-y-2">
                   <div className="aspect-video w-full bg-zinc-800 relative overflow-hidden">
                     {art.imagenUrl ? (
-                      <img src={art.imagenUrl} alt={art.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={art.imagenUrl} alt={art.titulo} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-zinc-700 font-display font-bold text-4xl uppercase italic">
-                        Kreditools Blog
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900 text-zinc-700 font-display font-bold text-4xl uppercase italic">
+                        Kreditools
                       </div>
                     )}
+                    <div className="absolute top-4 right-4">
+                      <span className="px-3 py-1 rounded-full bg-zinc-950/80 backdrop-blur-md text-lime text-[10px] font-bold uppercase tracking-tighter border border-lime/30">
+                        Lectura Recomendada
+                      </span>
+                    </div>
                   </div>
-                  <div className="p-6 flex flex-col flex-1">
-                    <h3 className="text-xl font-display font-bold text-white mb-3 group-hover:text-lime transition-colors">
+                  <div className="p-8 flex flex-col flex-1">
+                    <h3 className="text-2xl font-display font-bold text-white mb-4 group-hover:text-lime transition-colors leading-snug">
                       {art.titulo}
                     </h3>
-                    <p className="text-zinc-400 text-sm line-clamp-3 mb-6 flex-1">
+                    <p className="text-zinc-400 text-sm leading-relaxed mb-8 flex-1">
                       {art.resumen}
                     </p>
                     <Link 
                       href={`/blog/${art.slug}`} 
-                      className="inline-flex items-center gap-2 text-lime text-sm font-semibold hover:gap-3 transition-all"
+                      className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-zinc-800 text-lime text-sm font-bold hover:bg-lime hover:text-emerald-950 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-lime/10"
                     >
-                      Leer más <ArrowRight size={16} />
+                      Leer artículo completo <ArrowRight size={16} />
                     </Link>
                   </div>
                 </article>
