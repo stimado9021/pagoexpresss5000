@@ -113,7 +113,7 @@ export async function GET() {
   let mrrUsd = 0
   const mrrPorPlan = new Map<string, { plan: string; n: number; mensualUsd: number }>()
     const empresas = tenants.map((t) => {
-      const sub = (t.suscripciones && t.suscripciones.length > 0) ? t.suscripciones[0] : null
+      const sub = t.suscripciones ?? null
       const pagosT = porTenant.get(t.id) ?? []
 
     const totalPagadoCop = pagosT.reduce((s, p) => s + p.montoCop, 0)
