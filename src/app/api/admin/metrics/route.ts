@@ -112,9 +112,10 @@ export async function GET() {
   // MRR real: suscripciones ACTIVE con plan (precio mensual USD).
   let mrrUsd = 0
   const mrrPorPlan = new Map<string, { plan: string; n: number; mensualUsd: number }>()
-  const empresas = tenants.map((t) => {
-    const sub = t.suscripciones[0] ?? null
-    const pagosT = porTenant.get(t.id) ?? []
+    const empresas = tenants.map((t) => {
+      const sub = (t.suscripciones && t.suscripciones.length > 0) ? t.suscripciones[0] : null
+      const pagosT = porTenant.get(t.id) ?? []
+
     const totalPagadoCop = pagosT.reduce((s, p) => s + p.montoCop, 0)
     const ultimo = pagosT[0] ?? null
     if (sub?.estado === 'ACTIVE' && t.status === 'ACTIVE' && t.plan?.precioMensual != null) {
