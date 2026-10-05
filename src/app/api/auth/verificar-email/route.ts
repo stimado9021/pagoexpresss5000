@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
     await prisma.usuario.update({
       where: { id: user.id },
-      data: { emailVerified: true },
+      data: { activo: 1 },
     })
 
     await logSecurityEvent('AUTH_SUCCESS', { action: 'email_verified', userId: user.id })
