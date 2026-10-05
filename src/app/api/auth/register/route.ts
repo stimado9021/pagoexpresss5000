@@ -112,7 +112,6 @@ export async function POST(request: Request) {
         nombre: adminNombre,
         apellido: adminApellido || '',
         email: correo,
-        emailVerified: false,
         telefono: telefono || null,
         rol: 'empresario',
         activo: 1,
