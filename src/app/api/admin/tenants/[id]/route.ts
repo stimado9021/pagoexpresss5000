@@ -74,14 +74,17 @@ export async function GET(
             cuotaDiariaMin: Number(tenant.configuracion.cuotaDiariaMin),
           }
         : null,
-      suscripciones: tenant.suscripciones.map((s) => ({
-        id: s.id,
-        estado: s.estado,
-        intervalo: s.intervalo,
-        cicloActual: s.cicloActual,
-        renovacionProxima: s.renovacionProxima,
-        pagadoHasta: s.pagadoHasta,
-      })),
+      suscripciones: tenant.suscripciones
+        ? {
+            id: tenant.suscripciones.id,
+            estado: tenant.suscripciones.estado,
+            intervalo: tenant.suscripciones.intervalo,
+            cicloActual: tenant.suscripciones.cicloActual,
+            renovacionProxima: tenant.suscripciones.renovacionProxima,
+            pagadoHasta: tenant.suscripciones.pagadoHasta,
+          }
+        : null,
+
       trialStartsAt: tenant.trialStartsAt,
       trialEndsAt: tenant.trialEndsAt,
       planStartsAt: tenant.planStartsAt,
