@@ -19,10 +19,10 @@ export default function BlogDetailPage({ params: paramsPromise }: { params: Prom
 
   useEffect(() => {
     async function init() {
-      const resolvedParams = await paramsPromise
-      setParams(resolvedParams)
-      
       try {
+        const resolvedParams = await paramsPromise
+        setParams(resolvedParams)
+        
         const res = await fetch(`/api/blog/${resolvedParams.slug}`)
         const data = await res.json()
         if (data.success) setArticulo(data.data)
@@ -35,17 +35,21 @@ export default function BlogDetailPage({ params: paramsPromise }: { params: Prom
     init()
   }, [paramsPromise])
 
-  if (loading) return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-800 border-t-lime" />
-    </div>
-  )
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-800 border-t-lime" />
+      </div>
+    )
+  }
 
-  if (!articulo) return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">
-      <p>Artículo no encontrado</p>
-    </div>
-  )
+  if (!articulo) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">
+        <p>Artículo no encontrado</p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-body">
