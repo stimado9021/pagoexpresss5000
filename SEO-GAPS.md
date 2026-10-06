@@ -15,103 +15,81 @@
 
 ---
 
-## Gaps pendientes (aplicar cuando el dominio esté instalado)
+## Correcciones aplicadas (2026-10-06)
 
-### 1. 🔴 Sin analytics (GA4 / GTM)
+### ✅ 1. Unificación canónica www ↔ apex (era el bloqueador #1 de indexación)
 
-**Qué es:** No hay herramienta que mida tráfico,Conversiones, comportamiento del usuario.
+**Problema:** sitemap y canonical apuntaban a `www`, JSON-LD a apex, y ambas
+versiones servían el mismo contenido con 200 (contenido duplicado).
 
-**Qué hacer:** Implementar Google Analytics 4 (GA4) o Google Tag Manager (GTM) en `src/app/layout.tsx`.
+**Solución:**
+- `src/proxy.ts`: redirect **308 permanente** de la versión no canónica a la
+  canónica (ambas direcciones soportadas; la canónica la define `SITE_URL`).
+  Se excluye `/api/*` para no romper webhooks de Stripe/Wompi.
+- `src/app/layout.tsx`: JSON-LD ahora usa `SITE_URL` en vez de URLs
+  hardcodeadas + sanitización `.replace(/</g, '\\u003c')` según docs Next.js.
+- `.env.example`: `NEXT_PUBLIC_SITE_URL="https://www.kreditools.shop"` (canónico).
 
-**Impacto:** Sin esto estás "a ciegas" — no sabes si tu página tiene tráfico ni si la gente convierte en cliente.
+### ✅ 2. Blog 100% CSR → Server Components con SSR
 
----
+**Problema:** `/blog` y `/blog/[slug]` eran `'use client'` con `fetch` en
+`useEffect` (HTML inicial = spinner vacío) y leían de la DB mientras el
+sitemap anunciaba slugs estáticos.
 
-### 2. 🔴 Riesgo de URL (fallback mismatch)
+**Solución:**
+- `src/app/blog/page.tsx`: Server Component que renderiza `POSTS` de
+  `src/lib/blog.ts` en el HTML + `metadata` con canonical.
+- `src/app/blog/[slug]/page.tsx`: Server Component con `generateStaticParams`,
+  `generateMetadata` por artículo (canonical + OpenGraph `article`) y JSON-LD
+  `Article`. CTA roto `/register` corregido a `/#registro`.
+- Las rutas `/api/blog*` se conservan intactas (por si el admin las usa).
 
-**Qué es:** Verificar que el `.env` tenga `NEXT_PUBLIC_SITE_URL=https://kreditools.shop` y que los fallbacks en el código coincidan.
+### ✅ 3. `og-image.jpg` creada
 
-**Qué hacer:** Cambiar todos los fallbacks en el código para que usen la variable de entorno correctamente, o actualizar el fallback al dominio correcto.
+**Problema:** referenciada en OpenGraph/Twitter pero devolvía 404.
 
-**Archivos afectados:**
-- `src/app/layout.tsx` línea 21 (`metadataBase`)
-- `src/app/robots.ts` línea 17
-- `src/app/sitemap.ts`
+**Solución:** `public/og-image.jpg` generada (1200x630, ~75KB < 1MB) con logo,
+tagline y acento lime de marca.
 
-**Impacto:** Si la variable no carga, canonical URLs, sitemap y metadata apuntan al dominio equivocado → contenido duplicado en Google.
+### ✅ 4. Structured data en `/terminos` y `/politica-de-datos`
 
----
+Agregado JSON-LD `WebPage` con `dateModified`, `inLanguage: es-CO` y publisher.
 
-### 3. 🟡 Sitemap incompleto
+### ✅ 5. GA4 listo para activar
 
-**Qué es:** El sitemap solo incluye la raíz `/`. Falta `/politica-de-datos`.
-
-**Qué hacer:** Agregar todas las páginas públicas al sitemap en `src/app/sitemap.ts`.
-
-**Impacto:** Google no descubre ni indexa las páginas faltantes.
-
----
-
-### 4. 🟡 OG image no verificada
-
-**Qué es:** Se referencia `/og-image.jpg` en OpenGraph y Twitter Card, pero no se verificó que exista en `public/`.
-
-**Qué hacer:**
-1. Verificar que `public/og-image.jpg` exista
-2. Si no existe, crearla (1200x630px, formato JPG/PNG, < 1MB)
-3. Asegurar que sea representativa del producto
-
-**Impacto:** Cuando alguien comparte tu link en WhatsApp/LinkedIn/Facebook, aparece un cuadro vacío o feo.
+**Solución:** `src/components/GoogleAnalytics.tsx` (inyecta gtag solo si existe
+`NEXT_PUBLIC_GA_ID`) + variable documentada en `.env.example`. Falta que el
+usuario cree la propiedad en analytics.google.com y configure el ID en Vercel.
 
 ---
 
-### 5. 🟢 `sameAs` vacío en Organization JSON-LD
+## Gaps pendientes
 
-**Qué es:** El schema Organization tiene un array `sameAs: []` vacío.
+### 1. 🟢 `sameAs` vacío en Organization JSON-LD
 
-**Qué hacer:** Agregar URLs de redes sociales en `src/app/layout.tsx` línea ~105.
+**Qué hacer:** cuando existan, agregar URLs reales de redes sociales en
+`src/app/layout.tsx` (objeto `jsonLd`). No inventar URLs que no existan.
 
-**Ejemplo:**
-```json
-"sameAs": [
-  "https://www.instagram.com/kreditools",
-  "https://www.facebook.com/kreditools",
-  "https://linkedin.com/company/kreditools"
-]
-```
+### 2. 🔴 Acción manual en Google Search Console (fuera del código)
 
-**Impacto:** Google no vincula tu empresa con sus redes sociales en el Knowledge Panel.
-
----
-
-### 6. 🟢 Sin `generateMetadata` (metadata dinámica)
-
-**Qué es:** Toda la metadata es estática. No se personaliza por página.
-
-**Qué hacer:** Implementar `generateMetadata()` en páginas que lo requieran (ej: página de préstamo específico con nombre del cliente).
-
-**Impacto:** Mejora SEO pero no es crítico para el lanzamiento.
-
----
-
-### 7. 🟢 Sin structured data en `/politica-de-datos`
-
-**Qué es:** La página de política de datos no tiene JSON-LD.
-
-**Qué hacer:** Agregar schema `WebPage` o `Article` con fecha de última actualización.
-
-**Impacto:** Marginal — Google clasifica mejor el contenido con contexto semántico.
+1. Verificar propiedad `www.kreditools.shop` (ya existe archivo de verificación
+   `public/google794ff476c1c96373.html`).
+2. Enviar sitemap: `https://www.kreditools.shop/sitemap.xml`.
+3. Inspeccionar URL `/` → **Solicitar indexación**.
+4. Repetir "Solicitar indexación" para `/blog` y 1-2 posts.
+5. Revisar informe Páginas a los 3-7 días.
 
 ---
 
 ## Plan de acción
 
-| # | Tarea | Prioridad | Cuándo |
+| # | Tarea | Prioridad | Estado |
 |---|-------|-----------|--------|
-| 1 | Instalar GA4 o GTM | 🔴 Alta | Con dominio |
-| 2 | Corregir fallbacks de URL | 🔴 Alta | Con dominio |
-| 3 | Completar sitemap | 🟡 Media | Con dominio |
-| 4 | Crear/verificar og-image.jpg | 🟡 Media | Con dominio |
-| 5 | Agregar redes sociales a sameAs | 🟢 Baja | Con dominio |
-| 6 | Implementar generateMetadata donde aplique | 🟢 Baja | Post-lanzamiento |
-| 7 | Agregar structured data a /politica-de-datos | 🟢 Baja | Post-lanzamiento |
+| 1 | Redirect canónico apex↔www (308) | 🔴 Alta | ✅ Hecho |
+| 2 | JSON-LD con SITE_URL | 🔴 Alta | ✅ Hecho |
+| 3 | Blog SSR + metadata + Article schema | 🔴 Alta | ✅ Hecho |
+| 4 | Crear og-image.jpg | 🟡 Media | ✅ Hecho |
+| 5 | Structured data en terminos/politica | 🟢 Baja | ✅ Hecho |
+| 6 | Componente GA4 condicional | 🟡 Media | ✅ Hecho (falta ID real) |
+| 7 | Agregar redes sociales a sameAs | 🟢 Baja | ⏳ Cuando existan |
+| 8 | Enviar sitemap + solicitar indexación en GSC | 🔴 Alta | ⏳ Manual (usuario) |

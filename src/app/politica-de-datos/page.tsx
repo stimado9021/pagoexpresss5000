@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_URL } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Política de Tratamiento de Datos Personales',
@@ -153,8 +154,27 @@ const secciones: Array<{ titulo: string; contenido: string[] }> = [
 ];
 
 export default function PoliticaDeDatosPage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Política de Tratamiento de Datos Personales — Kreditools',
+    url: `${SITE_URL}/politica-de-datos`,
+    inLanguage: 'es-CO',
+    dateModified: '2026-08-01',
+    publisher: {
+      '@type': 'Organization',
+      name: 'Kreditools',
+      url: `${SITE_URL}/`,
+    },
+  };
   return (
     <main className="min-h-screen bg-emerald-950 text-bone">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
+        }}
+      />
       <div className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
         <p className="font-mono text-xs uppercase tracking-widest text-lime">Kreditools</p>
         <h1 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-4xl">

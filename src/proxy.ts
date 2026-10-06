@@ -6,8 +6,10 @@ import {
   getRootDomain,
   getSessionCookieDomain,
   getTenantSlugFromHost,
+  hostnameFromHostHeader,
   isReservedSubdomain,
 } from './lib/domains'
+import { SITE_URL } from './lib/site'
 
 const secretKey = process.env.SESSION_SECRET || (process.env.NODE_ENV === 'production' ? '' : 'fallback-secret-key')
 if (!secretKey) {
@@ -60,6 +62,36 @@ async function withRefreshedSession(res: NextResponse, session: SessionClaims) {
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
+
+  // 0. Unificación canónica www <-> apex (SEO): una sola versión del
+  //    dominio debe servir las páginas, la otra redirige con 308
+  //    permanente. La versión canónica la define SITE_URL
+  //    (ej. https://www.kreditools.shop => apex redirige a www).
+  //    Se excluye /api/* para no romper webhooks (Stripe/Wompi) ni
+  //    llamadas server-to-server que apunten al apex.
+  const canonicalHost = (() => {
+    try {
+      return new URL(SITE_URL).hostname.toLowerCase()
+    } catch {
+      return ''
+    }
+  })()
+  if (canonicalHost && !pathname.startsWith('/api/')) {
+    const hostname = hostnameFromHostHeader(
+      request.headers.get('x-forwarded-host') ?? request.headers.get('host'),
+    )
+    const canonicalIsWww = canonicalHost.startsWith('www.')
+    const apex = canonicalIsWww ? canonicalHost.slice(4) : canonicalHost
+    const needsRedirect = canonicalIsWww
+      ? hostname === apex
+      : hostname === `www.${apex}`
+    if (needsRedirect) {
+      return NextResponse.redirect(
+        new URL(`${pathname}${search}`, `https://${canonicalHost}`),
+        308,
+      )
+    }
+  }
 
   // 1. Tenant por subdominio (solo string, sin DB: el proxy solo hace
   //    checks optimistas; la validación segura vive en el DAL/APIs).

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Sora, Inter, JetBrains_Mono } from "next/font/google";
 import { SITE_URL } from "@/lib/site";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 const sora = Sora({
@@ -85,53 +86,57 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // URLs del JSON-LD derivadas de SITE_URL para que canonical,
+  // sitemap y structured data siempre apunten al mismo dominio.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: "Kreditools",
+        url: `${SITE_URL}/`,
+        logo: `${SITE_URL}/kreditools.jpg`,
+        sameAs: [],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: `${SITE_URL}/`,
+        name: "Kreditools",
+        publisher: { "@id": `${SITE_URL}/#organization` },
+        inLanguage: "es-CO",
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${SITE_URL}/#software`,
+        name: "Kreditools",
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        description: "Software para prestamistas y empresas de crédito: gestión de cobros, agentes, intereses, cartera y reportes.",
+        offers: {
+          "@type": "AggregateOffer",
+          priceCurrency: "COP",
+          lowPrice: "39000",
+          highPrice: "249000",
+        },
+        url: `${SITE_URL}/`,
+        publisher: { "@id": `${SITE_URL}/#organization` },
+        inLanguage: "es-CO",
+      },
+    ],
+  };
   return (
     <html
       lang="es"
       className={`${sora.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
         <body className="min-h-full flex flex-col bg-emerald-950 text-zinc-100 font-body">
+        <GoogleAnalytics />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@graph": [
-                {
-                  "@type": "Organization",
-                  "@id": "https://kreditools.shop/#organization",
-                  name: "Kreditools",
-                  url: "https://kreditools.shop/",
-                   logo: "https://kreditools.shop/kreditools.jpg",
-                  sameAs: [],
-                },
-                {
-                  "@type": "WebSite",
-                  "@id": "https://kreditools.shop/#website",
-                  url: "https://kreditools.shop/",
-                  name: "Kreditools",
-                  publisher: { "@id": "https://kreditools.shop/#organization" },
-                  inLanguage: "es-CO",
-                },
-                {
-                  "@type": "SoftwareApplication",
-                  "@id": "https://kreditools.shop/#software",
-                  name: "Kreditools",
-                  applicationCategory: "BusinessApplication",
-                  operatingSystem: "Web",
-                  description: "Software para prestamistas y empresas de crédito: gestión de cobros, agentes, intereses, cartera y reportes.",
-                  offers: {
-                    "@type": "AggregateOffer",
-                    priceCurrency: "COP",
-                    lowPrice: "39000",
-                    highPrice: "249000",
-                  },
-                  url: "https://kreditools.shop/",
-                  publisher: { "@id": "https://kreditools.shop/#organization" },
-                  inLanguage: "es-CO",
-                },
-              ],
-            }),
+            __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
           }}
         />
         <script dangerouslySetInnerHTML={{ __html: "if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(s){s.unregister()})})}" }} />
