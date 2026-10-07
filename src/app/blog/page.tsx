@@ -54,9 +54,12 @@ export default function BlogPage() {
               className="group flex flex-col rounded-3xl border border-zinc-800 bg-zinc-900/40 overflow-hidden hover:border-lime/50 transition-all duration-500 hover:shadow-2xl hover:shadow-lime/10 hover:-translate-y-2"
             >
               <div className="aspect-video w-full bg-zinc-800 relative overflow-hidden">
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900 text-zinc-700 font-display font-bold text-4xl uppercase italic">
-                  Kreditools
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={post.image}
+                  alt={post.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
                 <div className="absolute top-4 right-4">
                   <span className="px-3 py-1 rounded-full bg-zinc-950/80 backdrop-blur-md text-lime text-[10px] font-bold uppercase tracking-tighter border border-lime/30">
                     {post.category}

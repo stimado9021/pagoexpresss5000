@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.description,
       publishedTime: post.date,
       authors: ['Kreditools'],
+      images: [post.image],
     },
     twitter: {
       card: 'summary_large_image',
@@ -70,6 +71,7 @@ export default async function BlogDetailPage({ params }: Props) {
       logo: { '@type': 'ImageObject', url: `${SITE_URL}/kreditools.jpg` },
     },
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    image: post.image,
   };
 
   return (
@@ -119,6 +121,13 @@ export default async function BlogDetailPage({ params }: Props) {
             </span>
           </div>
         </header>
+
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={post.image}
+          alt={post.title}
+          className="w-full aspect-video object-cover rounded-3xl mb-12"
+        />
 
         {post.content.map((section, i) => (
           <section key={i} className="mb-10">

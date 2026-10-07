@@ -5,6 +5,7 @@
   date: string
   readMinutes: number
   category: string
+  image: string
   content: Array<{
     heading?: string
     paragraphs: string[]
@@ -22,6 +23,7 @@ export const POSTS: Post[] = [
     date: '2026-10-05',
     readMinutes: 7,
     category: 'Cálculo',
+    image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200',
     content: [
       {
         paragraphs: [
@@ -98,6 +100,7 @@ export const POSTS: Post[] = [
     date: '2026-10-07',
     readMinutes: 6,
     category: 'Cobranza',
+    image: 'https://images.unsplash.com/photo-1460925895917-afbe65ae836L?auto=format&fit=crop&q=80&w=1200',
     content: [
       {
         paragraphs: [
@@ -146,6 +149,7 @@ export const POSTS: Post[] = [
     date: '2026-10-09',
     readMinutes: 8,
     category: 'Comparativa',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200',
     content: [
       {
         paragraphs: [
