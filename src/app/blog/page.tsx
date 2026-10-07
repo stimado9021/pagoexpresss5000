@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, Calendar, Clock } from 'lucide-react';
-import { POSTS } from '@/lib/blog';
+import { getPosts, estimateReadMinutes, formatDate } from '@/lib/blog';
 
 export const metadata: Metadata = {
   title: 'Blog: gestión de préstamos, cobranza y cartera',
@@ -10,15 +10,10 @@ export const metadata: Metadata = {
   alternates: { canonical: '/blog' },
 };
 
-function formatDate(iso: string): string {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString('es-CO', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
+export const dynamic = 'force-dynamic';
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const posts = await getPosts();
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-body">
       {/* Hero Section */}
@@ -48,38 +43,39 @@ export default function BlogPage() {
       {/* Blog Grid */}
       <div className="max-w-7xl mx-auto px-6 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {POSTS.map((post) => (
+          {posts.map((post) => (
             <article
               key={post.slug}
               className="group flex flex-col rounded-3xl border border-zinc-800 bg-zinc-900/40 overflow-hidden hover:border-lime/50 transition-all duration-500 hover:shadow-2xl hover:shadow-lime/10 hover:-translate-y-2"
             >
               <div className="aspect-video w-full bg-zinc-800 relative overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute top-4 right-4">
-                  <span className="px-3 py-1 rounded-full bg-zinc-950/80 backdrop-blur-md text-lime text-[10px] font-bold uppercase tracking-tighter border border-lime/30">
-                    {post.category}
-                  </span>
-                </div>
+                {post.imagenUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={post.imagenUrl}
+                    alt={post.titulo}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900 text-zinc-700 font-display font-bold text-4xl uppercase italic">
+                    Kreditools
+                  </div>
+                )}
               </div>
               <div className="p-8 flex flex-col flex-1">
                 <div className="flex items-center gap-4 text-xs text-zinc-500 mb-4">
                   <span className="inline-flex items-center gap-1.5">
-                    <Calendar size={14} /> {formatDate(post.date)}
+                    <Calendar size={14} /> {formatDate(post.createdAt)}
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <Clock size={14} /> {post.readMinutes} min
+                    <Clock size={14} /> {estimateReadMinutes(post.contenido)} min
                   </span>
                 </div>
                 <h2 className="text-2xl font-display font-bold text-white mb-4 group-hover:text-lime transition-colors leading-snug">
-                  {post.title}
+                  {post.titulo}
                 </h2>
                 <p className="text-zinc-400 text-sm leading-relaxed mb-8 flex-1">
-                  {post.description}
+                  {post.resumen}
                 </p>
                 <Link
                   href={`/blog/${post.slug}`}

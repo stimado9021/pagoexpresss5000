@@ -46,7 +46,7 @@ Kreditools resuelve esto integrando una gestión de usuarios por roles. Cada ven
 A diferencia de los sistemas genéricos, Kreditools permite al administrador ver exactamente cuánto dinero debe ingresar cada día y quién es el responsable de cada cobro. Esto reduce drásticamente la posibilidad de errores humanos o fraudes internos.
 
 La eficiencia en el campo se traduce en mayor flujo de caja. Con Kreditools, el control es total y la visibilidad es inmediata.`,
-    imagenUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45c?auto=format&fit=crop&q=80&w=800',
+    imagenUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=800',
   },
   {
     titulo: 'La importancia del cálculo exacto de intereses en microcréditos',
@@ -59,7 +59,7 @@ Kreditools implementa un motor de cálculo preciso donde defines la tasa de inte
 Mientras que otros sistemas obligan al usuario a hacer cálculos externos y luego ingresarlos, Kreditools lo hace todo internamente. Desde el monto solicitado hasta el saldo pendiente, cada centavo está contabilizado.
 
 La transparencia es la base de la fidelidad del cliente. Al usar Kreditools, proyectas una imagen de profesionalismo que te permite cobrar tasas justas y mantener una cartera saludable.`,
-    imagenUrl: 'https://images.unsplash.com/photo-1554224154-2C36a25320c5?auto=format&fit=crop&q=80&w=800',
+    imagenUrl: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?auto=format&fit=crop&q=80&w=800',
   },
   {
     titulo: 'Cómo reducir la mora en préstamos rápidos',
@@ -72,7 +72,7 @@ La clave para reducir la mora es la visibilidad. Kreditools te muestra en tiempo
 La ventaja de Kreditools es su capacidad de segmentación. Puedes identificar rápidamente a los clientes "problemáticos" y ajustar las estrategias de cobro para cada caso. Además, al tener la información digitalizada, puedes enviar recordatorios precisos y profesionales.
 
 Un sistema organizado es un sistema que cobra. Al automatizar el seguimiento, liberas tiempo para buscar nuevos clientes mientras el software vigila tu dinero.`,
-    imagenUrl: 'https://images.unsplash.com/photo-1460925895917-afbe65ae836L?auto=format&fit=crop&q=80&w=800',
+    imagenUrl: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&q=80&w=800',
   },
   {
     titulo: 'SaaS vs Software Local: ¿Cuál es mejor para tu empresa de crédito?',
@@ -98,7 +98,7 @@ Para tener éxito, necesitas tres cosas: capital, clientes confiables y un siste
 La diferencia entre un prestamista amateur y un profesional es la tecnología que utiliza. Mientras el amateur lucha con papeles, el profesional usa Kreditools para optimizar sus procesos y escalar su operación.
 
 Empieza pequeño, pero piensa en grande. Utiliza herramientas profesionales desde el inicio para que tu crecimiento sea sostenible y libre de errores.`,
-    imagenUrl: 'https://images.unsplash.com/photo-1579621970563-ebcee9c51//auto=format&fit=crop&q=80&w=800',
+    imagenUrl: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=800',
   },
   {
     titulo: 'Transparencia total: La cuenta del cliente en Kreditools',
@@ -115,7 +115,7 @@ En su cuenta, el cliente puede ver:
 4. La fecha de su próximo pago.
 
 Esta transparencia no solo reduce las llamadas de soporte, sino que aumenta la confianza del cliente en tu negocio, haciéndote ver como una entidad financiera profesional y no como un prestamista informal. Cuando el cliente ve sus datos claros, se siente más comprometido a pagar a tiempo.`,
-    imagenUrl: 'https://images.unsplash.com/photo-1460925895917-afbe65ae836L?auto=format&fit=crop&q=80&w=800',
+    imagenUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
   },
   {
     titulo: 'Autogestión: El futuro de la cobranza digital',
@@ -128,7 +128,7 @@ Kreditools introduce la autogestión. Al proporcionar una cuenta al cliente, el 
 Este enfoque reduce la carga operativa del administrador. Ya no tienes que generar estados de cuenta manuales ni enviar capturas de pantalla por WhatsApp. Todo está automatizado en el portal del cliente.
 
 La autogestión fomenta la responsabilidad. El cliente, al ver su progreso en la barra de pagos, siente la satisfacción de ver cómo su deuda disminuye, lo que psicológicamente lo motiva a liquidar el préstamo más rápido.`,
-    imagenUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45c?auto=format&fit=crop&q=80&w=800',
+    imagenUrl: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&q=80&w=800',
   },
   {
     titulo: 'Cómo evitar la mora mediante la visibilidad del cliente',
@@ -141,7 +141,7 @@ Cuando el cliente tiene acceso a su cuenta en Kreditools, el préstamo deja de s
 Además, esta visibilidad actúa como un recordatorio constante. Ver el saldo pendiente en rojo o ver que faltan pocos pagos para terminar el crédito genera un sentido de urgencia y logro.
 
 Al integrar la cuenta del cliente, Kreditools transforma la relación prestamista-cliente. Ya no es una relación de persecución, sino una de servicio financiero profesional, donde la información fluye libremente y los pagos ocurren sin fricciones.`,
-    imagenUrl: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=800',
+    imagenUrl: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=800',
   },
 ]
 

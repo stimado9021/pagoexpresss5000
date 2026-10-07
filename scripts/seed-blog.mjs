@@ -28,7 +28,7 @@ Kreditools resuelve esto integrando una gestión de usuarios por roles. Cada ven
 A diferencia de los sistemas genéricos, Kreditools permite al administrador ver exactamente cuánto dinero debe ingresar cada día y quién es el responsable de cada cobro. Esto reduce drásticamente la posibilidad de errores humanos o fraudes internos.
 
 La eficiencia en el campo se traduce en mayor flujo de caja. Con Kreditools, el control es total y la visibilidad es inmediata.`,
-    imagenUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45c?auto=format&fit=crop&q=80&w=800',
+    imagenUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=800',
   },
   {
     titulo: 'La importancia del cálculo exacto de intereses en microcréditos',
@@ -41,7 +41,7 @@ Kreditools implementa un motor de cálculo preciso donde defines la tasa de inte
 Mientras que otros sistemas obligan al usuario a hacer cálculos externos y luego ingresarlos, Kreditools lo hace todo internamente. Desde el monto solicitado hasta el saldo pendiente, cada centavo está contabilizado.
 
 La transparencia es la base de la fidelidad del cliente. Al usar Kreditools, proyectas una imagen de profesionalismo que te permite cobrar tasas justas y mantener una cartera saludable.`,
-    imagenUrl: 'https://images.unsplash.com/photo-1554224154-2C36a25320c5?auto=format&fit=crop&q=80&w=800',
+    imagenUrl: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?auto=format&fit=crop&q=80&w=800',
   },
   {
     titulo: 'Cómo reducir la mora en préstamos rápidos',
@@ -54,7 +54,7 @@ La clave para reducir la mora es la visibilidad. Kreditools te muestra en tiempo
 La ventaja de Kreditools es su capacidad de segmentación. Puedes identificar rápidamente a los clientes "problemáticos" y ajustar las estrategias de cobro para cada caso. Además, al tener la información digitalizada, puedes enviar recordatorios precisos y profesionales.
 
 Un sistema organizado es un sistema que cobra. Al automatizar el seguimiento, liberas tiempo para buscar nuevos clientes mientras el software vigila tu dinero.`,
-    imagenUrl: 'https://images.unsplash.com/photo-1460925895917-afbe65ae8364?auto=format&fit=crop&q=80&w=800',
+    imagenUrl: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&q=80&w=800',
   },
   {
     titulo: 'SaaS vs Software Local: ¿Cuál es mejor para tu empresa de crédito?',
@@ -80,7 +80,7 @@ Para tener éxito, necesitas tres cosas: capital, clientes confiables y un siste
 La diferencia entre un prestamista amateur y un profesional es la tecnología que utiliza. Mientras el amateur lucha con papeles, el profesional usa Kreditools para optimizar sus procesos y escalar su operación.
 
 Empieza pequeño, pero piensa en grande. Utiliza herramientas profesionales desde el inicio para que tu crecimiento sea sostenible y libre de errores.`,
-    imagenUrl: 'https://images.unsplash.com/photo-1579621970563-ebcee9c51//auto=format&fit=crop&q=80&w=800',
+    imagenUrl: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=800',
   },
 ]
 

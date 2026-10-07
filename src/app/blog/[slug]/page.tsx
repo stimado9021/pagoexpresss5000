@@ -2,66 +2,61 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Calendar, Clock, Share2, User } from 'lucide-react';
-import { POSTS, getPost } from '@/lib/blog';
+import { getPosts, getPost, estimateReadMinutes, formatDate } from '@/lib/blog';
 import { SITE_URL } from '@/lib/site';
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams(): Array<{ slug: string }> {
-  return POSTS.map((post) => ({ slug: post.slug }));
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  const posts = await getPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await getPost(slug);
   if (!post) {
     return { title: 'Artículo no encontrado' };
   }
   const url = `/blog/${post.slug}`;
   return {
-    title: post.title,
-    description: post.description,
+    title: post.titulo,
+    description: post.resumen ?? undefined,
     alternates: { canonical: url },
     openGraph: {
       type: 'article',
       url,
       siteName: 'Kreditools',
-      title: post.title,
-      description: post.description,
-      publishedTime: post.date,
+      title: post.titulo,
+      description: post.resumen ?? undefined,
+      publishedTime: post.createdAt.toISOString(),
       authors: ['Kreditools'],
-      images: [post.image],
+      images: post.imagenUrl ? [post.imagenUrl] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
-      description: post.description,
+      title: post.titulo,
+      description: post.resumen ?? undefined,
     },
   };
 }
 
-function formatDate(iso: string): string {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString('es-CO', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
+export const dynamic = 'force-dynamic';
 
 export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await getPost(slug);
   if (!post) notFound();
 
   const url = `${SITE_URL}/blog/${post.slug}`;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: post.title,
-    description: post.description,
-    datePublished: post.date,
+    headline: post.titulo,
+    description: post.resumen,
+    datePublished: post.createdAt.toISOString(),
     inLanguage: 'es-CO',
     author: { '@type': 'Organization', name: 'Kreditools', url: `${SITE_URL}/` },
     publisher: {
@@ -71,8 +66,13 @@ export default async function BlogDetailPage({ params }: Props) {
       logo: { '@type': 'ImageObject', url: `${SITE_URL}/kreditools.jpg` },
     },
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
-    image: post.image,
+    image: post.imagenUrl ?? undefined,
   };
+
+  const paragraphs = post.contenido
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-body">
@@ -99,21 +99,18 @@ export default async function BlogDetailPage({ params }: Props) {
 
       <article className="max-w-3xl mx-auto px-6 py-16">
         <header className="mb-12">
-          <p className="inline-block px-3 py-1 rounded-full bg-lime/10 text-lime text-xs font-bold uppercase tracking-widest border border-lime/20 mb-6">
-            {post.category}
-          </p>
           <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-6 leading-tight">
-            {post.title}
+            {post.titulo}
           </h1>
-          <p className="text-zinc-400 text-lg leading-relaxed mb-6">{post.description}</p>
+          <p className="text-zinc-400 text-lg leading-relaxed mb-6">{post.resumen}</p>
           <div className="flex items-center gap-6 text-sm text-zinc-500">
             <span className="inline-flex items-center gap-2">
               <Calendar size={16} />
-              {formatDate(post.date)}
+              {formatDate(post.createdAt)}
             </span>
             <span className="inline-flex items-center gap-2">
               <Clock size={16} />
-              {post.readMinutes} min de lectura
+              {estimateReadMinutes(post.contenido)} min de lectura
             </span>
             <span className="inline-flex items-center gap-2">
               <User size={16} />
@@ -122,62 +119,19 @@ export default async function BlogDetailPage({ params }: Props) {
           </div>
         </header>
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={post.image}
-          alt={post.title}
-          className="w-full aspect-video object-cover rounded-3xl mb-12"
-        />
+        {post.imagenUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={post.imagenUrl}
+            alt={post.titulo}
+            className="w-full aspect-video object-cover rounded-3xl mb-12"
+          />
+        ) : null}
 
-        {post.content.map((section, i) => (
-          <section key={i} className="mb-10">
-            {section.heading ? (
-              <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-5 leading-snug">
-                {section.heading}
-              </h2>
-            ) : null}
-            {section.paragraphs.map((p, j) => (
-              <p key={j} className="text-zinc-300 text-lg leading-relaxed mb-6">
-                {p}
-              </p>
-            ))}
-            {section.list ? (
-              <ul className="space-y-3 mb-6">
-                {section.list.map((item, k) => (
-                  <li key={k} className="flex gap-3 text-zinc-300 text-lg leading-relaxed">
-                    <span className="mt-2.5 h-2 w-2 shrink-0 rounded-full bg-lime" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-            {section.table ? (
-              <div className="overflow-x-auto rounded-2xl border border-zinc-800 mb-6">
-                <table className="w-full text-left text-zinc-300">
-                  <thead>
-                    <tr className="bg-zinc-900">
-                      {section.table.head.map((h, k) => (
-                        <th key={k} className="px-5 py-3 text-sm font-bold uppercase tracking-wide text-lime">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {section.table.rows.map((row, k) => (
-                      <tr key={k} className="border-t border-zinc-800">
-                        {row.map((cell, c) => (
-                          <td key={c} className="px-5 py-3 text-sm leading-relaxed">
-                            {cell}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : null}
-          </section>
+        {paragraphs.map((p, i) => (
+          <p key={i} className="text-zinc-300 text-lg leading-relaxed mb-6 whitespace-pre-line">
+            {p}
+          </p>
         ))}
 
         {/* CTA Section */}
