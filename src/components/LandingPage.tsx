@@ -895,7 +895,7 @@ export default function LandingPage() {
               },
               {
                 q: '¿Cuánto cuesta y hay prueba gratis?',
-                a: 'Puedes probar Kreditools 15 días gratis sin tarjeta de crédito. Los planes comienzan desde $39.000/mes para prestamistas independientes y crecen según el tamaño de tu cartera. Cambia o cancela cuando quieras.',
+                a: 'Puedes probar Kreditools 15 días gratis sin tarjeta de crédito. Los planes comienzan desde $39 USD/mes (≈ $156.000 COP/mes) para prestamistas independientes y crecen según el tamaño de tu cartera. Cambia o cancela cuando quieras.',
               },
             ].map(({ q, a }) => (
               <details key={q} className="group rounded-2xl border border-bone/10 bg-graphite-900 overflow-hidden">
