@@ -201,8 +201,8 @@ export default function LandingPage() {
   useEffect(() => {
     fetch('/api/public/stats')
       .then((r) => r.json())
-      .then((d) => { if (d.success) { setStats(d.data); dataLoadedRef.current = true; } })
-      .catch(() => {});
+      .then((d) => { if (d.success) { setStats(d.data); } dataLoadedRef.current = true; })
+      .catch(() => { dataLoadedRef.current = true; });
   }, []);
 
   useEffect(() => {
